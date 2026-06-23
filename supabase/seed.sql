@@ -1,0 +1,22 @@
+-- Seed Temples
+INSERT INTO public.temples (id, name, location, deity, description, image_url) VALUES
+('11111111-1111-1111-1111-111111111111', 'Kashi Vishwanath', 'Varanasi, UP', 'Lord Shiva', 'One of the twelve Jyotirlingas, the holiest of Shiva temples.', 'https://images.unsplash.com/photo-1561359313-0639aad3a644?q=80&w=1000&auto=format&fit=crop'),
+('22222222-2222-2222-2222-222222222222', 'Maa Vaishno Devi', 'Katra, J&K', 'Maa Durga', 'A manifestation of the Hindu Mother Goddess Durga.', 'https://images.unsplash.com/photo-1590050752117-238cb0fb12b1?q=80&w=1000&auto=format&fit=crop'),
+('33333333-3333-3333-3333-333333333333', 'Tirupati Balaji', 'Tirumala, AP', 'Lord Venkateswara', 'The richest and most visited temple in the world.', 'https://images.unsplash.com/photo-1604580864964-0462f5d5b1a8?q=80&w=1000&auto=format&fit=crop'),
+('44444444-4444-4444-4444-444444444444', 'Siddhivinayak', 'Mumbai, MH', 'Lord Ganesha', 'A Hindu temple dedicated to Lord Shri Ganesh.', 'https://images.unsplash.com/photo-1567117632960-56e34a4c5458?q=80&w=1000&auto=format&fit=crop'),
+('55555555-5555-5555-5555-555555555555', 'Mahakaleshwar', 'Ujjain, MP', 'Lord Shiva', 'A Jyotirlinga, famous for the Bhasma Aarti.', 'https://images.unsplash.com/photo-1625834317364-b32c140fc360?q=80&w=1000&auto=format&fit=crop');
+
+-- Seed Pujas
+INSERT INTO public.pujas (temple_id, title, category, problem_statement, base_price, sale_price, benefits, whats_included, ritual_process, booking_deadline) VALUES
+('11111111-1111-1111-1111-111111111111', 'Sarva Rog Nivaran Puja', 'Health', 'Are you or your loved ones suffering from chronic illnesses or facing sudden health complications?', 1500, 3100, ARRAY['Speedy recovery from chronic illnesses', 'Protection from future health complications', 'Boost in immunity and vitality'], ARRAY['Personalized Sankalp with your Name & Gotra', 'Video of the puja performed by head priest', 'Prasad delivered to your home (Bhasm, Rudraksha)'], ARRAY['Sankalp is taken in your name', 'Ganesh Puja and Kalash Sthapana', '1008 Mahamrityunjaya Mantra Jaap', 'Havan and Purnahuti'], NOW() + INTERVAL '2 days'),
+('11111111-1111-1111-1111-111111111111', 'Mangal Dosh Shanti', 'Marriage', 'Facing delays in marriage or discord in married life due to Manglik Dosh?', 2100, 5100, ARRAY['Removes obstacles in marriage', 'Brings harmony in married life', 'Pacifies the negative effects of Mars'], ARRAY['Personalized Sankalp', 'Video Proof', 'Prasad'], ARRAY['Sankalp', 'Navgraha Shanti', 'Mangal Jaap', 'Havan'], NOW() + INTERVAL '5 days'),
+('33333333-3333-3333-3333-333333333333', 'Maha Lakshmi Puja', 'Wealth', 'Struggling with financial instability or heavy debts?', 1501, 3001, ARRAY['Attracts wealth and prosperity', 'Helps clear debts', 'Success in business ventures'], ARRAY['Personalized Sankalp', 'Video Proof', 'Prasad with silver coin'], ARRAY['Sankalp', 'Sri Suktam Path', 'Lakshmi Sahasranama Archana', 'Aarti'], NOW() + INTERVAL '1 day'),
+('44444444-4444-4444-4444-444444444444', 'Ganesh Chaturthi Special', 'Wealth', 'Want to start a new venture with the blessings of Vighnaharta?', 501, 1001, ARRAY['Removes all obstacles', 'Brings success in new beginnings', 'Improves focus and intellect'], ARRAY['Personalized Sankalp', 'Video Proof', 'Modak Prasad'], ARRAY['Sankalp', 'Ganapati Atharvashirsha Path', 'Modak Bhog', 'Aarti'], NOW() + INTERVAL '10 days');
+
+-- Seed Chadhava
+INSERT INTO public.chadhava_items (temple_id, title, description, price, image_url) VALUES
+('11111111-1111-1111-1111-111111111111', 'Deep Daan', 'Light a sacred lamp at the temple', 51, 'https://images.unsplash.com/photo-1598007412759-994df554ce81?q=80&w=1000&auto=format&fit=crop'),
+('11111111-1111-1111-1111-111111111111', 'Pushp Arpan', 'Offer fresh flowers to the deity', 101, 'https://images.unsplash.com/photo-1542458428-21d1b32d2077?q=80&w=1000&auto=format&fit=crop'),
+('11111111-1111-1111-1111-111111111111', 'Milk Abhishek', 'Sacred milk abhishek on Shivling', 151, 'https://images.unsplash.com/photo-1593361036080-60b642ec67fc?q=80&w=1000&auto=format&fit=crop'),
+('33333333-3333-3333-3333-333333333333', 'Vastra Daan', 'Offer sacred cloth to the deity', 151, 'https://images.unsplash.com/photo-1616422285623-13ff0162193c?q=80&w=1000&auto=format&fit=crop'),
+('44444444-4444-4444-4444-444444444444', 'Bhog Prasad', 'Offer Bhog and receive blessed Prasad', 201, 'https://images.unsplash.com/photo-1558961363-fa8fdf82db35?q=80&w=1000&auto=format&fit=crop');

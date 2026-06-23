@@ -1,0 +1,51 @@
+@import "tailwindcss";
+
+@theme {
+  /* Spiritual color palette — Saffron/Gold/Deep Purple */
+  --color-saffron-50: #fff7ed;
+  --color-saffron-100: #ffedd5;
+  --color-saffron-200: #fed7aa;
+  --color-saffron-300: #fdba74;
+  --color-saffron-400: #fb923c;
+  --color-saffron-500: #f97316;
+  --color-saffron-600: #ea580c;
+  --color-saffron-700: #c2410c;
+  --color-temple-gold: #d4a843;
+  --color-temple-gold-light: #f0d78c;
+  --color-sacred-red: #dc2626;
+  --color-auspicious-green: #16a34a;
+  --color-deep-purple: #581c87;
+  --color-deep-purple-light: #7c3aed;
+
+  /* Dark spiritual surfaces */
+  --color-mandir-bg: #0f0a1a;
+  --color-mandir-surface: #1a1128;
+  --color-mandir-card: #241a35;
+  --color-mandir-card-hover: #2e2244;
+  --color-mandir-border: #3d2a5c;
+  --color-mandir-text: #e8e0f0;
+  --color-mandir-text-muted: #9b8fb5;
+
+  /* Typography */
+  --font-heading: 'Outfit', sans-serif;
+  --font-body: 'Inter', sans-serif;
+  --font-devanagari: 'Tiro Devanagari Hindi', serif;
+
+  /* Spacing & radius */
+  --radius-card: 1rem;
+  --radius-button: 0.75rem;
+  --radius-full: 9999px;
+}
+
+/* Base Styles */
+@layer base {
+  body {
+    background-color: var(--color-mandir-bg);
+    color: var(--color-mandir-text);
+    font-family: var(--font-body);
+  }
+  
+  h1, h2, h3, h4, h5, h6 {
+    font-family: var(--font-heading);
+  }
+}
