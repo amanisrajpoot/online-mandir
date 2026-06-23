@@ -1,7 +1,8 @@
 "use client"
 
 import { useState, useEffect } from 'react'
-import { useRouter } from 'next/navigation'
+import { useRouter, useSearchParams } from 'next/navigation'
+import { Suspense } from 'react'
 import { motion } from 'framer-motion'
 import { createClient } from '@/lib/supabase/client'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/Card'
@@ -9,11 +10,12 @@ import { Input } from '@/components/ui/Input'
 import { Button } from '@/components/ui/Button'
 import { toast } from '@/components/ui/Toast'
 
-export default function ProfileSetupPage() {
+function ProfileSetupContent() {
   const [name, setName] = useState('')
   const [phone, setPhone] = useState('')
   const [isLoading, setIsLoading] = useState(false)
   const router = useRouter()
+  const searchParams = useSearchParams()
   const supabase = createClient()
 
   useEffect(() => {
@@ -54,7 +56,12 @@ export default function ProfileSetupPage() {
         description: 'Your profile has been set up successfully.',
       })
       
-      router.push('/')
+      const redirectUrl = searchParams.get('redirect')
+      if (redirectUrl) {
+        router.push(redirectUrl)
+      } else {
+        router.push('/')
+      }
     } catch (error: any) {
       toast({
         type: 'error',
@@ -119,5 +126,13 @@ export default function ProfileSetupPage() {
         </CardContent>
       </Card>
     </motion.div>
+  )
+}
+
+export default function ProfileSetupPage() {
+  return (
+    <Suspense fallback={<div className="flex items-center justify-center min-h-screen"><div className="w-8 h-8 border-4 border-[var(--color-saffron-500)] border-t-transparent rounded-full animate-spin"></div></div>}>
+      <ProfileSetupContent />
+    </Suspense>
   )
 }

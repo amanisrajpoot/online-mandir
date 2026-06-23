@@ -1,7 +1,8 @@
 "use client"
 
 import { useState } from 'react'
-import { useRouter } from 'next/navigation'
+import { useRouter, useSearchParams } from 'next/navigation'
+import { Suspense } from 'react'
 import { motion } from 'framer-motion'
 import { createClient } from '@/lib/supabase/client'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/Card'
@@ -9,10 +10,11 @@ import { Input } from '@/components/ui/Input'
 import { Button } from '@/components/ui/Button'
 import { toast } from '@/components/ui/Toast'
 
-export default function LoginPage() {
+function LoginContent() {
   const [email, setEmail] = useState('')
   const [isLoading, setIsLoading] = useState(false)
   const router = useRouter()
+  const searchParams = useSearchParams()
   const supabase = createClient()
 
   const handleSendOTP = async (e: React.FormEvent) => {
@@ -38,8 +40,15 @@ export default function LoginPage() {
         description: 'Please check your email for the verification code.',
       })
       
-      // Store email for verification page
+      // Store email and redirect intent for verification page
       sessionStorage.setItem('auth_email', email)
+      const redirectUrl = searchParams.get('redirect')
+      if (redirectUrl) {
+        sessionStorage.setItem('auth_redirect', redirectUrl)
+      } else {
+        sessionStorage.removeItem('auth_redirect')
+      }
+      
       router.push('/verify')
     } catch (error: any) {
       toast({
@@ -69,7 +78,7 @@ export default function LoginPage() {
       <Card>
         <CardHeader>
           <CardTitle>Welcome Back</CardTitle>
-          <CardDescription>Enter your email to receive an OTP and continue.</CardDescription>
+          <CardDescription>Enter your email to receive a secure sign-in link and OTP.</CardDescription>
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSendOTP} className="space-y-4">
@@ -101,5 +110,13 @@ export default function LoginPage() {
         By continuing, you agree to our Terms of Service and Privacy Policy.
       </p>
     </motion.div>
+  )
+}
+
+export default function LoginPage() {
+  return (
+    <Suspense fallback={<div className="flex items-center justify-center min-h-screen"><div className="w-8 h-8 border-4 border-[var(--color-saffron-500)] border-t-transparent rounded-full animate-spin"></div></div>}>
+      <LoginContent />
+    </Suspense>
   )
 }

@@ -55,11 +55,24 @@ export default function VerifyPage() {
         .single()
 
       sessionStorage.removeItem('auth_email')
+      const redirectUrl = sessionStorage.getItem('auth_redirect')
+      sessionStorage.removeItem('auth_redirect')
       
       if (!profile?.name) {
-        router.push('/profile-setup')
+        // If they have a redirect URL but need profile setup, we could pass it along
+        // but for now, profile setup is mandatory before booking.
+        // We'll pass it to profile-setup so it can redirect after completion.
+        if (redirectUrl) {
+          router.push(`/profile-setup?redirect=${encodeURIComponent(redirectUrl)}`)
+        } else {
+          router.push('/profile-setup')
+        }
       } else {
-        router.push('/')
+        if (redirectUrl) {
+          router.push(redirectUrl)
+        } else {
+          router.push('/')
+        }
       }
     } catch (error: any) {
       toast({
