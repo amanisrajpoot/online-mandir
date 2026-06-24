@@ -65,7 +65,7 @@ export default function AdminOrdersList() {
       if (searchQuery) {
         const lowerQ = searchQuery.toLowerCase()
         filteredData = filteredData.filter(o => 
-          o.razorpay_order_id.toLowerCase().includes(lowerQ) ||
+          (o.cashfree_order_id || o.razorpay_order_id || '').toLowerCase().includes(lowerQ) ||
           (o.users?.name || '').toLowerCase().includes(lowerQ) ||
           (o.users?.phone || '').includes(lowerQ)
         )
@@ -161,7 +161,7 @@ export default function AdminOrdersList() {
                   orders.map((order) => (
                     <tr key={order.id} className="hover:bg-[var(--color-mandir-card-hover)] transition-colors">
                       <td className="px-6 py-4">
-                        <div className="font-mono text-xs mb-1">{order.razorpay_order_id}</div>
+                        <div className="font-mono text-xs mb-1">{order.cashfree_order_id || order.razorpay_order_id || 'N/A'}</div>
                         <div className="text-xs text-[var(--color-mandir-text-muted)]">
                           {new Date(order.created_at).toLocaleDateString()}
                         </div>

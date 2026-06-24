@@ -181,7 +181,7 @@ export default function AdminDashboard() {
                 {recentOrders.map((order) => (
                   <tr key={order.id} className="hover:bg-[var(--color-mandir-card-hover)] transition-colors">
                     <td className="px-6 py-4 font-medium font-mono text-xs">
-                      {order.razorpay_order_id.substring(0, 10)}...
+                      {(order.cashfree_order_id || order.razorpay_order_id || '').substring(0, 10)}...
                     </td>
                     <td className="px-6 py-4">
                       <Badge variant={order.order_type === 'puja' ? 'secondary' : 'default'} className="text-[10px]">
