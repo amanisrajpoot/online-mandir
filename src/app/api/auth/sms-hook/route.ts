@@ -9,13 +9,15 @@ export async function POST(req: Request) {
     const payload = await req.json()
     const { user, sms } = payload
     
-    if (!user || !user.phone || !sms || !sms.otp) {
+    // Support both login and phone change events
+    const targetPhone = user?.new_phone || user?.phone
+
+    if (!targetPhone || !sms || !sms.otp) {
       return NextResponse.json({ error: 'Invalid payload' }, { status: 400 })
     }
 
     // Fast2SMS expects 10-digit mobile number, or country code without '+'
-    // Usually, Supabase phone numbers include the '+' prefix (e.g., +919876543210).
-    const phone = user.phone.replace('+', '') 
+    const phone = targetPhone.replace('+', '') 
     const otp = sms.otp
     
     // Call Fast2SMS API
