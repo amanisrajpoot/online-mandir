@@ -22,6 +22,7 @@ import { Button } from "@/components/ui/Button"
 import { Badge } from "@/components/ui/Badge"
 import { Accordion } from "@/components/ui/Accordion"
 import { Skeleton } from "@/components/ui/Skeleton"
+import { Drawer } from "@/components/ui/Drawer"
 import Link from "next/link"
 import { StatusTimeline } from "@/components/ui/StatusTimeline"
 import { encodeId, decodeId } from "@/lib/utils"
@@ -32,6 +33,8 @@ export default function PujaDetailPage() {
   
   const [puja, setPuja] = React.useState<any>(null)
   const [loading, setLoading] = React.useState(true)
+  const [isPackageModalOpen, setIsPackageModalOpen] = React.useState(false)
+  const [selectedPackageId, setSelectedPackageId] = React.useState<string | null>(null)
   const supabase = createClient()
 
   React.useEffect(() => {
@@ -117,6 +120,21 @@ export default function PujaDetailPage() {
       icon: <Package className="w-4 h-4" />,
     }
   ]
+
+  const handleBookNowClick = (e: React.MouseEvent) => {
+    if (puja.packages && puja.packages.length > 0) {
+      e.preventDefault()
+      if (!selectedPackageId) {
+        setSelectedPackageId(puja.packages[0].id || 0)
+      }
+      setIsPackageModalOpen(true)
+    }
+  }
+
+  const getPackageUrl = () => {
+    if (!selectedPackageId) return `/pujas/${encodeId(puja.id)}/book`
+    return `/pujas/${encodeId(puja.id)}/book?packageId=${selectedPackageId}`
+  }
 
   return (
     <div className="pb-24">
@@ -319,7 +337,11 @@ export default function PujaDetailPage() {
                   </div>
                 </div>
 
-                <Link href={`/pujas/${encodeId(puja.id)}/book`} className="block w-full">
+                <Link 
+                  href={puja.packages?.length ? "#" : `/pujas/${encodeId(puja.id)}/book`} 
+                  className="block w-full"
+                  onClick={handleBookNowClick}
+                >
                   <Button variant="gradient" className="w-full py-6 text-lg rounded-xl shadow-lg hover:shadow-[var(--color-saffron-500)]/30 transition-all">
                     Book Puja Now
                   </Button>
@@ -341,12 +363,80 @@ export default function PujaDetailPage() {
           <div className="text-sm text-[var(--color-mandir-text-muted)] line-through">₹{puja.base_price}</div>
           <div className="text-xl font-bold text-[var(--color-mandir-text)]">₹{puja.sale_price}</div>
         </div>
-        <Link href={`/pujas/${encodeId(puja.id)}/book`}>
+        <Link 
+          href={puja.packages?.length ? "#" : `/pujas/${encodeId(puja.id)}/book`}
+          onClick={handleBookNowClick}
+        >
           <Button variant="gradient" className="rounded-full px-8 shadow-lg">
             Book Now
           </Button>
         </Link>
       </div>
+
+      {/* Package Selection Drawer */}
+      <Drawer
+        isOpen={isPackageModalOpen}
+        onClose={() => setIsPackageModalOpen(false)}
+        title="Select Your Puja Package"
+        position="bottom"
+      >
+        <div className="space-y-4 pb-4">
+          {puja.packages?.map((pkg: any) => (
+            <div 
+              key={pkg.id} 
+              onClick={() => setSelectedPackageId(pkg.id)}
+              className={`p-4 rounded-xl border-2 cursor-pointer transition-all ${
+                selectedPackageId === pkg.id 
+                  ? 'border-[var(--color-saffron-500)] bg-[var(--color-saffron-500)]/10' 
+                  : 'border-[var(--color-mandir-border)] bg-[var(--color-mandir-surface)] hover:border-[var(--color-saffron-300)]'
+              }`}
+            >
+              <div className="flex justify-between items-start">
+                <div className="flex gap-4">
+                  <div className="w-20 h-20 rounded-lg overflow-hidden shrink-0 border border-black/5">
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img 
+                      src={puja.image_url || "/images/puja_ganesh.png"} 
+                      alt={pkg.name}
+                      className="w-full h-full object-cover"
+                    />
+                  </div>
+                  <div>
+                    <h4 className="font-bold text-[var(--color-mandir-text)] text-lg leading-tight">{pkg.name}</h4>
+                    <p className="text-sm text-[var(--color-saffron-600)] font-medium mt-1">{pkg.members_text}</p>
+                    <div className="mt-2 text-xl font-bold text-[var(--color-mandir-text)]">
+                      ₹{pkg.sale_price}
+                    </div>
+                  </div>
+                </div>
+                <div className={`w-6 h-6 rounded-full border-2 flex items-center justify-center shrink-0 mt-1 ${
+                  selectedPackageId === pkg.id 
+                    ? 'border-[var(--color-saffron-500)] bg-[var(--color-saffron-500)]' 
+                    : 'border-gray-300'
+                }`}>
+                  {selectedPackageId === pkg.id && <CheckCircle2 className="w-4 h-4 text-white" />}
+                </div>
+              </div>
+            </div>
+          ))}
+          
+          <div className="pt-4 sticky bottom-0 bg-[var(--color-mandir-surface)]">
+            <Link href={getPackageUrl()} className="block w-full">
+              <Button variant="gradient" className="w-full py-6 text-lg rounded-xl flex items-center justify-between px-6">
+                <div className="text-left flex flex-col">
+                  <span className="text-sm font-medium opacity-90">
+                    ₹{puja.packages?.find((p: any) => p.id === selectedPackageId)?.sale_price}
+                  </span>
+                  <span className="text-xs opacity-75">
+                    {puja.packages?.find((p: any) => p.id === selectedPackageId)?.name}
+                  </span>
+                </div>
+                <span className="flex items-center">Proceed <ChevronDown className="w-5 h-5 ml-2 -rotate-90" /></span>
+              </Button>
+            </Link>
+          </div>
+        </div>
+      </Drawer>
     </div>
   )
 }

@@ -21,10 +21,22 @@ export async function POST(request: Request) {
       customerEmail,
       sankalpDetails,
       deliveryAddress,
+      packageId,
     } = body;
 
     if (!type || !itemId || !amount || !customerPhone) {
       return NextResponse.json({ error: "Missing required fields" }, { status: 400 });
+    }
+
+    let packageDetails = null;
+
+    if (type === 'puja') {
+      const { data: puja } = await supabase.from('pujas').select('packages').eq('id', itemId).single();
+      if (puja && puja.packages && packageId) {
+        packageDetails = puja.packages.find((p: any) => p.id === packageId) || null;
+      } else if (puja && puja.packages && puja.packages.length > 0) {
+        packageDetails = puja.packages[0];
+      }
     }
 
     // 1. Create Order in Supabase
@@ -38,6 +50,7 @@ export async function POST(request: Request) {
         status: 'booked',
         amount: amount,
         final_amount: amount,
+        package_details: packageDetails,
       })
       .select()
       .single();
@@ -53,7 +66,8 @@ export async function POST(request: Request) {
         order_id: dbOrder.id,
         devotee_name: sankalpDetails.name,
         gotra: sankalpDetails.gotra,
-        wish: sankalpDetails.wish
+        wish: sankalpDetails.wish,
+        additional_members: sankalpDetails.additional_members || []
       });
     }
 

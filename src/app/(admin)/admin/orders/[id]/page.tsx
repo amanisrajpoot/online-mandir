@@ -184,9 +184,14 @@ export default function AdminOrderDetail() {
                   {order.order_type.toUpperCase()}
                 </Badge>
                 <h3 className="font-bold text-lg text-[var(--color-mandir-text)]">{serviceDetails?.title}</h3>
+                {order.package_details && (
+                  <div className="text-sm font-medium text-[var(--color-saffron-600)] mt-1">
+                    Package: {order.package_details.name}
+                  </div>
+                )}
                 <div className="text-2xl font-bold text-[var(--color-mandir-text)] mt-2">₹{order.amount}</div>
                 <div className="text-xs text-[var(--color-mandir-text-muted)] mt-1">
-                  Payment Ref: {order.razorpay_payment_id}
+                  Payment Ref: {order.razorpay_payment_id || order.cashfree_order_id}
                 </div>
               </div>
             </CardContent>
@@ -214,6 +219,12 @@ export default function AdminOrderDetail() {
                   <div className="col-span-2">
                     <div className="text-xs text-[var(--color-mandir-text-muted)]">Family Members</div>
                     <div className="font-medium">{sankalp.family_members.join(', ')}</div>
+                  </div>
+                )}
+                {sankalp.additional_members && sankalp.additional_members.length > 0 && (
+                  <div className="col-span-2">
+                    <div className="text-xs text-[var(--color-mandir-text-muted)]">Additional Members</div>
+                    <div className="font-medium">{sankalp.additional_members.join(', ')}</div>
                   </div>
                 )}
                 {sankalp.problem_description && (

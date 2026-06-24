@@ -11,6 +11,7 @@ import { Textarea } from "@/components/ui/Textarea"
 import { toast } from "@/components/ui/Toast"
 import { ImageUpload } from "@/components/ui/ImageUpload"
 import { DynamicListInput } from "@/components/admin/DynamicListInput"
+import { PujaPackagesInput, PujaPackage } from "@/components/admin/PujaPackagesInput"
 import Link from "next/link"
 
 export default function AdminPujaEdit() {
@@ -28,8 +29,7 @@ export default function AdminPujaEdit() {
     category: "",
     temple_id: "",
     problem_statement: "",
-    base_price: 0,
-    sale_price: 0,
+    packages: [] as PujaPackage[],
     benefits: [] as string[],
     whats_included: [] as string[],
     ritual_process: [] as string[],
@@ -52,8 +52,7 @@ export default function AdminPujaEdit() {
             category: pujaRes.data.category || "",
             temple_id: pujaRes.data.temple_id || "",
             problem_statement: pujaRes.data.problem_statement || "",
-            base_price: pujaRes.data.base_price || 0,
-            sale_price: pujaRes.data.sale_price || 0,
+            packages: pujaRes.data.packages || [],
             benefits: pujaRes.data.benefits || [],
             whats_included: pujaRes.data.whats_included || [],
             ritual_process: pujaRes.data.ritual_process || [],
@@ -73,14 +72,22 @@ export default function AdminPujaEdit() {
   }, [id, supabase, router])
 
   const handleSave = async () => {
-    if (!formData.title || !formData.temple_id || !formData.sale_price) {
-      toast({ type: "error", title: "Missing fields", description: "Please fill in all required fields." })
+    if (!formData.title || !formData.temple_id || formData.packages.length === 0) {
+      toast({ type: "error", title: "Missing fields", description: "Please fill in all required fields and add at least one package." })
       return
+    }
+
+    // Set legacy base_price and sale_price to the first package's prices for backward compatibility
+    const defaultPackage = formData.packages[0]
+    const dataToSave = {
+      ...formData,
+      base_price: defaultPackage?.base_price || 0,
+      sale_price: defaultPackage?.sale_price || 0
     }
 
     setIsSaving(true)
     try {
-      const { error } = await supabase.from('pujas').update(formData).eq('id', id)
+      const { error } = await supabase.from('pujas').update(dataToSave).eq('id', id)
       
       if (error) throw error
       
@@ -170,25 +177,12 @@ export default function AdminPujaEdit() {
                 />
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                  <label className="text-sm font-medium text-[var(--color-mandir-text)]">Base Price (₹) *</label>
-                  <Input 
-                    type="number"
-                    value={formData.base_price || ""}
-                    onChange={(e) => setFormData({...formData, base_price: parseInt(e.target.value) || 0})}
-                    className="mt-1"
-                  />
-                </div>
-                <div>
-                  <label className="text-sm font-medium text-[var(--color-mandir-text)]">Sale Price (₹) *</label>
-                  <Input 
-                    type="number"
-                    value={formData.sale_price || ""}
-                    onChange={(e) => setFormData({...formData, sale_price: parseInt(e.target.value) || 0})}
-                    className="mt-1"
-                  />
-                </div>
+              <div>
+                <label className="text-sm font-medium text-[var(--color-mandir-text)] mb-2 block">Packages *</label>
+                <PujaPackagesInput 
+                  packages={formData.packages}
+                  onChange={(pkgs) => setFormData({...formData, packages: pkgs})}
+                />
               </div>
             </CardContent>
           </Card>

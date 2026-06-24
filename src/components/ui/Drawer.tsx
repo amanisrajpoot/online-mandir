@@ -50,7 +50,7 @@ export function Drawer({
   };
 
   const positioningClasses = {
-    bottom: "inset-x-0 bottom-0 mt-24 rounded-t-2xl",
+    bottom: "inset-x-0 bottom-0 mt-24 rounded-t-2xl sm:max-w-lg sm:mx-auto sm:w-full",
     right: "inset-y-0 right-0 w-full sm:w-96 rounded-l-2xl"
   };
 

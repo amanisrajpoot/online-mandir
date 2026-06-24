@@ -1,7 +1,7 @@
 "use client"
 
 import * as React from "react"
-import { useParams, useRouter } from "next/navigation"
+import { useParams, useRouter, useSearchParams } from "next/navigation"
 import Link from "next/link"
 import { encodeId, decodeId } from "@/lib/utils"
 import { motion } from "framer-motion"
@@ -31,6 +31,9 @@ export default function PujaBookingPage() {
   const [loading, setLoading] = React.useState(true)
   const [currentStep, setCurrentStep] = React.useState(0)
   const [isSubmitting, setIsSubmitting] = React.useState(false)
+  const searchParams = useSearchParams()
+  const packageId = searchParams.get('packageId')
+  const [selectedPackage, setSelectedPackage] = React.useState<any>(null)
   const [paymentSessionId, setPaymentSessionId] = React.useState("")
   const supabase = createClient()
 
@@ -39,7 +42,7 @@ export default function PujaBookingPage() {
     fullName: "",
     gotra: "",
     problem: "",
-    familyMembers: ""
+    additionalMembers: [] as string[]
   })
 
   const [addressData, setAddressData] = React.useState({
@@ -49,6 +52,8 @@ export default function PujaBookingPage() {
     pincode: "",
     phone: ""
   })
+
+  const [optInPrasad, setOptInPrasad] = React.useState(false)
 
   React.useEffect(() => {
     const fetchPujaAndUser = async () => {
@@ -81,6 +86,25 @@ export default function PujaBookingPage() {
         
         if (error) throw error
         setPuja(data)
+        
+        // Select package
+        let pkg = null;
+        if (data.packages && packageId) {
+          pkg = data.packages.find((p: any) => p.id === packageId) || data.packages[0];
+        } else if (data.packages && data.packages.length > 0) {
+          pkg = data.packages[0]
+        }
+        setSelectedPackage(pkg)
+
+        // Initialize additional members array based on package
+        const maxTotal = pkg ? pkg.max_members : 1
+        const maxAdditional = maxTotal > 20 ? 10 : Math.max(0, maxTotal - 1)
+        if (maxAdditional > 0) {
+          setSankalpData(prev => ({ 
+            ...prev, 
+            additionalMembers: Array(maxAdditional > 20 ? 2 : 1).fill("") // Default start with 1 or 2
+          }))
+        }
       } catch (error) {
         console.error("Error fetching data:", error)
         toast({
@@ -106,7 +130,10 @@ export default function PujaBookingPage() {
         return
       }
     } else if (currentStep === 1) {
-      if (!addressData.street || !addressData.city || !addressData.state || !addressData.pincode || !addressData.phone) {
+      const isPrasadFree = (selectedPackage?.sale_price || puja.sale_price) >= 500
+      const includePrasad = isPrasadFree || optInPrasad
+      
+      if (includePrasad && (!addressData.street || !addressData.city || !addressData.state || !addressData.pincode || !addressData.phone)) {
         toast({ type: "error", title: "Required Fields", description: "Please fill all address fields for Prasad delivery." })
         return
       }
@@ -130,30 +157,37 @@ export default function PujaBookingPage() {
   const handlePayment = async () => {
     setIsSubmitting(true)
     try {
-      const response = await fetch('/api/payments/create-order', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          type: 'puja',
-          itemId: id,
-          amount: puja.sale_price,
-          customerName: sankalpData.fullName,
-          customerPhone: addressData.phone,
-          sankalpDetails: {
-            name: sankalpData.fullName,
-            gotra: sankalpData.gotra,
-            wish: sankalpData.problem,
-          },
-          deliveryAddress: {
-            name: sankalpData.fullName,
-            phone: addressData.phone,
-            address_line: addressData.street,
-            city: addressData.city,
-            state: addressData.state,
-            pincode: addressData.pincode
-          }
-        })
-      });
+        const prasadCost = ((selectedPackage?.sale_price || puja.sale_price) >= 500) ? 0 : (optInPrasad ? 99 : 0)
+        const finalPayableAmount = (selectedPackage?.sale_price || puja.sale_price) + prasadCost
+        const isPrasadFree = (selectedPackage?.sale_price || puja.sale_price) >= 500
+        const includePrasad = isPrasadFree || optInPrasad
+
+        const response = await fetch('/api/payments/create-order', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            type: 'puja',
+            itemId: id,
+            amount: finalPayableAmount,
+            customerName: sankalpData.fullName,
+            packageId: selectedPackage?.id,
+            customerPhone: addressData.phone,
+            sankalpDetails: {
+              name: sankalpData.fullName,
+              gotra: sankalpData.gotra,
+              wish: sankalpData.problem,
+              additional_members: sankalpData.additionalMembers.filter(n => n.trim() !== "")
+            },
+            deliveryAddress: includePrasad ? {
+              name: sankalpData.fullName,
+              phone: addressData.phone,
+              address_line: addressData.street,
+              city: addressData.city,
+              state: addressData.state,
+              pincode: addressData.pincode
+            } : null
+          })
+        });
 
       const data = await response.json();
       if (!response.ok) throw new Error(data.error || "Failed to create order");
@@ -179,6 +213,34 @@ export default function PujaBookingPage() {
     { id: "step-1", title: "Prasad Delivery" },
     { id: "step-2", title: "Review & Pay" }
   ]
+
+  const displayPrice = selectedPackage?.sale_price || puja.sale_price
+  const displayBasePrice = selectedPackage?.base_price || puja.base_price
+  const PRASAD_DELIVERY_COST = 99
+  const isPrasadFree = displayPrice >= 500
+  const includePrasad = isPrasadFree || optInPrasad
+  const prasadCost = isPrasadFree ? 0 : (optInPrasad ? PRASAD_DELIVERY_COST : 0)
+  const finalPayableAmount = displayPrice + prasadCost
+
+  const displayName = selectedPackage ? `${puja.title} - ${selectedPackage.name}` : puja.title
+  const maxTotalMembers = selectedPackage?.max_members || 1
+  const maxAdditionalMembers = maxTotalMembers > 20 ? 10 : Math.max(0, maxTotalMembers - 1)
+  const isLargeGroup = maxTotalMembers > 20
+
+  const handleAddMember = () => {
+    if (sankalpData.additionalMembers.length < maxAdditionalMembers) {
+      setSankalpData(prev => ({
+        ...prev,
+        additionalMembers: [...prev.additionalMembers, ""]
+      }))
+    }
+  }
+
+  const handleUpdateMember = (index: number, value: string) => {
+    const newMembers = [...sankalpData.additionalMembers]
+    newMembers[index] = value
+    setSankalpData(prev => ({ ...prev, additionalMembers: newMembers }))
+  }
 
   return (
     <div className="container mx-auto px-4 py-8 max-w-4xl pb-24">
@@ -210,9 +272,9 @@ export default function PujaBookingPage() {
               <MapPin className="h-3 w-3 mr-1" />
               {puja.temples?.name}
             </div>
-            <h2 className="text-xl font-bold text-white mb-2">{puja.title}</h2>
+            <h2 className="text-xl font-bold text-white mb-2">{displayName}</h2>
             <div className="text-2xl font-bold text-[var(--color-temple-gold)]">
-              ₹{puja.sale_price}
+              ₹{displayPrice}
             </div>
           </div>
         </CardContent>
@@ -266,18 +328,50 @@ export default function PujaBookingPage() {
                     />
                   </div>
 
-                  <div className="space-y-2">
-                    <label className="text-sm font-medium flex items-center">
-                      <Users className="h-4 w-4 mr-1" /> Include Family Members (optional)
-                    </label>
-                    <Input 
-                      placeholder="Comma separated names (max 4)" 
-                      value={sankalpData.familyMembers}
-                      onChange={e => setSankalpData({...sankalpData, familyMembers: e.target.value})}
-                    />
-                  </div>
+                  {maxAdditionalMembers > 0 && (
+                    <div className="space-y-4 border-t border-[var(--color-mandir-border)] pt-4 mt-4">
+                      <label className="text-sm font-medium flex items-center justify-between">
+                        <span className="flex items-center">
+                          <Users className="h-4 w-4 mr-1" /> 
+                          Additional Family Members
+                        </span>
+                        <span className="text-xs text-[var(--color-mandir-text-muted)] bg-[var(--color-mandir-bg)] px-2 py-1 rounded-md">
+                          {sankalpData.additionalMembers.length} / {maxAdditionalMembers} added
+                        </span>
+                      </label>
+                      
+                      {isLargeGroup && (
+                        <div className="text-xs text-[var(--color-saffron-600)] bg-[var(--color-saffron-50)] p-2 rounded border border-[var(--color-saffron-200)]">
+                          For large groups (over 20 people), please provide the names of up to 10 primary family members (elders/heads of family).
+                        </div>
+                      )}
+                      
+                      {sankalpData.additionalMembers.map((member, idx) => (
+                        <div key={idx} className="flex items-center gap-2">
+                          <span className="text-sm text-[var(--color-mandir-text-muted)] w-4">{idx + 1}.</span>
+                          <Input 
+                            placeholder="Full Name" 
+                            value={member}
+                            onChange={e => handleUpdateMember(idx, e.target.value)}
+                          />
+                        </div>
+                      ))}
+                      
+                      {sankalpData.additionalMembers.length < maxAdditionalMembers && (
+                        <Button 
+                          type="button" 
+                          variant="outline" 
+                          size="sm" 
+                          onClick={handleAddMember}
+                          className="w-full border-dashed text-[var(--color-saffron-500)]"
+                        >
+                          + Add Another Member
+                        </Button>
+                      )}
+                    </div>
+                  )}
 
-                  <div className="space-y-2">
+                  <div className="space-y-2 border-t border-[var(--color-mandir-border)] pt-4 mt-4">
                     <label className="text-sm font-medium">Special Request / Problem (optional)</label>
                     <textarea 
                       className="flex min-h-[80px] w-full rounded-md border border-[var(--color-mandir-border)] bg-[var(--color-mandir-bg)] px-3 py-2 text-sm text-[var(--color-mandir-text)] placeholder:text-[var(--color-mandir-text-muted)] focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-[var(--color-saffron-500)] disabled:cursor-not-allowed disabled:opacity-50"
@@ -306,57 +400,92 @@ export default function PujaBookingPage() {
                   </CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-4">
-                  <p className="text-sm text-[var(--color-mandir-text-muted)] mb-4">
-                    Blessed prasad will be securely shipped to this address via courier.
-                  </p>
-                  
-                  <div className="space-y-2">
-                    <label className="text-sm font-medium">Street Address / Flat No.</label>
-                    <Input 
-                      placeholder="123, Devotion Heights, Main Street" 
-                      value={addressData.street}
-                      onChange={e => setAddressData({...addressData, street: e.target.value})}
-                    />
-                  </div>
-                  
-                  <div className="grid grid-cols-2 gap-4">
-                    <div className="space-y-2">
-                      <label className="text-sm font-medium">City</label>
-                      <Input 
-                        placeholder="Mumbai" 
-                        value={addressData.city}
-                        onChange={e => setAddressData({...addressData, city: e.target.value})}
+                  {!isPrasadFree && (
+                    <div className="flex items-start space-x-3 p-4 bg-[var(--color-mandir-surface)] border border-[var(--color-mandir-border)] rounded-xl mb-4">
+                      <input 
+                        type="checkbox" 
+                        id="optInPrasad"
+                        checked={optInPrasad}
+                        onChange={(e) => setOptInPrasad(e.target.checked)}
+                        className="mt-1 w-4 h-4 text-[var(--color-saffron-500)] rounded border-[var(--color-mandir-border)] focus:ring-[var(--color-saffron-500)] bg-[var(--color-mandir-bg)]"
                       />
+                      <div className="flex-1">
+                        <label htmlFor="optInPrasad" className="text-sm font-medium text-[var(--color-mandir-text)] cursor-pointer">
+                          Add Physical Prasad Delivery (+₹{PRASAD_DELIVERY_COST})
+                        </label>
+                        <p className="text-xs text-[var(--color-mandir-text-muted)] mt-1">
+                          Receive the holy prasad directly from the temple to your doorstep.
+                        </p>
+                      </div>
                     </div>
-                    <div className="space-y-2">
-                      <label className="text-sm font-medium">State</label>
-                      <Input 
-                        placeholder="Maharashtra" 
-                        value={addressData.state}
-                        onChange={e => setAddressData({...addressData, state: e.target.value})}
-                      />
-                    </div>
-                  </div>
+                  )}
 
-                  <div className="grid grid-cols-2 gap-4">
-                    <div className="space-y-2">
-                      <label className="text-sm font-medium">Pincode</label>
-                      <Input 
-                        placeholder="400001" 
-                        value={addressData.pincode}
-                        onChange={e => setAddressData({...addressData, pincode: e.target.value})}
-                        maxLength={6}
-                      />
+                  {includePrasad ? (
+                    <>
+                      <p className="text-sm text-[var(--color-mandir-text-muted)] mb-4">
+                        Blessed prasad will be securely shipped to this address via courier.
+                      </p>
+                      
+                      <div className="space-y-2">
+                        <label className="text-sm font-medium">Street Address / Flat No.</label>
+                        <Input 
+                          placeholder="123, Devotion Heights, Main Street" 
+                          value={addressData.street}
+                          onChange={e => setAddressData({...addressData, street: e.target.value})}
+                        />
+                      </div>
+                      
+                      <div className="grid grid-cols-2 gap-4">
+                        <div className="space-y-2">
+                          <label className="text-sm font-medium">City</label>
+                          <Input 
+                            placeholder="Mumbai" 
+                            value={addressData.city}
+                            onChange={e => setAddressData({...addressData, city: e.target.value})}
+                          />
+                        </div>
+                        <div className="space-y-2">
+                          <label className="text-sm font-medium">State</label>
+                          <Input 
+                            placeholder="Maharashtra" 
+                            value={addressData.state}
+                            onChange={e => setAddressData({...addressData, state: e.target.value})}
+                          />
+                        </div>
+                      </div>
+
+                      <div className="grid grid-cols-2 gap-4">
+                        <div className="space-y-2">
+                          <label className="text-sm font-medium">Pincode</label>
+                          <Input 
+                            placeholder="400001" 
+                            value={addressData.pincode}
+                            onChange={e => setAddressData({...addressData, pincode: e.target.value})}
+                            maxLength={6}
+                          />
+                        </div>
+                        <div className="space-y-2">
+                          <label className="text-sm font-medium">Phone Number</label>
+                          <Input 
+                            placeholder="10-digit number" 
+                            value={addressData.phone}
+                            onChange={e => setAddressData({...addressData, phone: e.target.value})}
+                          />
+                        </div>
+                      </div>
+                    </>
+                  ) : (
+                    <div className="text-center py-6 text-[var(--color-mandir-text-muted)]">
+                      <p>You have chosen to skip Prasad delivery.</p>
+                      <Button 
+                        variant="ghost" 
+                        className="mt-4 text-[var(--color-saffron-500)]"
+                        onClick={() => setOptInPrasad(true)}
+                      >
+                        Add Prasad Delivery for ₹{PRASAD_DELIVERY_COST}
+                      </Button>
                     </div>
-                    <div className="space-y-2">
-                      <label className="text-sm font-medium">Phone Number</label>
-                      <Input 
-                        placeholder="10-digit number" 
-                        value={addressData.phone}
-                        onChange={e => setAddressData({...addressData, phone: e.target.value})}
-                      />
-                    </div>
-                  </div>
+                  )}
                 </CardContent>
               </Card>
             </motion.div>
@@ -387,10 +516,12 @@ export default function PujaBookingPage() {
                         <div className="text-[var(--color-mandir-text-muted)]">Gotra</div>
                         <div className="font-medium text-[var(--color-mandir-text)]">{sankalpData.gotra || "Not provided"}</div>
                       </div>
-                      {sankalpData.familyMembers && (
+                      {sankalpData.additionalMembers.filter(n => n.trim() !== "").length > 0 && (
                         <div className="col-span-2">
-                          <div className="text-[var(--color-mandir-text-muted)]">Family Members</div>
-                          <div className="font-medium text-[var(--color-mandir-text)]">{sankalpData.familyMembers}</div>
+                          <div className="text-[var(--color-mandir-text-muted)]">Additional Members</div>
+                          <div className="font-medium text-[var(--color-mandir-text)]">
+                            {sankalpData.additionalMembers.filter(n => n.trim() !== "").join(", ")}
+                          </div>
                         </div>
                       )}
                     </div>
@@ -405,12 +536,18 @@ export default function PujaBookingPage() {
                     </div>
                   </CardHeader>
                   <CardContent className="pt-4 text-sm">
-                    <div className="font-medium text-[var(--color-mandir-text)]">{sankalpData.fullName}</div>
-                    <div className="text-[var(--color-mandir-text-muted)] mt-1">
-                      {addressData.street}<br/>
-                      {addressData.city}, {addressData.state} - {addressData.pincode}<br/>
-                      Phone: {addressData.phone}
-                    </div>
+                    {includePrasad ? (
+                      <>
+                        <div className="font-medium text-[var(--color-mandir-text)]">{sankalpData.fullName}</div>
+                        <div className="text-[var(--color-mandir-text-muted)] mt-1">
+                          {addressData.street}<br/>
+                          {addressData.city}, {addressData.state} - {addressData.pincode}<br/>
+                          Phone: {addressData.phone}
+                        </div>
+                      </>
+                    ) : (
+                      <div className="text-[var(--color-mandir-text-muted)]">Prasad delivery skipped.</div>
+                    )}
                   </CardContent>
                 </Card>
                 
@@ -442,7 +579,7 @@ export default function PujaBookingPage() {
                 onClick={handlePayment}
                 disabled={isSubmitting}
               >
-                {isSubmitting ? "Processing..." : `Pay ₹${puja.sale_price} Securely`}
+                {isSubmitting ? "Processing..." : `Pay ₹${finalPayableAmount} Securely`}
               </Button>
             )}
           </div>
@@ -458,15 +595,21 @@ export default function PujaBookingPage() {
               <CardContent className="pt-6 space-y-4">
                 <div className="flex justify-between text-sm text-[var(--color-mandir-text)]">
                   <span>Puja Dakshina</span>
-                  <span>₹{puja.base_price}</span>
+                  <span>₹{displayBasePrice}</span>
                 </div>
                 <div className="flex justify-between text-sm text-[var(--color-auspicious-green)]">
                   <span>Divine Discount</span>
-                  <span>-₹{puja.base_price - puja.sale_price}</span>
+                  <span>-₹{displayBasePrice - displayPrice}</span>
                 </div>
                 <div className="flex justify-between text-sm text-[var(--color-mandir-text)]">
                   <span>Prasad Delivery (India)</span>
-                  <span className="text-[var(--color-auspicious-green)]">FREE</span>
+                  {isPrasadFree ? (
+                    <span className="text-[var(--color-auspicious-green)]">FREE</span>
+                  ) : optInPrasad ? (
+                    <span>+₹{PRASAD_DELIVERY_COST}</span>
+                  ) : (
+                    <span className="text-[var(--color-mandir-text-muted)]">Not Included</span>
+                  )}
                 </div>
                 <div className="flex justify-between text-sm text-[var(--color-mandir-text)]">
                   <span>Taxes (GST 18%)</span>
@@ -474,7 +617,7 @@ export default function PujaBookingPage() {
                 </div>
                 <div className="border-t border-[var(--color-mandir-border)] pt-4 flex justify-between items-center mt-2">
                   <span className="font-bold text-[var(--color-mandir-text)] text-lg">Total Amount</span>
-                  <span className="font-bold text-[var(--color-mandir-text)] text-2xl">₹{puja.sale_price}</span>
+                  <span className="font-bold text-[var(--color-mandir-text)] text-2xl">₹{finalPayableAmount}</span>
                 </div>
                 <div className="text-xs text-center text-[var(--color-mandir-text-muted)] mt-4 pt-4 border-t border-[var(--color-mandir-border)]/50">
                   Secured by Cashfree. 100% Safe Payments.
@@ -489,7 +632,7 @@ export default function PujaBookingPage() {
       <div className="fixed bottom-16 sm:bottom-0 left-0 right-0 p-4 bg-[var(--color-mandir-bg)]/90 backdrop-blur-md border-t border-[var(--color-mandir-border)] lg:hidden flex items-center justify-between z-40 pb-safe shadow-[0_-10px_20px_rgba(0,0,0,0.1)]">
         <div>
           <div className="text-xs text-[var(--color-mandir-text-muted)] font-medium">Total Payable</div>
-          <div className="text-xl font-bold text-[var(--color-mandir-text)]">₹{puja.sale_price}</div>
+          <div className="text-xl font-bold text-[var(--color-mandir-text)]">₹{finalPayableAmount}</div>
         </div>
         
         {currentStep < 2 ? (
