@@ -5,6 +5,9 @@ import { UploadCloud, X, Image as ImageIcon } from "lucide-react"
 
 import { cn } from "@/lib/utils"
 
+import { createClient } from "@/lib/supabase/client"
+import { toast } from "@/components/ui/Toast"
+
 export interface ImageUploadProps {
   value?: string | string[]
   onChange: (value: string | string[]) => void
@@ -13,6 +16,7 @@ export interface ImageUploadProps {
   multiple?: boolean
   className?: string
   previewClassName?: string
+  bucket?: string
 }
 
 export function ImageUpload({
@@ -22,24 +26,61 @@ export function ImageUpload({
   disabled,
   multiple = false,
   className,
-  previewClassName
+  previewClassName,
+  bucket = "media"
 }: ImageUploadProps) {
   const [isMounted, setIsMounted] = React.useState(false)
+  const [isUploading, setIsUploading] = React.useState(false)
+  const supabase = createClient()
 
   React.useEffect(() => {
     setIsMounted(true)
   }, [])
 
-  const handleUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-    // In a real app, this would upload to Supabase Storage
-    // For this mock, we'll just use a placeholder URL
-    const mockUrl = "https://images.unsplash.com/photo-1604580864964-0462f5d5b1a8?q=80&w=600&auto=format&fit=crop"
-    
-    if (multiple) {
-      const currentValues = Array.isArray(value) ? value : value ? [value] : []
-      onChange([...currentValues, mockUrl])
-    } else {
-      onChange(mockUrl)
+  const handleUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    try {
+      const files = e.target.files
+      if (!files || files.length === 0) return
+
+      setIsUploading(true)
+
+      const uploadedUrls: string[] = []
+
+      for (let i = 0; i < files.length; i++) {
+        const file = files[i]
+        const fileExt = file.name.split('.').pop()
+        const fileName = `${Math.random().toString(36).substring(2, 15)}_${Date.now()}.${fileExt}`
+        const filePath = `${fileName}`
+
+        const { error: uploadError } = await supabase.storage
+          .from(bucket)
+          .upload(filePath, file)
+
+        if (uploadError) {
+          throw uploadError
+        }
+
+        const { data } = supabase.storage.from(bucket).getPublicUrl(filePath)
+        if (data?.publicUrl) {
+          uploadedUrls.push(data.publicUrl)
+        }
+      }
+
+      if (multiple) {
+        const currentValues = Array.isArray(value) ? value : value ? [value] : []
+        onChange([...currentValues, ...uploadedUrls])
+      } else {
+        onChange(uploadedUrls[0])
+      }
+      
+      toast({ type: "success", title: "Upload successful" })
+    } catch (error: any) {
+      console.error('Error uploading image:', error)
+      toast({ type: "error", title: "Upload failed", description: error.message || "An error occurred during upload." })
+    } finally {
+      setIsUploading(false)
+      // Reset input
+      e.target.value = ''
     }
   }
 
@@ -83,15 +124,19 @@ export function ImageUpload({
           )}
         >
           <div className="flex flex-col items-center justify-center space-y-2 text-[var(--color-mandir-text-muted)]">
-            <UploadCloud className="h-8 w-8 text-[var(--color-saffron-400)]" />
-            <span className="text-sm">Click to upload image</span>
+            {isUploading ? (
+              <div className="h-8 w-8 animate-spin rounded-full border-b-2 border-t-2 border-[var(--color-saffron-500)]" />
+            ) : (
+              <UploadCloud className="h-8 w-8 text-[var(--color-saffron-400)]" />
+            )}
+            <span className="text-sm">{isUploading ? "Uploading..." : "Click to upload image"}</span>
           </div>
           <input 
             type="file" 
             accept="image/*" 
             className="hidden" 
             onChange={handleUpload}
-            disabled={disabled}
+            disabled={disabled || isUploading}
             multiple={multiple}
           />
         </label>

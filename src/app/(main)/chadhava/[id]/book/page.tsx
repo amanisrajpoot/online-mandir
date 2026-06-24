@@ -176,7 +176,7 @@ export default function ChadhavaBookingPage() {
           <div className="w-24 h-24 rounded-xl overflow-hidden shrink-0 border-2 border-[var(--color-saffron-500)]/30">
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img 
-              src={item.image_url || "https://images.unsplash.com/photo-1598007412759-994df554ce81?q=80&w=200&auto=format&fit=crop"} 
+              src={item.image_url || "/images/chadhava_pushp.png"} 
               alt={item.title}
               className="w-full h-full object-cover"
             />

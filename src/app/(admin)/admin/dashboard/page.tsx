@@ -59,18 +59,29 @@ export default function AdminDashboard() {
         })
 
         // Fetch recent orders
-        const { data: orders } = await supabase
+        const { data: ordersData, error: ordersError } = await supabase
           .from('orders')
           .select(`
             *,
-            users (name, phone),
-            pujas (title),
-            chadhava_items (title)
+            users (name, phone)
           `)
           .order('created_at', { ascending: false })
           .limit(5)
 
-        setRecentOrders(orders || [])
+        if (ordersError) throw ordersError;
+
+        // Fetch related items manually since item_id doesn't have an explicit foreign key
+        const enrichedOrders = await Promise.all((ordersData || []).map(async (order) => {
+          if (order.order_type === 'puja') {
+            const { data: puja } = await supabase.from('pujas').select('title').eq('id', order.item_id).single()
+            return { ...order, pujas: puja }
+          } else {
+            const { data: item } = await supabase.from('chadhava_items').select('title').eq('id', order.item_id).single()
+            return { ...order, chadhava_items: item }
+          }
+        }))
+
+        setRecentOrders(enrichedOrders)
 
       } catch (error) {
         console.error("Error fetching admin data:", error)

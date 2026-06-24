@@ -1,8 +1,7 @@
 "use client"
 
-import { useState } from 'react'
+import { useState, useEffect, Suspense } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
-import { Suspense } from 'react'
 import { motion } from 'framer-motion'
 import { createClient } from '@/lib/supabase/client'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/Card'
@@ -13,9 +12,14 @@ import { toast } from '@/components/ui/Toast'
 function LoginContent() {
   const [email, setEmail] = useState('')
   const [isLoading, setIsLoading] = useState(false)
+  const [mounted, setMounted] = useState(false)
   const router = useRouter()
   const searchParams = useSearchParams()
   const supabase = createClient()
+
+  useEffect(() => {
+    setMounted(true)
+  }, [])
 
   const handleSendOTP = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -81,28 +85,34 @@ function LoginContent() {
           <CardDescription>Enter your email to receive a secure sign-in link and OTP.</CardDescription>
         </CardHeader>
         <CardContent>
-          <form onSubmit={handleSendOTP} className="space-y-4">
-            <div className="space-y-2">
-              <label htmlFor="email" className="text-sm font-medium">Email Address</label>
-              <Input
-                id="email"
-                type="email"
-                placeholder="devotee@example.com"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                required
+          {mounted ? (
+            <form onSubmit={handleSendOTP} className="space-y-4">
+              <div className="space-y-2">
+                <label htmlFor="email" className="text-sm font-medium">Email Address</label>
+                <Input
+                  id="email"
+                  type="email"
+                  placeholder="devotee@example.com"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  required
+                  disabled={isLoading}
+                />
+              </div>
+              <Button 
+                type="submit" 
+                className="w-full" 
+                variant="gradient"
                 disabled={isLoading}
-              />
+              >
+                {isLoading ? 'Sending OTP...' : 'Get OTP'}
+              </Button>
+            </form>
+          ) : (
+            <div className="h-[120px] flex items-center justify-center">
+              <div className="w-6 h-6 border-2 border-[var(--color-saffron-500)] border-t-transparent rounded-full animate-spin"></div>
             </div>
-            <Button 
-              type="submit" 
-              className="w-full" 
-              variant="gradient"
-              disabled={isLoading}
-            >
-              {isLoading ? 'Sending OTP...' : 'Get OTP'}
-            </Button>
-          </form>
+          )}
         </CardContent>
       </Card>
       

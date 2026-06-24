@@ -10,6 +10,7 @@ import { Skeleton } from "@/components/ui/Skeleton"
 import { Card, CardContent } from "@/components/ui/Card"
 import { Badge } from "@/components/ui/Badge"
 import { Button } from "@/components/ui/Button"
+import { encodeId } from "@/lib/utils"
 
 export function TrendingPujas() {
   const [pujas, setPujas] = React.useState<any[]>([])
@@ -46,11 +47,11 @@ export function TrendingPujas() {
           <div className="flex items-center">
             <Sparkles className="h-6 w-6 text-[var(--color-saffron-500)] mr-2" />
             <h2 className="text-2xl font-bold font-[var(--font-heading)] text-[var(--color-mandir-text)]">
-              Trending Pujas
+              प्रमुख पूजा • Trending Pujas
             </h2>
           </div>
           <Link href="/pujas" className="text-sm font-medium text-[var(--color-saffron-400)] hover:text-[var(--color-saffron-500)] flex items-center transition-colors">
-            View All <ArrowRight className="ml-1 h-4 w-4" />
+            सभी देखें | View All <ArrowRight className="ml-1 h-4 w-4" />
           </Link>
         </div>
 
@@ -87,7 +88,7 @@ export function TrendingPujas() {
                   <div className="relative h-48 overflow-hidden bg-[var(--color-mandir-surface)]">
                     {/* eslint-disable-next-line @next/next/no-img-element */}
                     <img 
-                      src={puja.image_url || "https://images.unsplash.com/photo-1593361036080-60b642ec67fc?q=80&w=800&auto=format&fit=crop"} 
+                      src={puja.image_url || "/images/puja_ganesh.png"} 
                       alt={puja.title}
                       className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-110 opacity-80 group-hover:opacity-100"
                     />
@@ -100,7 +101,7 @@ export function TrendingPujas() {
                       <div className="absolute bottom-3 left-3 right-3">
                         <div className="flex items-center justify-center rounded-lg bg-black/60 backdrop-blur-md px-3 py-1.5 text-xs font-medium text-[var(--color-saffron-300)] border border-white/10 shadow-lg">
                           <Clock className="mr-1.5 h-3 w-3" />
-                          Booking closes soon
+                          बुकिंग जल्द बंद होगी | Booking closes soon
                         </div>
                       </div>
                     )}
@@ -129,9 +130,9 @@ export function TrendingPujas() {
                         </div>
                       </div>
                       
-                      <Link href={`/pujas/${puja.id}`}>
+                      <Link href={`/pujas/${encodeId(puja.id)}`}>
                         <Button size="sm" variant="outline" className="rounded-full group-hover:bg-[var(--color-saffron-500)] group-hover:text-white group-hover:border-[var(--color-saffron-500)] transition-all">
-                          Book Now
+                          बुक करें | Book Now
                         </Button>
                       </Link>
                     </div>

@@ -15,12 +15,13 @@ import {
 import { createClient } from "@/lib/supabase/client"
 import { Button } from "@/components/ui/Button"
 import { Skeleton } from "@/components/ui/Skeleton"
+import { encodeId, decodeId } from "@/lib/utils"
 import { StatusTimeline } from "@/components/ui/StatusTimeline"
 import Link from "next/link"
 
 export default function ChadhavaDetailPage() {
   const params = useParams()
-  const id = params.id as string
+  const id = decodeId(params.id as string)
   
   const [item, setItem] = React.useState<any>(null)
   const [loading, setLoading] = React.useState(true)
@@ -115,7 +116,7 @@ export default function ChadhavaDetailPage() {
           >
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img 
-              src={item.image_url || "https://images.unsplash.com/photo-1598007412759-994df554ce81?q=80&w=1200&auto=format&fit=crop"} 
+              src={item.image_url || "/images/chadhava_pushp.png"} 
               alt={item.title}
               className="w-full h-full object-cover"
             />

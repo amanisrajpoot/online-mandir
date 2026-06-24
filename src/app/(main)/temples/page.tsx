@@ -4,6 +4,8 @@ import * as React from "react"
 import { motion } from "framer-motion"
 import { Search, MapPin, Map } from "lucide-react"
 
+import { Button } from "@/components/ui/Button"
+import { encodeId } from "@/lib/utils"
 import { Input } from "@/components/ui/Input"
 import { Card, CardContent } from "@/components/ui/Card"
 import { createClient } from "@/lib/supabase/client"
@@ -88,12 +90,12 @@ export default function TemplesPage() {
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: i * 0.05 }}
             >
-              <Link href={`/temples/${temple.id}`}>
+              <Link href={`/temples/${encodeId(temple.id)}`} className="block">
                 <Card className="overflow-hidden h-full group border-[var(--color-mandir-border)] hover:border-[var(--color-saffron-500)]/50 transition-colors bg-[var(--color-mandir-surface)]">
                   <div className="relative h-56 overflow-hidden">
                     {/* eslint-disable-next-line @next/next/no-img-element */}
                     <img 
-                      src={temple.image_url || "https://images.unsplash.com/photo-1561359313-0639aad3a644?q=80&w=800&auto=format&fit=crop"} 
+                      src={temple.image_url || "/images/kashi_vishwanath_temple.png"} 
                       alt={temple.name}
                       className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-110"
                     />

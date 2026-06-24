@@ -16,10 +16,11 @@ import { Button } from "@/components/ui/Button"
 import { Skeleton } from "@/components/ui/Skeleton"
 import { Card, CardContent } from "@/components/ui/Card"
 import Link from "next/link"
+import { encodeId, decodeId } from "@/lib/utils"
 
 export default function TempleDetailPage() {
   const params = useParams()
-  const id = params.id as string
+  const id = decodeId(params.id as string)
   
   const [temple, setTemple] = React.useState<any>(null)
   const [pujas, setPujas] = React.useState<any[]>([])
@@ -105,7 +106,7 @@ export default function TempleDetailPage() {
       <div className="relative w-full h-[40vh] min-h-[300px] max-h-[500px] mb-8 sm:mb-12">
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img 
-          src={temple.image_url || "https://images.unsplash.com/photo-1561359313-0639aad3a644?q=80&w=1600&auto=format&fit=crop"} 
+          src={temple.image_url || "/images/kashi_vishwanath_temple.png"} 
           alt={temple.name}
           className="w-full h-full object-cover rounded-b-[2rem] sm:rounded-b-[3rem] shadow-2xl"
         />
@@ -168,13 +169,13 @@ export default function TempleDetailPage() {
             
             <div className="space-y-4">
               {pujas.length > 0 ? pujas.map((puja) => (
-                <Link key={puja.id} href={`/pujas/${puja.id}`}>
+                <Link key={puja.id} href={`/pujas/${encodeId(puja.id)}`}>
                   <Card className="group border border-[var(--color-mandir-border)] hover:border-[var(--color-saffron-500)]/50 transition-colors bg-[var(--color-mandir-surface)]">
                     <CardContent className="p-4 flex gap-4">
                       <div className="w-20 h-20 rounded-lg overflow-hidden shrink-0">
                         {/* eslint-disable-next-line @next/next/no-img-element */}
                         <img 
-                          src={puja.image_url || "https://images.unsplash.com/photo-1593361036080-60b642ec67fc?q=80&w=200&auto=format&fit=crop"} 
+                          src={puja.image_url || "/images/puja_ganesh.png"} 
                           alt={puja.title}
                           className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
                         />
@@ -212,13 +213,13 @@ export default function TempleDetailPage() {
             
             <div className="grid grid-cols-2 gap-4">
               {chadhava.length > 0 ? chadhava.map((item) => (
-                <Link key={item.id} href={`/chadhava/${item.id}`}>
+                <Link key={item.id} href={`/chadhava/${encodeId(item.id)}`}>
                   <Card className="h-full group border border-[var(--color-mandir-border)] hover:border-[var(--color-saffron-500)]/50 transition-colors bg-[var(--color-mandir-surface)] text-center">
                     <CardContent className="p-4 flex flex-col items-center">
                       <div className="w-16 h-16 rounded-full overflow-hidden mb-3 border-2 border-[var(--color-mandir-border)]">
                         {/* eslint-disable-next-line @next/next/no-img-element */}
                         <img 
-                          src={item.image_url || "https://images.unsplash.com/photo-1598007412759-994df554ce81?q=80&w=200&auto=format&fit=crop"} 
+                          src={item.image_url || "/images/chadhava_pushp.png"} 
                           alt={item.title}
                           className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
                         />

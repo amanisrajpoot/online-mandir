@@ -1,0 +1,210 @@
+"use client"
+
+import * as React from "react"
+import { useRouter } from "next/navigation"
+import { ArrowLeft, Save } from "lucide-react"
+import { createClient } from "@/lib/supabase/client"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/Card"
+import { Input } from "@/components/ui/Input"
+import { Button } from "@/components/ui/Button"
+import { Textarea } from "@/components/ui/Textarea"
+import { toast } from "@/components/ui/Toast"
+import { ImageUpload } from "@/components/ui/ImageUpload"
+import { DynamicListInput } from "@/components/admin/DynamicListInput"
+import Link from "next/link"
+
+export default function AdminPujaNew() {
+  const router = useRouter()
+  const supabase = createClient()
+  const [isSaving, setIsSaving] = React.useState(false)
+  const [temples, setTemples] = React.useState<any[]>([])
+
+  const [formData, setFormData] = React.useState({
+    title: "",
+    category: "Health",
+    temple_id: "",
+    problem_statement: "",
+    base_price: 0,
+    sale_price: 0,
+    benefits: [] as string[],
+    whats_included: [] as string[],
+    ritual_process: [] as string[],
+    image_url: "",
+  })
+
+  React.useEffect(() => {
+    const fetchTemples = async () => {
+      const { data } = await supabase.from('temples').select('id, name').order('name')
+      if (data) {
+        setTemples(data)
+        if (data.length > 0) setFormData(prev => ({ ...prev, temple_id: data[0].id }))
+      }
+    }
+    fetchTemples()
+  }, [supabase])
+
+  const handleSave = async () => {
+    if (!formData.title || !formData.temple_id || !formData.sale_price) {
+      toast({ type: "error", title: "Missing fields", description: "Please fill in all required fields." })
+      return
+    }
+
+    setIsSaving(true)
+    try {
+      const { error } = await supabase.from('pujas').insert([formData])
+      
+      if (error) throw error
+      
+      toast({ type: "success", title: "Puja created successfully" })
+      router.push('/admin/pujas')
+    } catch (error: any) {
+      console.error("Error saving puja:", error)
+      toast({ type: "error", title: "Failed to save", description: error.message })
+    } finally {
+      setIsSaving(false)
+    }
+  }
+
+  return (
+    <div className="p-4 sm:p-8 w-full max-w-5xl mx-auto pb-24">
+      <div className="mb-6 flex items-center justify-between">
+        <div className="flex items-center">
+          <Link href="/admin/pujas" className="mr-4 p-2 rounded-full hover:bg-[var(--color-mandir-surface)] transition-colors">
+            <ArrowLeft className="h-5 w-5 text-[var(--color-mandir-text)]" />
+          </Link>
+          <div>
+            <h1 className="text-2xl font-bold font-[var(--font-heading)] text-[var(--color-mandir-text)]">
+              Add New Puja
+            </h1>
+          </div>
+        </div>
+        <Button onClick={handleSave} disabled={isSaving} variant="gradient">
+          <Save className="w-4 h-4 mr-2" /> {isSaving ? "Saving..." : "Save Puja"}
+        </Button>
+      </div>
+
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <div className="lg:col-span-2 space-y-6">
+          <Card className="bg-[var(--color-mandir-surface)] border-[var(--color-mandir-border)]">
+            <CardHeader className="pb-3 border-b border-[var(--color-mandir-border)]">
+              <CardTitle className="text-lg">Basic Details</CardTitle>
+            </CardHeader>
+            <CardContent className="pt-4 space-y-4">
+              <div>
+                <label className="text-sm font-medium text-[var(--color-mandir-text)]">Puja Title *</label>
+                <Input 
+                  value={formData.title}
+                  onChange={(e) => setFormData({...formData, title: e.target.value})}
+                  className="mt-1"
+                />
+              </div>
+              
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label className="text-sm font-medium text-[var(--color-mandir-text)]">Temple *</label>
+                  <select 
+                    className="w-full h-10 mt-1 rounded-md border border-[var(--color-mandir-border)] bg-[var(--color-mandir-surface)] px-3 text-sm focus:ring-1 focus:ring-[var(--color-saffron-500)]"
+                    value={formData.temple_id}
+                    onChange={(e) => setFormData({...formData, temple_id: e.target.value})}
+                  >
+                    {temples.map(t => (
+                      <option key={t.id} value={t.id}>{t.name}</option>
+                    ))}
+                  </select>
+                </div>
+                <div>
+                  <label className="text-sm font-medium text-[var(--color-mandir-text)]">Category *</label>
+                  <select 
+                    className="w-full h-10 mt-1 rounded-md border border-[var(--color-mandir-border)] bg-[var(--color-mandir-surface)] px-3 text-sm focus:ring-1 focus:ring-[var(--color-saffron-500)]"
+                    value={formData.category}
+                    onChange={(e) => setFormData({...formData, category: e.target.value})}
+                  >
+                    <option value="Health">Health</option>
+                    <option value="Wealth">Wealth</option>
+                    <option value="Marriage">Marriage</option>
+                    <option value="Career">Career</option>
+                    <option value="Education">Education</option>
+                    <option value="Protection">Protection</option>
+                  </select>
+                </div>
+              </div>
+
+              <div>
+                <label className="text-sm font-medium text-[var(--color-mandir-text)]">Target Problem Statement</label>
+                <Textarea 
+                  value={formData.problem_statement}
+                  onChange={(e) => setFormData({...formData, problem_statement: e.target.value})}
+                  placeholder="e.g. Struggling with health issues?" 
+                  className="mt-1"
+                  rows={2}
+                />
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label className="text-sm font-medium text-[var(--color-mandir-text)]">Base Price (₹) *</label>
+                  <Input 
+                    type="number"
+                    value={formData.base_price || ""}
+                    onChange={(e) => setFormData({...formData, base_price: parseInt(e.target.value) || 0})}
+                    className="mt-1"
+                  />
+                </div>
+                <div>
+                  <label className="text-sm font-medium text-[var(--color-mandir-text)]">Sale Price (₹) *</label>
+                  <Input 
+                    type="number"
+                    value={formData.sale_price || ""}
+                    onChange={(e) => setFormData({...formData, sale_price: parseInt(e.target.value) || 0})}
+                    className="mt-1"
+                  />
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card className="bg-[var(--color-mandir-surface)] border-[var(--color-mandir-border)]">
+            <CardHeader className="pb-3 border-b border-[var(--color-mandir-border)]">
+              <CardTitle className="text-lg">Puja Details</CardTitle>
+            </CardHeader>
+            <CardContent className="pt-4 space-y-6">
+              <DynamicListInput 
+                label="Benefits (What devotee gets)"
+                placeholder="e.g. Removes obstacles"
+                value={formData.benefits}
+                onChange={(val) => setFormData({...formData, benefits: val})}
+              />
+              <DynamicListInput 
+                label="What's Included"
+                placeholder="e.g. Personalized Sankalp"
+                value={formData.whats_included}
+                onChange={(val) => setFormData({...formData, whats_included: val})}
+              />
+              <DynamicListInput 
+                label="Ritual Process"
+                placeholder="e.g. Ganesh Sthapana"
+                value={formData.ritual_process}
+                onChange={(val) => setFormData({...formData, ritual_process: val})}
+              />
+            </CardContent>
+          </Card>
+        </div>
+
+        <div className="lg:col-span-1 space-y-6">
+          <Card className="bg-[var(--color-mandir-surface)] border-[var(--color-mandir-border)]">
+            <CardHeader className="pb-3 border-b border-[var(--color-mandir-border)]">
+              <CardTitle className="text-lg">Main Image</CardTitle>
+            </CardHeader>
+            <CardContent className="pt-4">
+              <ImageUpload
+                value={formData.image_url ? [formData.image_url] : []}
+                onChange={(url) => setFormData({...formData, image_url: Array.isArray(url) ? url[0] : url})}
+                onRemove={() => setFormData({...formData, image_url: ""})}
+              />
+            </CardContent>
+          </Card>
+        </div>
+      </div>
+    </div>
+  )
+}

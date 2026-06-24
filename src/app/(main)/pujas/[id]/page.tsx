@@ -24,10 +24,11 @@ import { Accordion } from "@/components/ui/Accordion"
 import { Skeleton } from "@/components/ui/Skeleton"
 import Link from "next/link"
 import { StatusTimeline } from "@/components/ui/StatusTimeline"
+import { encodeId, decodeId } from "@/lib/utils"
 
 export default function PujaDetailPage() {
   const params = useParams()
-  const id = params.id as string
+  const id = decodeId(params.id as string)
   
   const [puja, setPuja] = React.useState<any>(null)
   const [loading, setLoading] = React.useState(true)
@@ -123,7 +124,7 @@ export default function PujaDetailPage() {
       <div className="relative w-full h-64 md:h-96">
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img 
-          src={puja.image_url || "https://images.unsplash.com/photo-1593361036080-60b642ec67fc?q=80&w=1600&auto=format&fit=crop"} 
+          src={puja.image_url || "/images/puja_ganesh.png"} 
           alt={puja.title}
           className="w-full h-full object-cover"
         />
@@ -318,7 +319,7 @@ export default function PujaDetailPage() {
                   </div>
                 </div>
 
-                <Link href={`/pujas/${puja.id}/book`} className="block w-full">
+                <Link href={`/pujas/${encodeId(puja.id)}/book`} className="block w-full">
                   <Button variant="gradient" className="w-full py-6 text-lg rounded-xl shadow-lg hover:shadow-[var(--color-saffron-500)]/30 transition-all">
                     Book Puja Now
                   </Button>
@@ -340,7 +341,7 @@ export default function PujaDetailPage() {
           <div className="text-sm text-[var(--color-mandir-text-muted)] line-through">₹{puja.base_price}</div>
           <div className="text-xl font-bold text-[var(--color-mandir-text)]">₹{puja.sale_price}</div>
         </div>
-        <Link href={`/pujas/${puja.id}/book`}>
+        <Link href={`/pujas/${encodeId(puja.id)}/book`}>
           <Button variant="gradient" className="rounded-full px-8 shadow-lg">
             Book Now
           </Button>

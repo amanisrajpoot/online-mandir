@@ -3,6 +3,7 @@ import { CurrentOrders } from "@/components/home/CurrentOrders"
 import { TempleCarousel } from "@/components/home/TempleCarousel"
 import { TrendingPujas } from "@/components/home/TrendingPujas"
 import { FestivalCountdown } from "@/components/home/FestivalCountdown"
+import { PromoBanners } from "@/components/home/PromoBanners"
 import { ChadhavaQuickSelect } from "@/components/home/ChadhavaQuickSelect"
 import { PanchangWidget } from "@/components/home/PanchangWidget"
 
@@ -10,12 +11,23 @@ export default function Home() {
   return (
     <div className="flex flex-col min-h-screen">
       <HeroBanner />
+      <FestivalCountdown position="after_hero" />
+      <PromoBanners position="after_hero" />
+      
       <CurrentOrders />
       <TempleCarousel />
+      <FestivalCountdown position="after_temples" />
+      <PromoBanners position="after_temples" />
+      
       <TrendingPujas />
-      <FestivalCountdown />
+      <FestivalCountdown position="after_pujas" />
+      <PromoBanners position="after_pujas" />
+      
       <ChadhavaQuickSelect />
       <PanchangWidget />
+      
+      <FestivalCountdown position="above_footer" />
+      <PromoBanners position="above_footer" />
       
       {/* Extra padding at the bottom for mobile nav */}
       <div className="h-16 md:h-0"></div>

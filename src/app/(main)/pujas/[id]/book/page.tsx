@@ -2,6 +2,8 @@
 
 import * as React from "react"
 import { useParams, useRouter } from "next/navigation"
+import Link from "next/link"
+import { encodeId, decodeId } from "@/lib/utils"
 import { motion } from "framer-motion"
 import { 
   CheckCircle2, 
@@ -23,7 +25,7 @@ import { CashfreeCheckout } from "@/components/payment/CashfreeCheckout"
 export default function PujaBookingPage() {
   const params = useParams()
   const router = useRouter()
-  const id = params.id as string
+  const id = decodeId(params.id as string)
   
   const [puja, setPuja] = React.useState<any>(null)
   const [loading, setLoading] = React.useState(true)
@@ -54,7 +56,7 @@ export default function PujaBookingPage() {
         // Check Auth
         const { data: { user } } = await supabase.auth.getUser()
         if (!user) {
-          router.push(`/login?next=/pujas/${id}/book`)
+          router.push(`/login?next=/pujas/${encodeId(id)}/book`)
           return
         }
 
@@ -198,7 +200,7 @@ export default function PujaBookingPage() {
           <div className="w-24 h-24 rounded-xl overflow-hidden shrink-0 border-2 border-[var(--color-saffron-500)]/30">
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img 
-              src={puja.image_url || "https://images.unsplash.com/photo-1593361036080-60b642ec67fc?q=80&w=200&auto=format&fit=crop"} 
+              src={puja.image_url || "/images/puja_ganesh.png"} 
               alt={puja.title}
               className="w-full h-full object-cover"
             />

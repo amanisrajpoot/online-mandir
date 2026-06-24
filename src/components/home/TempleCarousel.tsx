@@ -7,6 +7,7 @@ import { MapPin, ArrowRight } from "lucide-react"
 
 import { createClient } from "@/lib/supabase/client"
 import { Skeleton } from "@/components/ui/Skeleton"
+import { encodeId } from "@/lib/utils"
 
 export function TempleCarousel() {
   const [temples, setTemples] = React.useState<any[]>([])
@@ -38,10 +39,10 @@ export function TempleCarousel() {
       <div className="container mx-auto px-4 max-w-6xl">
         <div className="flex items-center justify-between mb-6">
           <h2 className="text-2xl font-bold font-[var(--font-heading)] text-[var(--color-mandir-text)]">
-            Famous Temples
+            प्रसिद्ध मंदिर • Famous Temples
           </h2>
           <Link href="/temples" className="text-sm font-medium text-[var(--color-saffron-400)] hover:text-[var(--color-saffron-500)] flex items-center transition-colors">
-            View All <ArrowRight className="ml-1 h-4 w-4" />
+            सभी देखें | View All <ArrowRight className="ml-1 h-4 w-4" />
           </Link>
         </div>
 
@@ -68,7 +69,7 @@ export function TempleCarousel() {
                   transition={{ delay: index * 0.1 }}
                   className="min-w-[280px] sm:min-w-[320px] shrink-0 snap-center group"
                 >
-                  <Link href={`/temples/${temple.id}`} className="block">
+                  <Link href={`/temples/${encodeId(temple.id)}`} className="block">
                     <div className="relative h-48 w-full rounded-2xl overflow-hidden mb-3 border border-[var(--color-mandir-border)] shadow-md group-hover:shadow-lg group-hover:shadow-[var(--color-saffron-500)]/10 transition-all duration-300">
                       {/* eslint-disable-next-line @next/next/no-img-element */}
                       <img 

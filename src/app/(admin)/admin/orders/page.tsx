@@ -38,9 +38,7 @@ export default function AdminOrdersList() {
         .from('orders')
         .select(`
           *,
-          users (name, phone),
-          pujas (title),
-          chadhava_items (title)
+          users (name, phone)
         `)
         .order('created_at', { ascending: false })
 
@@ -51,8 +49,19 @@ export default function AdminOrdersList() {
       const { data, error } = await query
       if (error) throw error
       
+      // Fetch related items manually since item_id doesn't have an explicit foreign key
+      const enrichedData = await Promise.all((data || []).map(async (order) => {
+        if (order.order_type === 'puja') {
+          const { data: puja } = await supabase.from('pujas').select('title').eq('id', order.item_id).single()
+          return { ...order, pujas: puja }
+        } else {
+          const { data: item } = await supabase.from('chadhava_items').select('title').eq('id', order.item_id).single()
+          return { ...order, chadhava_items: item }
+        }
+      }))
+      
       // Client-side search for simplicity in this demo
-      let filteredData = data || []
+      let filteredData = enrichedData || []
       if (searchQuery) {
         const lowerQ = searchQuery.toLowerCase()
         filteredData = filteredData.filter(o => 

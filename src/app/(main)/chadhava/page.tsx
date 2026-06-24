@@ -4,6 +4,8 @@ import * as React from "react"
 import { motion } from "framer-motion"
 import { Search, Flower2, MapPin } from "lucide-react"
 
+import { Button } from "@/components/ui/Button"
+import { encodeId } from "@/lib/utils"
 import { Input } from "@/components/ui/Input"
 import { Card, CardContent } from "@/components/ui/Card"
 import { createClient } from "@/lib/supabase/client"
@@ -91,12 +93,12 @@ export default function ChadhavaPage() {
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: i * 0.05 }}
             >
-              <Link href={`/chadhava/${item.id}`}>
+              <Link href={`/chadhava/${encodeId(item.id)}`} className="block">
                 <Card className="overflow-hidden h-full group border-[var(--color-mandir-border)] hover:border-[var(--color-saffron-400)] transition-all hover:shadow-[0_0_15px_rgba(251,146,60,0.15)] bg-[var(--color-mandir-surface)]">
                   <div className="relative h-32 sm:h-40 overflow-hidden">
                     {/* eslint-disable-next-line @next/next/no-img-element */}
                     <img 
-                      src={item.image_url || "https://images.unsplash.com/photo-1598007412759-994df554ce81?q=80&w=600&auto=format&fit=crop"} 
+                      src={item.image_url || "/images/chadhava_pushp.png"} 
                       alt={item.title}
                       className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-110 opacity-90 group-hover:opacity-100"
                     />

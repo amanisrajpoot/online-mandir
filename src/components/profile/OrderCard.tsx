@@ -45,7 +45,7 @@ export function OrderCard({ order }: { order: any }) {
         <div className="w-full sm:w-1/3 md:w-1/4 h-48 sm:h-auto relative">
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img 
-            src={details.image_url || "https://images.unsplash.com/photo-1593361036080-60b642ec67fc?q=80&w=400&auto=format&fit=crop"} 
+            src={details.image_url || "/images/prasad_thali.png"} 
             alt={details.title}
             className="w-full h-full object-cover"
           />

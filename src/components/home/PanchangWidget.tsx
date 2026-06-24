@@ -37,7 +37,7 @@ export function PanchangWidget() {
   if (!data) return null
 
   return (
-    <section className="w-full py-8">
+    <section id="panchang" className="w-full py-8 scroll-mt-20">
       <div className="container mx-auto px-4 max-w-6xl">
         <h2 className="text-2xl font-bold font-[var(--font-heading)] text-[var(--color-mandir-text)] mb-6">
           Today's Panchang

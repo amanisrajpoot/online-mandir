@@ -1,88 +1,147 @@
 "use client"
 
 import * as React from "react"
-import Link from "next/link"
-import { motion } from "framer-motion"
-import { Sparkles, Calendar } from "lucide-react"
-
-import { Carousel } from "@/components/ui/Carousel"
+import { motion, AnimatePresence } from "framer-motion"
+import { ArrowRight, ChevronLeft, ChevronRight } from "lucide-react"
 import { Button } from "@/components/ui/Button"
-
-const BANNERS = [
-  {
-    id: 1,
-    title: "Maha Shivratri Special",
-    subtitle: "Book authentic Rudrabhishek at Kashi Vishwanath",
-    image: "https://images.unsplash.com/photo-1590050752117-238cb0fb12b1?q=80&w=1200&auto=format&fit=crop",
-    link: "/pujas?category=Festival",
-    cta: "Book Now"
-  },
-  {
-    id: 2,
-    title: "Navratri Devi Darshan",
-    subtitle: "Offer Chadhava at 9 Shaktipeeths",
-    image: "https://images.unsplash.com/photo-1561359313-0639aad3a644?q=80&w=1200&auto=format&fit=crop",
-    link: "/chadhava",
-    cta: "Offer Chadhava"
-  },
-  {
-    id: 3,
-    title: "Daily Panchang",
-    subtitle: "Check today's auspicious timings",
-    image: "https://images.unsplash.com/photo-1604580864964-0462f5d5b1a8?q=80&w=1200&auto=format&fit=crop",
-    link: "#panchang",
-    cta: "View Panchang"
-  }
-]
+import Link from "next/link"
+import { createClient } from "@/lib/supabase/client"
 
 export function HeroBanner() {
-  const carouselItems = BANNERS.map((banner) => (
-    <div key={banner.id} className="relative h-full w-full overflow-hidden">
-      {/* Background Image */}
-      <div 
-        className="absolute inset-0 bg-cover bg-center bg-no-repeat"
-        style={{ backgroundImage: `url(${banner.image})` }}
-      />
+  const [currentSlide, setCurrentSlide] = React.useState(0)
+  const [banners, setBanners] = React.useState<any[]>([])
+  const supabase = createClient()
+
+  React.useEffect(() => {
+    const fetchBanners = async () => {
+      const { data } = await supabase
+        .from('hero_banners')
+        .select('*')
+        .eq('is_active', true)
+        .order('sort_order', { ascending: true })
       
-      {/* Gradient Overlay */}
-      <div className="absolute inset-0 bg-gradient-to-t from-[var(--color-mandir-bg)] via-[var(--color-mandir-bg)]/60 to-transparent" />
-      <div className="absolute inset-0 bg-gradient-to-r from-[var(--color-mandir-bg)]/80 to-transparent" />
-      
-      {/* Content */}
-      <div className="absolute inset-0 flex flex-col justify-end p-6 sm:p-10 md:justify-center md:w-2/3 lg:w-1/2">
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.2, duration: 0.5 }}
-        >
-          <div className="mb-2 inline-flex items-center rounded-full bg-[var(--color-saffron-500)]/20 px-3 py-1 text-xs font-medium text-[var(--color-saffron-400)] backdrop-blur-sm border border-[var(--color-saffron-500)]/30">
-            <Sparkles className="mr-1.5 h-3 w-3" />
-            Featured
-          </div>
-          <h2 className="mb-2 font-[var(--font-heading)] text-2xl font-bold text-white sm:text-4xl md:text-5xl leading-tight">
-            {banner.title}
-          </h2>
-          <p className="mb-6 text-sm text-gray-300 sm:text-base max-w-md">
-            {banner.subtitle}
-          </p>
-          <Link href={banner.link}>
-            <Button variant="gradient" className="rounded-full px-8 shadow-lg">
-              {banner.cta}
-            </Button>
-          </Link>
-        </motion.div>
-      </div>
-    </div>
-  ))
+      if (data && data.length > 0) {
+        setBanners(data)
+      } else {
+        // Fallback just in case db is empty
+        setBanners([{
+          id: 'fallback',
+          title: "महा शिवरात्रि • Maha Shivratri",
+          subtitle: "रुद्राभिषेक बुक करें | Book your Rudrabhishek now",
+          image_url: "/images/hero_banner_shivratri.png",
+          link: "/pujas",
+          cta_text: "अभी बुक करें | Book Now"
+        }])
+      }
+    }
+    fetchBanners()
+  }, [supabase])
+
+  React.useEffect(() => {
+    if (banners.length <= 1) return;
+    const timer = setInterval(() => {
+      setCurrentSlide((prev) => (prev + 1) % banners.length)
+    }, 5000)
+    return () => clearInterval(timer)
+  }, [banners.length])
+
+  if (banners.length === 0) return <div className="w-full h-[300px] md:h-[400px] lg:h-[500px] bg-[var(--color-mandir-surface)] animate-pulse rounded-2xl"></div>
+
+  const nextSlide = () => setCurrentSlide((prev) => (prev + 1) % banners.length)
+  const prevSlide = () => setCurrentSlide((prev) => (prev - 1 + banners.length) % banners.length)
 
   return (
-    <section className="w-full max-w-6xl mx-auto px-4 mt-6">
-      <Carousel 
-        items={carouselItems} 
-        autoPlay={true}
-        interval={6000}
-        className="h-[350px] sm:h-[400px] md:h-[450px] shadow-2xl border border-[var(--color-mandir-border)]"
-      />
-    </section>
+    <div className="relative w-full overflow-hidden rounded-2xl shadow-2xl bg-black group h-[300px] md:h-[400px] lg:h-[500px]">
+      <AnimatePresence initial={false} mode="wait">
+        <motion.div
+          key={currentSlide}
+          initial={{ opacity: 0, scale: 1.05 }}
+          animate={{ opacity: 1, scale: 1 }}
+          exit={{ opacity: 0 }}
+          transition={{ duration: 0.8, ease: "easeInOut" }}
+          className="absolute inset-0"
+        >
+          {/* Background Image */}
+          <div 
+            className="absolute inset-0 bg-cover bg-center"
+            style={{ 
+              backgroundImage: `url(${banners[currentSlide].image_url})`,
+            }}
+          />
+          
+          {/* Gradient Overlay for Text Readability */}
+          <div className="absolute inset-0 bg-gradient-to-r from-black/80 via-black/40 to-transparent" />
+          <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
+
+          {/* Content */}
+          <div className="absolute inset-0 flex flex-col justify-center px-6 md:px-12 lg:px-20 z-10 w-full md:w-2/3">
+            <motion.h1 
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.3, duration: 0.5 }}
+              className="text-3xl md:text-5xl lg:text-6xl font-bold font-[var(--font-heading)] text-white leading-tight mb-4 drop-shadow-lg"
+            >
+              {banners[currentSlide].title}
+            </motion.h1>
+            
+            <motion.p 
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.4, duration: 0.5 }}
+              className="text-lg md:text-xl text-[var(--color-mandir-text-muted)] mb-8 max-w-xl font-medium"
+            >
+              {banners[currentSlide].subtitle}
+            </motion.p>
+            
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.5, duration: 0.5 }}
+            >
+              <Link href={banners[currentSlide].link}>
+                <Button size="lg" variant="gradient" className="text-white px-8 py-6 text-lg rounded-full font-bold shadow-[0_0_20px_rgba(251,146,60,0.3)] hover:shadow-[0_0_30px_rgba(251,146,60,0.5)] hover:scale-105 transition-all">
+                  {banners[currentSlide].cta_text} <ArrowRight className="ml-2 w-5 h-5" />
+                </Button>
+              </Link>
+            </motion.div>
+          </div>
+        </motion.div>
+      </AnimatePresence>
+
+      {/* Navigation Arrows */}
+      {banners.length > 1 && (
+        <>
+          <button 
+            onClick={prevSlide}
+            className="absolute left-4 top-1/2 -translate-y-1/2 z-20 p-2 rounded-full bg-black/30 text-white backdrop-blur-md opacity-0 group-hover:opacity-100 transition-opacity hover:bg-[var(--color-saffron-500)]"
+          >
+            <ChevronLeft className="w-6 h-6" />
+          </button>
+          <button 
+            onClick={nextSlide}
+            className="absolute right-4 top-1/2 -translate-y-1/2 z-20 p-2 rounded-full bg-black/30 text-white backdrop-blur-md opacity-0 group-hover:opacity-100 transition-opacity hover:bg-[var(--color-saffron-500)]"
+          >
+            <ChevronRight className="w-6 h-6" />
+          </button>
+        </>
+      )}
+
+      {/* Indicators */}
+      {banners.length > 1 && (
+        <div className="absolute bottom-6 left-1/2 -translate-x-1/2 z-20 flex gap-2">
+          {banners.map((_, index) => (
+            <button
+              key={index}
+              onClick={() => setCurrentSlide(index)}
+              className={`w-2 h-2 rounded-full transition-all duration-300 ${
+                currentSlide === index 
+                  ? "bg-[var(--color-saffron-500)] w-6" 
+                  : "bg-white/50 hover:bg-white/80"
+              }`}
+            />
+          ))}
+        </div>
+      )}
+    </div>
   )
 }
