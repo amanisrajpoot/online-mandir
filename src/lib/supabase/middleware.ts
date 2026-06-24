@@ -59,6 +59,16 @@ export async function updateSession(request: NextRequest) {
     return NextResponse.redirect(url)
   }
 
+  // Secure admin routes
+  if (user && request.nextUrl.pathname.startsWith('/admin')) {
+    const { data: profile } = await supabase.from('users').select('is_admin').eq('id', user.id).single()
+    if (!profile?.is_admin) {
+      const url = request.nextUrl.clone()
+      url.pathname = '/'
+      return NextResponse.redirect(url)
+    }
+  }
+
   // If user is logged in but tries to access login page, redirect to home
   if (user && request.nextUrl.pathname.startsWith('/login')) {
     const url = request.nextUrl.clone()

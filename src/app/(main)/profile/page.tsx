@@ -43,7 +43,12 @@ function ProfileContent() {
 
   // Form states
   const [editName, setEditName] = React.useState("")
+  const [editEmail, setEditEmail] = React.useState("")
   const [editPhone, setEditPhone] = React.useState("")
+
+  // OTP states
+  const [otpMode, setOtpMode] = React.useState<'email' | 'phone' | null>(null)
+  const [otp, setOtp] = React.useState("")
 
   React.useEffect(() => {
     const fetchData = async () => {
@@ -68,7 +73,8 @@ function ProfileContent() {
         if (profileData) {
           setProfile(profileData)
           setEditName(profileData.name || "")
-          setEditPhone(profileData.phone || "")
+          setEditPhone(user.phone || profileData.phone || "")
+          setEditEmail(user.email || "")
         }
 
         // Fetch orders
@@ -101,17 +107,67 @@ function ProfileContent() {
     setSaving(true)
     
     try {
+      const { data: { user } } = await supabase.auth.getUser()
+      if (!user) throw new Error("No user found")
+
+      let emailChanged = editEmail !== (user.email || "")
+      let formattedPhone = editPhone.replace(/\s+/g, '')
+      if (formattedPhone && formattedPhone.length === 10) {
+        formattedPhone = '+91' + formattedPhone
+      } else if (formattedPhone && !formattedPhone.startsWith('+')) {
+        formattedPhone = '+' + formattedPhone
+      }
+      let phoneChanged = formattedPhone !== (user.phone || "")
+
+      if (emailChanged && phoneChanged) {
+        toast({ type: 'error', title: 'Action not allowed', description: 'Please update your email and phone number one at a time.' })
+        setSaving(false)
+        return
+      }
+
+      if (emailChanged) {
+        const { error } = await supabase.auth.updateUser({ email: editEmail })
+        if (error) {
+          if (error.message.toLowerCase().includes('registered') || error.message.toLowerCase().includes('taken')) {
+            toast({ type: 'error', title: 'Email Taken', description: 'This email is already associated with another account. Please log in with that account instead.' })
+            setSaving(false)
+            return
+          }
+          throw error
+        }
+        setOtpMode('email')
+        toast({ type: 'success', title: 'Verification sent', description: `An OTP was sent to ${editEmail}.` })
+        setSaving(false)
+        return
+      }
+
+      if (phoneChanged) {
+        const { error } = await supabase.auth.updateUser({ phone: formattedPhone })
+        if (error) {
+           if (error.message.toLowerCase().includes('registered') || error.message.toLowerCase().includes('taken')) {
+             toast({ type: 'error', title: 'Phone Taken', description: 'This phone is already associated with another account. Please log in with that account instead.' })
+             setSaving(false)
+             return
+           }
+           throw error
+        }
+        setOtpMode('phone')
+        toast({ type: 'success', title: 'Verification sent', description: `An OTP was sent to ${formattedPhone}.` })
+        setSaving(false)
+        return
+      }
+
+      // If neither email nor phone changed, just update public.users
       const { error } = await supabase
         .from('users')
         .update({
           name: editName,
-          phone: editPhone
         })
         .eq('id', user.id)
 
       if (error) throw error
       
-      setProfile({ ...profile, name: editName, phone: editPhone })
+      setProfile({ ...profile, name: editName })
       toast({ type: "success", title: "Profile Updated" })
     } catch (error: any) {
       toast({ type: "error", title: "Update Failed", description: error.message })
@@ -120,9 +176,58 @@ function ProfileContent() {
     }
   }
 
+  const handleVerifyOtp = async (e: React.FormEvent) => {
+    e.preventDefault()
+    setSaving(true)
+    
+    try {
+      const type = otpMode === 'email' ? 'email_change' : 'phone_change'
+      let identifier = otpMode === 'email' ? editEmail : editPhone
+      if (otpMode === 'phone') {
+        identifier = identifier.replace(/\s+/g, '')
+        if (identifier.length === 10) identifier = '+91' + identifier
+        else if (!identifier.startsWith('+')) identifier = '+' + identifier
+      }
+
+      const verifyParams: any = {
+        token: otp,
+        type: type
+      }
+      if (otpMode === 'email') verifyParams.email = identifier
+      else verifyParams.phone = identifier
+
+      const { data: { user }, error } = await supabase.auth.verifyOtp(verifyParams)
+
+      if (error) throw error
+      if (!user) throw new Error("Verification failed")
+
+      // Sync public.users
+      const { error: dbError } = await supabase
+        .from('users')
+        .update({
+          name: editName,
+          ...(otpMode === 'phone' && { phone: identifier })
+        })
+        .eq('id', user.id)
+
+      if (dbError) throw dbError
+
+      setUser(user)
+      setProfile({ ...profile, name: editName, ...(otpMode === 'phone' && { phone: identifier }) })
+      setOtpMode(null)
+      setOtp("")
+      toast({ type: "success", title: "Profile Updated", description: `Your ${otpMode} was successfully verified and updated.` })
+      
+    } catch (error: any) {
+      toast({ type: 'error', title: 'Verification Failed', description: error.message || 'Invalid OTP. Please try again.' })
+    } finally {
+      setSaving(false)
+    }
+  }
+
   const handleLogout = async () => {
     await supabase.auth.signOut()
-    router.push('/login')
+    window.location.href = '/login'
   }
 
   if (loading) {
@@ -209,39 +314,99 @@ function ProfileContent() {
                     <CardTitle className="text-2xl font-[var(--font-heading)]">Personal Details</CardTitle>
                   </CardHeader>
                   <CardContent>
-                    <form onSubmit={handleUpdateProfile} className="space-y-6 max-w-md">
-                      <div className="space-y-2">
-                        <label className="text-sm font-medium text-[var(--color-mandir-text-muted)]">Full Name</label>
-                        <Input 
-                          value={editName}
-                          onChange={(e) => setEditName(e.target.value)}
-                          placeholder="Your full name"
-                        />
-                      </div>
-                      <div className="space-y-2">
-                        <label className="text-sm font-medium text-[var(--color-mandir-text-muted)]">Email Address</label>
-                        <Input 
-                          value={user?.email}
-                          disabled
-                          className="bg-[var(--color-mandir-bg)] opacity-70"
-                        />
-                        <p className="text-xs flex items-center text-[var(--color-auspicious-green)] mt-1">
-                          <ShieldCheck className="w-3 h-3 mr-1" /> Email verified
-                        </p>
-                      </div>
-                      <div className="space-y-2">
-                        <label className="text-sm font-medium text-[var(--color-mandir-text-muted)]">WhatsApp Number</label>
-                        <Input 
-                          value={editPhone}
-                          onChange={(e) => setEditPhone(e.target.value)}
-                          placeholder="10-digit mobile number"
-                        />
-                      </div>
-                      
-                      <Button type="submit" variant="gradient" disabled={saving}>
-                        {saving ? "Saving..." : "Save Changes"}
-                      </Button>
-                    </form>
+                    {otpMode ? (
+                      <form onSubmit={handleVerifyOtp} className="space-y-6 max-w-md">
+                        <div className="space-y-2">
+                          <label className="text-sm font-medium text-[var(--color-mandir-text-muted)]">Verification Code</label>
+                          <p className="text-xs text-[var(--color-mandir-text-muted)] mb-2">
+                            Enter the code sent to <span className="font-medium text-[var(--color-mandir-text)]">{otpMode === 'email' ? editEmail : editPhone}</span> to verify this change.
+                          </p>
+                          <Input
+                            type="text"
+                            placeholder="123456"
+                            value={otp}
+                            onChange={(e) => setOtp(e.target.value)}
+                            maxLength={8}
+                            required
+                            disabled={saving}
+                            className="text-center text-2xl tracking-widest font-mono"
+                          />
+                        </div>
+                        <Button type="submit" variant="gradient" className="w-full" disabled={saving || otp.length < 6}>
+                          {saving ? "Verifying..." : "Verify & Save"}
+                        </Button>
+                        <div className="mt-4 text-center">
+                          <button 
+                            type="button" 
+                            onClick={() => { setOtpMode(null); setOtp(''); }} 
+                            className="text-sm text-[var(--color-saffron-400)] hover:underline"
+                          >
+                            Cancel
+                          </button>
+                        </div>
+                      </form>
+                    ) : (
+                      <form onSubmit={handleUpdateProfile} className="space-y-6 max-w-md">
+                        <div className="space-y-2">
+                          <label className="text-sm font-medium text-[var(--color-mandir-text-muted)]">Full Name</label>
+                          <Input 
+                            value={editName}
+                            onChange={(e) => setEditName(e.target.value)}
+                            placeholder="Your full name"
+                          />
+                        </div>
+                        <div className="space-y-2">
+                          <label className="text-sm font-medium text-[var(--color-mandir-text-muted)]">Email Address</label>
+                          <Input 
+                            value={editEmail}
+                            onChange={(e) => setEditEmail(e.target.value)}
+                            placeholder={user?.email ? "" : "Enter your email address"}
+                          />
+                          {user?.email === editEmail && user?.email ? (
+                            <p className="text-xs flex items-center text-[var(--color-auspicious-green)] mt-1">
+                              <ShieldCheck className="w-3 h-3 mr-1" /> Email verified
+                            </p>
+                          ) : editEmail !== (user?.email || "") ? (
+                            <p className="text-xs text-[var(--color-saffron-500)] mt-1">
+                              Requires verification via OTP.
+                            </p>
+                          ) : (
+                            <p className="text-xs text-[var(--color-mandir-text-muted)] mt-1">
+                              You logged in via phone number. Link an email to secure your account.
+                            </p>
+                          )}
+                        </div>
+                        <div className="space-y-2">
+                          <label className="text-sm font-medium text-[var(--color-mandir-text-muted)]">WhatsApp Number</label>
+                          <Input 
+                            value={editPhone}
+                            onChange={(e) => setEditPhone(e.target.value)}
+                            placeholder="10-digit mobile number"
+                          />
+                          {user?.phone === editPhone && user?.phone ? (
+                            <p className="text-xs flex items-center text-[var(--color-auspicious-green)] mt-1">
+                              <ShieldCheck className="w-3 h-3 mr-1" /> Phone verified
+                            </p>
+                          ) : editPhone !== (user?.phone || "") && editPhone.length >= 10 ? (
+                            <p className="text-xs text-[var(--color-saffron-500)] mt-1">
+                              Requires verification via OTP.
+                            </p>
+                          ) : !user?.phone ? (
+                            <p className="text-xs text-[var(--color-sacred-red)] mt-1 font-medium">
+                              This phone number is unverified. Please verify a phone number to secure your account.
+                            </p>
+                          ) : (
+                            <p className="text-xs text-[var(--color-mandir-text-muted)] mt-1">
+                              Update your number to trigger a verification code.
+                            </p>
+                          )}
+                        </div>
+                        
+                        <Button type="submit" variant="gradient" disabled={saving || (editEmail === (user?.email || "") && editPhone === (user?.phone || "") && editName === profile?.name)}>
+                          {saving ? "Saving..." : (editEmail !== (user?.email || "") || editPhone !== (user?.phone || "")) ? "Verify & Save Changes" : "Save Changes"}
+                        </Button>
+                      </form>
+                    )}
                   </CardContent>
                 </Card>
               </motion.div>
