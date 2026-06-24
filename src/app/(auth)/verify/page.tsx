@@ -11,18 +11,29 @@ import { toast } from '@/components/ui/Toast'
 import { ArrowLeft } from 'lucide-react'
 
 export default function VerifyPage() {
-  const [email, setEmail] = useState('')
+  const [identifier, setIdentifier] = useState('')
+  const [authType, setAuthType] = useState<'email'|'sms'>('email')
   const [otp, setOtp] = useState('')
   const [isLoading, setIsLoading] = useState(false)
   const router = useRouter()
   const supabase = createClient()
 
   useEffect(() => {
-    const storedEmail = sessionStorage.getItem('auth_email')
-    if (!storedEmail) {
+    const storedIdentifier = sessionStorage.getItem('auth_identifier')
+    const storedType = sessionStorage.getItem('auth_type') as 'email' | 'phone' | null
+    
+    // Fallback for older sessions
+    const fallbackEmail = sessionStorage.getItem('auth_email')
+    
+    if (!storedIdentifier && !fallbackEmail) {
       router.push('/login')
     } else {
-      setEmail(storedEmail)
+      setIdentifier(storedIdentifier || fallbackEmail || '')
+      if (storedType === 'phone') {
+        setAuthType('sms')
+      } else {
+        setAuthType('email')
+      }
     }
   }, [router])
 
@@ -31,11 +42,22 @@ export default function VerifyPage() {
     setIsLoading(true)
 
     try {
-      const { data, error } = await supabase.auth.verifyOtp({
-        email,
-        token: otp,
-        type: 'email',
-      })
+      let result;
+      if (authType === 'email') {
+        result = await supabase.auth.verifyOtp({
+          email: identifier,
+          token: otp,
+          type: 'email',
+        })
+      } else {
+        result = await supabase.auth.verifyOtp({
+          phone: identifier,
+          token: otp,
+          type: 'sms',
+        })
+      }
+      
+      const { data, error } = result;
 
       if (error) {
         throw error
@@ -54,7 +76,9 @@ export default function VerifyPage() {
         .eq('id', data.user?.id)
         .single()
 
-      sessionStorage.removeItem('auth_email')
+      sessionStorage.removeItem('auth_identifier')
+      sessionStorage.removeItem('auth_type')
+      sessionStorage.removeItem('auth_email') // clean up old key if exists
       const redirectUrl = sessionStorage.getItem('auth_redirect')
       sessionStorage.removeItem('auth_redirect')
       
@@ -108,7 +132,7 @@ export default function VerifyPage() {
         <CardHeader>
           <CardTitle>Verify Your Identity</CardTitle>
           <CardDescription>
-            We've sent a 6-digit code to <span className="font-semibold text-[var(--color-mandir-text)]">{email}</span>
+            We've sent a code to <span className="font-semibold text-[var(--color-mandir-text)]">{identifier}</span>
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -118,10 +142,10 @@ export default function VerifyPage() {
               <Input
                 id="otp"
                 type="text"
-                placeholder="123456"
+                placeholder="12345678"
                 value={otp}
                 onChange={(e) => setOtp(e.target.value)}
-                maxLength={6}
+                maxLength={8}
                 required
                 disabled={isLoading}
                 className="text-center text-2xl tracking-widest font-mono"
