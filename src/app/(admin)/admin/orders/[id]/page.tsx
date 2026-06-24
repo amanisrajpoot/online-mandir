@@ -45,14 +45,22 @@ export default function AdminOrderDetail() {
           .from('orders')
           .select(`
             *,
-            users (name, phone, email),
-            pujas (*),
-            chadhava_items (*)
+            users (name, phone)
           `)
           .eq('id', id)
           .single()
           
         if (orderError) throw orderError
+
+        // Fetch related item manually
+        if (orderData.order_type === 'puja') {
+          const { data: pujaData } = await supabase.from('pujas').select('*').eq('id', orderData.item_id).single()
+          orderData.pujas = pujaData
+        } else if (orderData.order_type === 'chadhava') {
+          const { data: chadhavaData } = await supabase.from('chadhava_items').select('*').eq('id', orderData.item_id).single()
+          orderData.chadhava_items = chadhavaData
+        }
+
         setOrder(orderData)
         setVideoUrl(orderData.video_url || "")
 

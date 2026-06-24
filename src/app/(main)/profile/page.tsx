@@ -80,16 +80,22 @@ function ProfileContent() {
         // Fetch orders
         const { data: ordersData, error: ordersError } = await supabase
           .from('orders')
-          .select(`
-            *,
-            pujas (*),
-            chadhava_items (*)
-          `)
+          .select('*')
           .eq('user_id', user.id)
           .order('created_at', { ascending: false })
 
         if (!ordersError && ordersData) {
-          setOrders(ordersData)
+          const enrichedOrders = await Promise.all(ordersData.map(async (order) => {
+            if (order.order_type === 'puja') {
+              const { data: puja } = await supabase.from('pujas').select('*').eq('id', order.item_id).single()
+              return { ...order, pujas: puja }
+            } else if (order.order_type === 'chadhava') {
+              const { data: item } = await supabase.from('chadhava_items').select('*').eq('id', order.item_id).single()
+              return { ...order, chadhava_items: item }
+            }
+            return order
+          }))
+          setOrders(enrichedOrders)
         }
 
       } catch (error) {
