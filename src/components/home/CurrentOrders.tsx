@@ -76,7 +76,7 @@ export function CurrentOrders() {
                         </Badge>
                       </div>
                       <p className="text-xs text-[var(--color-mandir-text-muted)] truncate">
-                        Order ID: {order.razorpay_order_id.substring(0, 12)}...
+                        Order ID: {(order.cashfree_order_id || order.id).substring(0, 12)}...
                       </p>
                     </div>
                   </CardContent>

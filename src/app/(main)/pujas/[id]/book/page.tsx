@@ -40,6 +40,7 @@ export default function PujaBookingPage() {
   // Form State
   const [sankalpData, setSankalpData] = React.useState({
     fullName: "",
+    phone: "",
     gotra: "",
     problem: "",
     additionalMembers: [] as string[]
@@ -49,8 +50,7 @@ export default function PujaBookingPage() {
     street: "",
     city: "",
     state: "",
-    pincode: "",
-    phone: ""
+    pincode: ""
   })
 
   const [optInPrasad, setOptInPrasad] = React.useState(false)
@@ -73,8 +73,7 @@ export default function PujaBookingPage() {
           .single()
 
         if (profile) {
-          setSankalpData(prev => ({ ...prev, fullName: profile.name || "" }))
-          setAddressData(prev => ({ ...prev, phone: profile.phone || "" }))
+          setSankalpData(prev => ({ ...prev, fullName: profile.name || "", phone: profile.phone || "" }))
         }
 
         // Fetch Puja Details
@@ -125,15 +124,15 @@ export default function PujaBookingPage() {
   const handleNextStep = () => {
     // Basic validation
     if (currentStep === 0) {
-      if (!sankalpData.fullName) {
-        toast({ type: "error", title: "Required Field", description: "Please enter your full name for the Sankalp." })
+      if (!sankalpData.fullName || !sankalpData.phone) {
+        toast({ type: "error", title: "Required Field", description: "Please enter your full name and phone number." })
         return
       }
     } else if (currentStep === 1) {
       const isPrasadFree = (selectedPackage?.sale_price || puja.sale_price) >= 500
       const includePrasad = isPrasadFree || optInPrasad
       
-      if (includePrasad && (!addressData.street || !addressData.city || !addressData.state || !addressData.pincode || !addressData.phone)) {
+      if (includePrasad && (!addressData.street || !addressData.city || !addressData.state || !addressData.pincode)) {
         toast({ type: "error", title: "Required Fields", description: "Please fill all address fields for Prasad delivery." })
         return
       }
@@ -171,7 +170,7 @@ export default function PujaBookingPage() {
             amount: finalPayableAmount,
             customerName: sankalpData.fullName,
             packageId: selectedPackage?.id,
-            customerPhone: addressData.phone,
+            customerPhone: sankalpData.phone,
             sankalpDetails: {
               name: sankalpData.fullName,
               gotra: sankalpData.gotra,
@@ -180,7 +179,7 @@ export default function PujaBookingPage() {
             },
             deliveryAddress: includePrasad ? {
               name: sankalpData.fullName,
-              phone: addressData.phone,
+              phone: sankalpData.phone,
               address_line: addressData.street,
               city: addressData.city,
               state: addressData.state,
@@ -310,16 +309,27 @@ export default function PujaBookingPage() {
                     The Pandit will chant these details to dedicate the merit of the puja to you.
                   </p>
                   
-                  <div className="space-y-2">
-                    <label className="text-sm font-medium">Your Full Name (required)</label>
-                    <Input 
-                      placeholder="e.g. Rahul Sharma" 
-                      value={sankalpData.fullName}
-                      onChange={e => setSankalpData({...sankalpData, fullName: e.target.value})}
-                    />
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <label className="text-sm font-medium">Your Full Name (required)</label>
+                      <Input 
+                        placeholder="e.g. Rahul Sharma" 
+                        value={sankalpData.fullName}
+                        onChange={e => setSankalpData({...sankalpData, fullName: e.target.value})}
+                      />
+                    </div>
+                    
+                    <div className="space-y-2">
+                      <label className="text-sm font-medium">Phone Number (required)</label>
+                      <Input 
+                        placeholder="10-digit mobile number" 
+                        value={sankalpData.phone}
+                        onChange={e => setSankalpData({...sankalpData, phone: e.target.value})}
+                      />
+                    </div>
                   </div>
                   
-                  <div className="space-y-2">
+                  <div className="space-y-2 mt-4">
                     <label className="text-sm font-medium">Gotra (optional)</label>
                     <Input 
                       placeholder="e.g. Kashyap" 
@@ -454,7 +464,7 @@ export default function PujaBookingPage() {
                         </div>
                       </div>
 
-                      <div className="grid grid-cols-2 gap-4">
+                      <div className="grid grid-cols-1 gap-4">
                         <div className="space-y-2">
                           <label className="text-sm font-medium">Pincode</label>
                           <Input 
@@ -462,14 +472,6 @@ export default function PujaBookingPage() {
                             value={addressData.pincode}
                             onChange={e => setAddressData({...addressData, pincode: e.target.value})}
                             maxLength={6}
-                          />
-                        </div>
-                        <div className="space-y-2">
-                          <label className="text-sm font-medium">Phone Number</label>
-                          <Input 
-                            placeholder="10-digit number" 
-                            value={addressData.phone}
-                            onChange={e => setAddressData({...addressData, phone: e.target.value})}
                           />
                         </div>
                       </div>
@@ -542,7 +544,7 @@ export default function PujaBookingPage() {
                         <div className="text-[var(--color-mandir-text-muted)] mt-1">
                           {addressData.street}<br/>
                           {addressData.city}, {addressData.state} - {addressData.pincode}<br/>
-                          Phone: {addressData.phone}
+                          Phone: {sankalpData.phone}
                         </div>
                       </>
                     ) : (

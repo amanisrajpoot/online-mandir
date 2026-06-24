@@ -45,11 +45,9 @@ export async function POST(request: Request) {
       .insert({
         user_id: user.id,
         order_type: type,
-        puja_id: type === 'puja' ? itemId : null,
-        chadhava_item_id: type === 'chadhava' ? itemId : null,
+        item_id: itemId,
         status: 'booked',
         amount: amount,
-        final_amount: amount,
         package_details: packageDetails,
       })
       .select()
@@ -57,7 +55,7 @@ export async function POST(request: Request) {
 
     if (dbError || !dbOrder) {
       console.error("Supabase Order Error:", dbError);
-      return NextResponse.json({ error: "Failed to create order record" }, { status: 500 });
+      return NextResponse.json({ error: `Failed to create order record: ${dbError?.message || 'Unknown error'}` }, { status: 500 });
     }
 
     // 2. Insert Sankalp and Address if provided
@@ -98,7 +96,7 @@ export async function POST(request: Request) {
         customer_email: customerEmail || user.email || "devotee@devmandir.app",
       },
       order_meta: {
-        return_url: `${process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000"}/book/confirmation?order_id=${dbOrder.id}&cf_id={order_id}`,
+        return_url: `${process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000"}/book/confirmation?order_id=${dbOrder.id}&cf_id={order_id}`.replace("http://", "https://"),
       }
     };
 
@@ -121,7 +119,9 @@ export async function POST(request: Request) {
     });
 
   } catch (error: any) {
-    console.error("Create Order API Error:", error?.response?.data || error);
-    return NextResponse.json({ error: error.message || "Internal Server Error" }, { status: 500 });
+    const cfErrorData = error?.response?.data;
+    console.error("Create Order API Error:", cfErrorData || error);
+    const errorMessage = cfErrorData?.message || error.message || "Internal Server Error";
+    return NextResponse.json({ error: `Cashfree Error: ${errorMessage}` }, { status: 500 });
   }
 }
