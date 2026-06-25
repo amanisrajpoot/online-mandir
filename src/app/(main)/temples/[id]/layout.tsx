@@ -67,19 +67,43 @@ export default async function TempleLayout({
     .single()
 
   let jsonLd = null
+  let breadcrumbLd = null
   if (temple) {
     jsonLd = {
       "@context": "https://schema.org",
       "@type": "HinduTemple",
       "name": temple.name,
-      "description": temple.description || `Explore ${temple.name}.`,
+      "description": temple.description,
       "image": temple.image_url ? [temple.image_url] : undefined,
       "address": {
         "@type": "PostalAddress",
-        "addressLocality": temple.location,
-        "addressCountry": "IN"
-      },
-      "url": `https://www.vandanam.online/temples/${id}`
+        "addressLocality": temple.location
+      }
+    }
+
+    breadcrumbLd = {
+      "@context": "https://schema.org",
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        {
+          "@type": "ListItem",
+          "position": 1,
+          "name": "Home",
+          "item": "https://www.vandanam.online"
+        },
+        {
+          "@type": "ListItem",
+          "position": 2,
+          "name": "Temples",
+          "item": "https://www.vandanam.online/temples"
+        },
+        {
+          "@type": "ListItem",
+          "position": 3,
+          "name": temple.name,
+          "item": `https://www.vandanam.online/temples/${id}`
+        }
+      ]
     }
   }
 
@@ -89,6 +113,12 @@ export default async function TempleLayout({
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+        />
+      )}
+      {breadcrumbLd && (
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbLd) }}
         />
       )}
       {children}

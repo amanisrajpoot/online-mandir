@@ -2,6 +2,7 @@
 
 import * as React from "react"
 import Link from "next/link"
+import Image from "next/image"
 import { motion } from "framer-motion"
 import { Flower2, ArrowRight } from "lucide-react"
 
@@ -78,11 +79,12 @@ export function ChadhavaQuickSelect() {
                 <Link href={`/chadhava/${encodeId(item.id)}`}>
                   <Card className="overflow-hidden h-full group border-[var(--color-mandir-border)] hover:border-[var(--color-saffron-400)] transition-colors hover:shadow-[0_0_15px_rgba(251,146,60,0.15)] bg-[var(--color-mandir-surface)]/80 backdrop-blur-sm">
                     <div className="relative h-28 sm:h-36 overflow-hidden">
-                      {/* eslint-disable-next-line @next/next/no-img-element */}
-                      <img 
+                      <Image 
                         src={item.image_url || "/images/chadhava_pushp.png"} 
                         alt={item.title}
-                        className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-110 opacity-80 group-hover:opacity-100"
+                        fill
+                        sizes="(max-width: 640px) 50vw, 25vw"
+                        className="object-cover transition-transform duration-500 group-hover:scale-110 opacity-80 group-hover:opacity-100"
                       />
                       <div className="absolute inset-0 bg-gradient-to-t from-[var(--color-mandir-surface)] to-transparent opacity-80" />
                       

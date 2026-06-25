@@ -127,6 +127,24 @@ export default function TemplesPage() {
           ))}
         </div>
       )}
+
+      {/* SEO Content Section */}
+      <article className="mt-20 pt-10 border-t border-[var(--color-mandir-border)]">
+        <h2 className="text-2xl font-bold font-[var(--font-heading)] text-[var(--color-mandir-text)] mb-4">
+          Discover India's Most Sacred Temples
+        </h2>
+        <div className="space-y-4 text-[var(--color-mandir-text-muted)] leading-relaxed">
+          <p>
+            India is a land of profound spirituality, home to thousands of ancient and powerful temples. Each mandir carries a unique history, architectural brilliance, and divine energy that has attracted devotees for centuries. Through Vandanam, you can explore the history, significance, and deities of these prominent temples from the comfort of your home.
+          </p>
+          <p>
+            Whether it's the jyotirlingas like Mahakaleshwar and Kashi Vishwanath, or the revered Shakti Peethas like Mata Vaishno Devi, our comprehensive temple directory provides you with the spiritual context you need. We bring the divine presence closer to you by offering online puja booking and chadhava services directly connected to these sacred sites.
+          </p>
+          <p>
+            Browse our directory to learn more about temple timings, spiritual significance, and the various rituals performed. Vandanam is your trusted digital companion for all your spiritual and devotional needs across India's holiest shrines.
+          </p>
+        </div>
+      </article>
     </div>
   )
 }

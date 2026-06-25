@@ -165,6 +165,24 @@ export default function PujasPage() {
           ))}
         </div>
       )}
+
+      {/* SEO Content Section */}
+      <article className="mt-20 pt-10 border-t border-[var(--color-mandir-border)]">
+        <h2 className="text-2xl font-bold font-[var(--font-heading)] text-[var(--color-mandir-text)] mb-4">
+          Why Book Online Pujas with Vandanam?
+        </h2>
+        <div className="space-y-4 text-[var(--color-mandir-text-muted)] leading-relaxed">
+          <p>
+            In today's fast-paced world, performing sacred rituals at ancient temples is not always geographically or practically possible. Vandanam bridges this gap by offering a seamless, transparent platform for booking authentic online pujas at India's most revered temples. Whether you are looking for a Rudrabhishek at Mahakaleshwar, a Mangal Dosh Nivaran, or a Satyanarayan Puja, our platform connects you with verified temple priests.
+          </p>
+          <p>
+            Every puja booked through our platform is performed with the utmost devotion and strict adherence to Vedic principles. We ensure that your personalized Sankalp (name and gotra) is chanted by the pandit during the ceremony. To maintain complete transparency, you will receive a video recording of the ritual, and the blessed Prasad will be delivered directly to your home.
+          </p>
+          <p>
+            Experience the divine blessings of Kashi Vishwanath, Siddhivinayak, and Mata Vaishno Devi from the comfort of your home. Book your online puja today and step closer to spiritual fulfillment.
+          </p>
+        </div>
+      </article>
     </div>
   )
 }

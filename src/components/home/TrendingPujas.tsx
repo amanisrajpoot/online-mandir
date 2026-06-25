@@ -2,6 +2,7 @@
 
 import * as React from "react"
 import Link from "next/link"
+import Image from "next/image"
 import { motion } from "framer-motion"
 import { ArrowRight, Sparkles, Clock } from "lucide-react"
 
@@ -86,11 +87,12 @@ export function TrendingPujas() {
               >
                 <Card className="overflow-hidden h-full flex flex-col group border-[var(--color-mandir-border)] hover:border-[var(--color-saffron-500)]/50 transition-colors">
                   <div className="relative h-48 overflow-hidden bg-[var(--color-mandir-surface)]">
-                    {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img 
+                    <Image 
                       src={puja.image_url || "/images/puja_ganesh.png"} 
                       alt={puja.title}
-                      className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-110 opacity-80 group-hover:opacity-100"
+                      fill
+                      sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                      className="object-cover transition-transform duration-700 group-hover:scale-110 opacity-80 group-hover:opacity-100"
                     />
                     <div className="absolute top-3 left-3 flex gap-2">
                       <Badge variant="secondary" className="bg-black/50 backdrop-blur-md border-none text-white">

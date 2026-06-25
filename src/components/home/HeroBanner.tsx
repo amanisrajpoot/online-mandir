@@ -5,6 +5,7 @@ import { motion, AnimatePresence } from "framer-motion"
 import { ArrowRight, ChevronLeft, ChevronRight } from "lucide-react"
 import { Button } from "@/components/ui/Button"
 import Link from "next/link"
+import Image from "next/image"
 import { createClient } from "@/lib/supabase/client"
 
 export function HeroBanner() {
@@ -62,11 +63,12 @@ export function HeroBanner() {
           className="absolute inset-0"
         >
           {/* Background Image */}
-          <div 
-            className="absolute inset-0 bg-cover bg-center"
-            style={{ 
-              backgroundImage: `url(${banners[currentSlide].image_url})`,
-            }}
+          <Image
+            src={banners[currentSlide].image_url}
+            alt={banners[currentSlide].title}
+            fill
+            priority
+            className="object-cover"
           />
           
           {/* Gradient Overlay for Text Readability */}

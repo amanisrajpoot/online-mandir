@@ -67,6 +67,7 @@ export default async function PujaLayout({
     .single()
 
   let jsonLd = null
+  let breadcrumbLd = null
   if (puja) {
     jsonLd = {
       "@context": "https://schema.org",
@@ -86,6 +87,31 @@ export default async function PujaLayout({
         "name": puja.temples?.name || "Vandanam"
       }
     }
+
+    breadcrumbLd = {
+      "@context": "https://schema.org",
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        {
+          "@type": "ListItem",
+          "position": 1,
+          "name": "Home",
+          "item": "https://www.vandanam.online"
+        },
+        {
+          "@type": "ListItem",
+          "position": 2,
+          "name": "Pujas",
+          "item": "https://www.vandanam.online/pujas"
+        },
+        {
+          "@type": "ListItem",
+          "position": 3,
+          "name": puja.title,
+          "item": `https://www.vandanam.online/pujas/${id}`
+        }
+      ]
+    }
   }
 
   return (
@@ -94,6 +120,12 @@ export default async function PujaLayout({
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+        />
+      )}
+      {breadcrumbLd && (
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbLd) }}
         />
       )}
       {children}

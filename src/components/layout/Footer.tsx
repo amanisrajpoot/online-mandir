@@ -38,6 +38,7 @@ export function Footer() {
           <div>
             <h4 className="font-medium text-[var(--color-mandir-text)] mb-4 font-[var(--font-heading)]">Services</h4>
             <ul className="space-y-2 text-sm text-[var(--color-mandir-text-muted)]">
+              <li><Link href="/about" className="hover:text-[var(--color-saffron-400)] transition-colors">About Us</Link></li>
               <li><Link href="/pujas" className="hover:text-[var(--color-saffron-400)] transition-colors">Book a Puja</Link></li>
               <li><Link href="/chadhava" className="hover:text-[var(--color-saffron-400)] transition-colors">Offer Chadhava</Link></li>
               <li><Link href="/temples" className="hover:text-[var(--color-saffron-400)] transition-colors">Temple Directory</Link></li>

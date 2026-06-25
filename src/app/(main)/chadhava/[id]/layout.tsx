@@ -67,6 +67,7 @@ export default async function ChadhavaLayout({
     .single()
 
   let jsonLd = null
+  let breadcrumbLd = null
   if (item) {
     jsonLd = {
       "@context": "https://schema.org",
@@ -86,6 +87,31 @@ export default async function ChadhavaLayout({
         "name": item.temples?.name || "Vandanam"
       }
     }
+
+    breadcrumbLd = {
+      "@context": "https://schema.org",
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        {
+          "@type": "ListItem",
+          "position": 1,
+          "name": "Home",
+          "item": "https://www.vandanam.online"
+        },
+        {
+          "@type": "ListItem",
+          "position": 2,
+          "name": "Chadhava",
+          "item": "https://www.vandanam.online/chadhava"
+        },
+        {
+          "@type": "ListItem",
+          "position": 3,
+          "name": item.title,
+          "item": `https://www.vandanam.online/chadhava/${id}`
+        }
+      ]
+    }
   }
 
   return (
@@ -94,6 +120,12 @@ export default async function ChadhavaLayout({
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+        />
+      )}
+      {breadcrumbLd && (
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbLd) }}
         />
       )}
       {children}

@@ -132,6 +132,24 @@ export default function ChadhavaPage() {
           ))}
         </div>
       )}
+
+      {/* SEO Content Section */}
+      <article className="mt-20 pt-10 border-t border-[var(--color-mandir-border)]">
+        <h2 className="text-2xl font-bold font-[var(--font-heading)] text-[var(--color-mandir-text)] mb-4">
+          The Significance of Online Temple Chadhava
+        </h2>
+        <div className="space-y-4 text-[var(--color-mandir-text-muted)] leading-relaxed">
+          <p>
+            Offering Chadhava (sacred offerings) is a profound act of devotion in Sanatana Dharma. Through Vandanam, you can now offer Pushp (flowers), Vastra (clothing), Deep Daan (lamps), and Bhog (food) to your beloved deities across India's most prominent temples, without the need to travel.
+          </p>
+          <p>
+            Our dedicated temple partners ensure that your offerings are presented to the deity with the highest purity and devotion. When you select a Chadhava item, it is sourced locally by the temple priests and offered on your behalf. Whether you wish to offer a silk saree to Goddess Mahalakshmi or Bhasma to Lord Mahakaleshwar, we make it spiritually enriching and accessible.
+          </p>
+          <p>
+            Participating in these rituals brings peace, prosperity, and a deep sense of connection to the divine. We provide transparent updates on your offerings, ensuring your devotion reaches the sanctum sanctorum exactly as you intended.
+          </p>
+        </div>
+      </article>
     </div>
   )
 }
