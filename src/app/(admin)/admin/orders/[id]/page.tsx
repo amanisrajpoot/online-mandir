@@ -156,6 +156,7 @@ export default function AdminOrderDetail() {
             Order Details
             <Badge variant="outline" className={`capitalize ${
               order.status === 'completed' ? 'text-[var(--color-auspicious-green)] border-[var(--color-auspicious-green)]' : 
+              order.status === 'pending' ? 'text-[var(--color-sacred-red)] border-[var(--color-sacred-red)]' : 
               'text-[var(--color-saffron-500)] border-[var(--color-saffron-500)]'
             }`}>
               {order.status.replace('_', ' ')}

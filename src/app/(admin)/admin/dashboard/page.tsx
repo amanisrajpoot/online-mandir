@@ -197,6 +197,7 @@ export default function AdminDashboard() {
                       <Badge variant="outline" className={`text-xs capitalize ${
                         order.status === 'completed' ? 'text-[var(--color-auspicious-green)] border-[var(--color-auspicious-green)]' : 
                         order.status === 'booked' ? 'text-blue-400 border-blue-400' : 
+                        order.status === 'pending' ? 'text-[var(--color-sacred-red)] border-[var(--color-sacred-red)]' : 
                         'text-[var(--color-saffron-500)] border-[var(--color-saffron-500)]'
                       }`}>
                         {order.status.replace('_', ' ')}

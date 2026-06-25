@@ -28,7 +28,7 @@ export async function POST(request: Request) {
       // Update Supabase Order
       await supabase
         .from('orders')
-        .update({ status: 'assigned' }) // Move from booked to assigned once paid
+        .update({ status: 'booked' }) // Move from pending to booked once paid
         .eq('cashfree_order_id', orderId);
 
       return NextResponse.json({ success: true, status: "SUCCESS" });

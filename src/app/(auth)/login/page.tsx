@@ -149,12 +149,14 @@ function LoginContent() {
       sessionStorage.removeItem('auth_redirect')
       
       if (!profile?.name) {
+        router.refresh()
         if (redirectUrl) {
           router.push(`/profile-setup?redirect=${encodeURIComponent(redirectUrl)}`)
         } else {
           router.push('/profile-setup')
         }
       } else {
+        router.refresh()
         if (redirectUrl) {
           router.push(redirectUrl)
         } else {

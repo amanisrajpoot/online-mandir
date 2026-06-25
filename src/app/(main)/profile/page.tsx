@@ -47,7 +47,7 @@ function ProfileContent() {
   const [editPhone, setEditPhone] = React.useState("")
 
   // OTP states
-  const [otpMode, setOtpMode] = React.useState<'email' | 'phone' | null>(null)
+  const [otpMode, setOtpMode] = React.useState<'email' | 'phone' | 'merge' | null>(null)
   const [otp, setOtp] = React.useState("")
 
   React.useEffect(() => {
@@ -151,7 +151,27 @@ function ProfileContent() {
         const { error } = await supabase.auth.updateUser({ phone: formattedPhone })
         if (error) {
            if (error.message.toLowerCase().includes('registered') || error.message.toLowerCase().includes('taken')) {
-             toast({ type: 'error', title: 'Phone Taken', description: 'This phone is already associated with another account. Please log in with that account instead.' })
+             try {
+               const { data: { session } } = await supabase.auth.getSession()
+               const res = await fetch('/api/auth/merge/send', {
+                 method: 'POST',
+                 headers: {
+                   'Content-Type': 'application/json',
+                   'Authorization': `Bearer ${session?.access_token}`
+                 },
+                 body: JSON.stringify({ targetPhone: formattedPhone })
+               })
+               
+               if (!res.ok) {
+                 const data = await res.json()
+                 throw new Error(data.error || "Failed to initiate account merge")
+               }
+               
+               setOtpMode('merge')
+               toast({ type: 'success', title: 'Account Merge Required', description: `An OTP was sent to ${formattedPhone} to verify ownership and merge.` })
+             } catch (err: any) {
+               toast({ type: 'error', title: 'Merge Failed', description: err.message || 'Could not initiate merge.' })
+             }
              setSaving(false)
              return
            }
@@ -194,6 +214,45 @@ function ProfileContent() {
         if (identifier.length === 10) identifier = '+91' + identifier
         else if (!identifier.startsWith('+')) identifier = '+' + identifier
       }
+
+      if (otpMode === 'merge') {
+        const { data: { session } } = await supabase.auth.getSession()
+        const res = await fetch('/api/auth/merge/verify', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${session?.access_token}`
+          },
+          body: JSON.stringify({ targetPhone: identifier, otp })
+        })
+        
+        const data = await res.json()
+        if (!res.ok) {
+          throw new Error(data.error || "Failed to verify merge OTP")
+        }
+
+        // Merge successful! Now save profile
+        const { data: { user } } = await supabase.auth.getUser()
+        if (!user) throw new Error("Verification failed")
+
+        const { error: dbError } = await supabase
+          .from('users')
+          .update({
+            name: editName,
+            phone: identifier
+          })
+          .eq('id', user.id)
+
+        if (dbError) throw dbError
+
+        setUser(user)
+        setProfile({ ...profile, name: editName, phone: identifier })
+        setOtpMode(null)
+        setOtp("")
+        toast({ type: "success", title: "Merge Successful", description: `Your accounts were merged and phone was updated.` })
+        return
+      }
+
 
       const verifyParams: any = {
         token: otp,

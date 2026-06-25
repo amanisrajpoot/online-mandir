@@ -183,11 +183,13 @@ export default function AdminOrdersList() {
                           className={`text-xs capitalize px-2 py-1 rounded-md font-medium border ${
                             order.status === 'completed' ? 'text-[var(--color-auspicious-green)] border-[var(--color-auspicious-green)] bg-[var(--color-auspicious-green)]/10' : 
                             order.status === 'booked' ? 'text-blue-400 border-blue-400 bg-blue-400/10' : 
+                            order.status === 'pending' ? 'text-[var(--color-sacred-red)] border-[var(--color-sacred-red)] bg-[var(--color-sacred-red)]/10' : 
                             'text-[var(--color-saffron-500)] border-[var(--color-saffron-500)] bg-[var(--color-saffron-500)]/10'
                           }`}
                           value={order.status}
                           onChange={(e) => updateOrderStatus(order.id, e.target.value)}
                         >
+                          <option value="pending">Pending</option>
                           <option value="booked">Booked</option>
                           <option value="assigned">Assigned</option>
                           <option value="in_progress">In Progress</option>

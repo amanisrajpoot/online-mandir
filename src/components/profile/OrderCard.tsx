@@ -78,16 +78,26 @@ export function OrderCard({ order }: { order: any }) {
           <div className="mt-6 mb-2">
             <div className="flex justify-between items-center mb-4">
               <h4 className="text-sm font-semibold text-[var(--color-mandir-text)]">Tracking Status</h4>
-              <Badge variant="outline" className="text-xs capitalize border-[var(--color-saffron-500)] text-[var(--color-saffron-500)]">
-                {status.replace('_', ' ')}
+              <Badge variant="outline" className={`text-xs capitalize ${status === 'pending' ? 'border-[var(--color-sacred-red)] text-[var(--color-sacred-red)]' : 'border-[var(--color-saffron-500)] text-[var(--color-saffron-500)]'}`}>
+                {status === 'pending' ? 'Payment Pending' : status.replace('_', ' ')}
               </Badge>
             </div>
             
-            <StatusTimeline 
-              currentStatus={order.status as any} 
-              includePrasad={isPuja}
-              includeVideo={true}
-            />
+            {status === 'pending' ? (
+              <div className="p-4 bg-[var(--color-sacred-red)]/10 border border-[var(--color-sacred-red)] rounded-lg text-center">
+                <p className="text-sm font-medium text-[var(--color-sacred-red)] mb-2">Your payment is incomplete.</p>
+                <p className="text-xs text-[var(--color-mandir-text-muted)] mb-3">Please complete the payment to confirm your booking.</p>
+                <Button size="sm" variant="gradient" className="w-full" onClick={() => window.location.href = `/${isPuja ? 'pujas' : 'chadhava'}/${order.item_id}/book`}>
+                  Book Again
+                </Button>
+              </div>
+            ) : (
+              <StatusTimeline 
+                currentStatus={order.status as any} 
+                includePrasad={isPuja}
+                includeVideo={true}
+              />
+            )}
           </div>
 
           <div className="mt-auto pt-6 flex flex-wrap gap-3">

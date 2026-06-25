@@ -13,7 +13,7 @@ import { toast } from '@/components/ui/Toast'
 function ProfileSetupContent() {
   const [name, setName] = useState('')
   const [phone, setPhone] = useState('')
-  const [step, setStep] = useState<'details' | 'verify'>('details')
+  const [step, setStep] = useState<'details' | 'verify' | 'verify_merge'>('details')
   const [otp, setOtp] = useState('')
   const [phoneNeedsVerification, setPhoneNeedsVerification] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
@@ -92,11 +92,36 @@ function ProfileSetupContent() {
         
         if (updateError) {
           if (updateError.message.toLowerCase().includes("registered") || updateError.message.toLowerCase().includes("taken")) {
-            toast({
-              type: 'error',
-              title: 'Phone Number Taken',
-              description: 'This phone number belongs to an existing account. Please log out and log in using your phone number instead to access that account.',
-            })
+            // Start Account Merge flow instead of just throwing error
+            try {
+              const { data: { session } } = await supabase.auth.getSession()
+              const res = await fetch('/api/auth/merge/send', {
+                method: 'POST',
+                headers: {
+                  'Content-Type': 'application/json',
+                  'Authorization': `Bearer ${session?.access_token}`
+                },
+                body: JSON.stringify({ targetPhone: formattedPhone })
+              })
+              
+              if (!res.ok) {
+                const data = await res.json()
+                throw new Error(data.error || "Failed to initiate account merge")
+              }
+              
+              setStep('verify_merge')
+              toast({
+                type: 'success',
+                title: 'Account Merge Required',
+                description: `This phone is taken. We've sent an OTP to ${formattedPhone} to verify ownership and merge accounts.`,
+              })
+            } catch (err: any) {
+              toast({
+                type: 'error',
+                title: 'Merge Failed',
+                description: err.message || 'Could not initiate merge.',
+              })
+            }
             setIsLoading(false)
             return
           }
@@ -153,6 +178,55 @@ function ProfileSetupContent() {
       toast({
         type: 'error',
         title: 'Verification Failed',
+        description: error.message || 'Invalid OTP. Please try again.',
+      })
+    } finally {
+      setIsLoading(false)
+    }
+  }
+
+  const handleVerifyMergeOTP = async (e: React.FormEvent) => {
+    e.preventDefault()
+    setIsLoading(true)
+    
+    let formattedPhone = phone.replace(/\s+/g, '')
+    if (formattedPhone.length === 10) {
+      formattedPhone = '+91' + formattedPhone
+    } else if (!formattedPhone.startsWith('+')) {
+      formattedPhone = '+' + formattedPhone
+    }
+
+    try {
+      const { data: { session } } = await supabase.auth.getSession()
+      const res = await fetch('/api/auth/merge/verify', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${session?.access_token}`
+        },
+        body: JSON.stringify({ targetPhone: formattedPhone, otp })
+      })
+      
+      const data = await res.json()
+      if (!res.ok) {
+        throw new Error(data.error || "Failed to verify merge OTP")
+      }
+      
+      toast({
+        type: 'success',
+        title: 'Merge Successful!',
+        description: 'Your accounts have been merged successfully.',
+      })
+
+      // Merge successful! Now save profile
+      const { data: { user } } = await supabase.auth.getUser()
+      if (user) {
+        await completeProfileSave(user.id, name, formattedPhone)
+      }
+    } catch (error: any) {
+      toast({
+        type: 'error',
+        title: 'Merge Verification Failed',
         description: error.message || 'Invalid OTP. Please try again.',
       })
     } finally {
@@ -219,7 +293,7 @@ function ProfileSetupContent() {
               </Button>
             </form>
           ) : (
-            <form onSubmit={handleVerifyOTP} className="space-y-6">
+            <form onSubmit={step === 'verify_merge' ? handleVerifyMergeOTP : handleVerifyOTP} className="space-y-6">
               <div className="space-y-2">
                 <label htmlFor="otp" className="text-sm font-medium">Verification Code</label>
                 <p className="text-xs text-[var(--color-mandir-text-muted)] mb-2">
@@ -243,7 +317,7 @@ function ProfileSetupContent() {
                 variant="gradient"
                 disabled={isLoading || otp.length < 6}
               >
-                {isLoading ? 'Verifying...' : 'Verify & Finish'}
+                {isLoading ? 'Verifying...' : (step === 'verify_merge' ? 'Merge Accounts' : 'Verify & Finish')}
               </Button>
               <div className="mt-4 text-center">
                 <button 

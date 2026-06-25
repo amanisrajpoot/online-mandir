@@ -46,7 +46,7 @@ export async function POST(request: Request) {
         user_id: user.id,
         order_type: type,
         item_id: itemId,
-        status: 'booked',
+        status: 'pending',
         amount: amount,
         package_details: packageDetails,
       })
