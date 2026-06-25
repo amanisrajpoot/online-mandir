@@ -1,3 +1,10 @@
+import { Metadata } from 'next'
+
+export const metadata: Metadata = {
+  title: 'Contact Us | Vandanam',
+  description: 'Get in touch with Vandanam for any queries regarding online puja bookings, chadhava offerings, or support.',
+}
+
 export default function ContactPage() {
   return (
     <div className="container mx-auto px-4 py-16 max-w-4xl pb-32">

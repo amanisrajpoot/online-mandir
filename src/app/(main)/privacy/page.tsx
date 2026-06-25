@@ -1,3 +1,10 @@
+import { Metadata } from 'next'
+
+export const metadata: Metadata = {
+  title: 'Privacy Policy | Vandanam',
+  description: 'Learn how Vandanam protects your personal data and privacy while you use our online spiritual services.',
+}
+
 export default function PrivacyPage() {
   return (
     <div className="container mx-auto px-4 py-16 max-w-4xl pb-32">

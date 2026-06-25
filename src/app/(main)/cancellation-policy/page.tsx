@@ -1,3 +1,10 @@
+import { Metadata } from 'next'
+
+export const metadata: Metadata = {
+  title: 'Cancellation Policy | Vandanam',
+  description: 'Understand the cancellation policies for our online puja and chadhava services at Vandanam.',
+}
+
 export default function CancellationPolicyPage() {
   return (
     <div className="container mx-auto px-4 py-16 max-w-4xl pb-32">

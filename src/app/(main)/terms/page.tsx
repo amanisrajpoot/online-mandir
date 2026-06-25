@@ -1,3 +1,10 @@
+import { Metadata } from 'next'
+
+export const metadata: Metadata = {
+  title: 'Terms & Conditions | Vandanam',
+  description: 'Read the terms and conditions for using Vandanam online puja and chadhava services.',
+}
+
 export default function TermsPage() {
   return (
     <div className="container mx-auto px-4 py-16 max-w-4xl pb-32">

@@ -8,8 +8,25 @@ import { ChadhavaQuickSelect } from "@/components/home/ChadhavaQuickSelect"
 import { PanchangWidget } from "@/components/home/PanchangWidget"
 
 export default function Home() {
+  const websiteJsonLd = {
+    "@context": "https://schema.org",
+    "@type": "WebSite",
+    "name": "Vandanam",
+    "url": "https://www.vandanam.online",
+    "potentialAction": {
+      "@type": "SearchAction",
+      "target": "https://www.vandanam.online/pujas?q={search_term_string}",
+      "query-input": "required name=search_term_string"
+    }
+  }
+
   return (
     <div className="flex flex-col min-h-screen">
+      <h1 className="sr-only">Vandanam - Online Puja, Chadhava & Spiritual Services</h1>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(websiteJsonLd) }}
+      />
       <HeroBanner />
       <FestivalCountdown position="after_hero" />
       <PromoBanners position="after_hero" />

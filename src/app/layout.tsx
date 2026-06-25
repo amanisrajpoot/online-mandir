@@ -24,8 +24,61 @@ const tiroDevanagari = Tiro_Devanagari_Hindi({
 });
 
 export const metadata: Metadata = {
-  title: "Vandanam | Online Puja & Chadhava Services",
-  description: "Connect with divine spirituality through our trusted online platform for authentic temple pujas, chadhava, and astrology services.",
+  metadataBase: new URL("https://www.vandanam.online"),
+  title: {
+    template: "%s | Vandanam",
+    default: "Vandanam | Online Puja, Chadhava & Spiritual Services",
+  },
+  description: "Connect with divine spirituality through our trusted online platform for authentic temple pujas, chadhava, and astrology services across India's most sacred temples.",
+  keywords: [
+    "online puja booking", "book puja online India", "online chadhava",
+    "temple chadhava online", "online mandir puja", "pandit booking online",
+    "rudrabhishek online", "satyanarayan puja online", "temple puja booking",
+    "online pooja services", "vandanam puja", "spiritual services online",
+    "kashi vishwanath puja online", "mahakaleshwar puja booking"
+  ],
+  authors: [{ name: "Vandanam" }],
+  openGraph: {
+    title: "Vandanam | Online Puja & Chadhava Services",
+    description: "Connect with divine spirituality through our trusted online platform for authentic temple pujas, chadhava, and astrology services.",
+    url: "https://www.vandanam.online",
+    siteName: "Vandanam",
+    images: [
+      {
+        url: "/icon.png",
+        width: 800,
+        height: 600,
+        alt: "Vandanam Logo",
+      },
+    ],
+    locale: "en_IN",
+    type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Vandanam | Online Puja & Chadhava Services",
+    description: "Connect with divine spirituality through our trusted online platform for authentic temple pujas, chadhava, and astrology services.",
+    images: ["/icon.png"],
+  },
+  alternates: {
+    canonical: "https://www.vandanam.online",
+  },
+};
+
+const jsonLd = {
+  "@context": "https://schema.org",
+  "@type": "Organization",
+  "name": "Vandanam",
+  "url": "https://www.vandanam.online",
+  "logo": "https://www.vandanam.online/icon.png",
+  "description": "Vandanam connects devotees with ancient temples through digital pujas, authentic chadhava, and spiritual content.",
+  "contactPoint": {
+    "@type": "ContactPoint",
+    "telephone": "+91-9876543210",
+    "contactType": "Customer Service",
+    "areaServed": "IN",
+    "availableLanguage": ["en", "hi"]
+  }
 };
 
 export default function RootLayout({
@@ -36,6 +89,10 @@ export default function RootLayout({
   return (
     <html lang="en" className={`${inter.variable} ${outfit.variable} ${tiroDevanagari.variable}`}>
       <body className="antialiased min-h-screen flex flex-col bg-[var(--color-mandir-bg)] text-[var(--color-mandir-text)] selection:bg-[var(--color-saffron-500)]/30">
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+        />
         <Toaster />
         <Navbar />
         <AdminSidebar />
