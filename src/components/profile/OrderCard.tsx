@@ -1,6 +1,7 @@
 "use client"
 
 import * as React from "react"
+import Image from "next/image"
 import { motion } from "framer-motion"
 import { Package, Video, MapPin, Calendar, Clock, Download } from "lucide-react"
 
@@ -43,11 +44,12 @@ export function OrderCard({ order }: { order: any }) {
       <div className="flex flex-col sm:flex-row">
         {/* Left/Top: Image and basic details */}
         <div className="w-full sm:w-1/3 md:w-1/4 h-48 sm:h-auto relative">
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img 
+          <Image 
             src={details.image_url || "/images/prasad_thali.png"} 
             alt={details.title}
-            className="w-full h-full object-cover"
+            fill
+            sizes="(max-width: 640px) 100vw, 33vw"
+            className="object-cover"
           />
           <div className="absolute top-2 left-2">
             <Badge variant={isPuja ? "secondary" : "default"} className={isPuja ? "bg-black/60 text-white" : "bg-[var(--color-saffron-500)]"}>

@@ -1,6 +1,7 @@
 "use client"
 
 import * as React from "react"
+import Image from "next/image"
 import { motion } from "framer-motion"
 import { Calendar as CalendarIcon, Sparkles } from "lucide-react"
 
@@ -59,11 +60,12 @@ export function FestivalCountdown({ position }: { position: string }) {
                 
                 <CardContent className={`p-0 sm:flex ${event.display_style === 'compact' ? 'flex-row' : 'items-center'}`}>
                   <div className={`relative ${event.display_style === 'compact' ? 'w-1/3 h-auto' : 'w-full sm:w-2/5 h-48 sm:h-auto sm:self-stretch'}`}>
-                    {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img 
+                    <Image 
                       src={event.image_url} 
                       alt={event.name}
-                      className="w-full h-full object-cover"
+                      fill
+                      sizes="(max-width: 640px) 100vw, 50vw"
+                      className="object-cover"
                     />
                     <div className={`absolute inset-0 bg-gradient-to-t sm:bg-gradient-to-r from-[var(--color-mandir-surface)] sm:from-transparent to-transparent via-transparent sm:via-[var(--color-mandir-surface)]/80 sm:to-[var(--color-mandir-surface)] ${event.display_style === 'compact' ? 'hidden' : 'sm:left-auto sm:right-0 sm:w-32'}`} />
                     

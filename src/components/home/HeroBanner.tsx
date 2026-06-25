@@ -68,6 +68,7 @@ export function HeroBanner() {
             alt={banners[currentSlide].title}
             fill
             priority
+            sizes="100vw"
             className="object-cover"
           />
           

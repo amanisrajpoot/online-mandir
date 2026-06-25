@@ -2,6 +2,7 @@
 
 import * as React from "react"
 import Link from "next/link"
+import Image from "next/image"
 import { motion } from "framer-motion"
 import { createClient } from "@/lib/supabase/client"
 import { Card } from "@/components/ui/Card"
@@ -60,11 +61,12 @@ export function PromoBanners({ position }: { position: string }) {
                 <Link href={promo.link || "#"}>
                   <Card className="overflow-hidden border border-[var(--color-mandir-border)] bg-[var(--color-mandir-surface)] relative group">
                     <div className="relative h-48 sm:h-64 w-full">
-                      {/* eslint-disable-next-line @next/next/no-img-element */}
-                      <img 
+                      <Image 
                         src={promo.image_url} 
                         alt={promo.title}
-                        className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+                        fill
+                        sizes="100vw"
+                        className="object-cover transition-transform duration-700 group-hover:scale-105"
                       />
                       <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
                       <div className="absolute bottom-6 left-6 right-6">
@@ -94,11 +96,12 @@ export function PromoBanners({ position }: { position: string }) {
                 <Link href={promo.link || "#"}>
                   <Card className="overflow-hidden border border-[var(--color-mandir-border)] bg-[var(--color-mandir-surface)] relative group">
                     <div className="relative h-40 sm:h-48 w-full">
-                      {/* eslint-disable-next-line @next/next/no-img-element */}
-                      <img 
+                      <Image 
                         src={promo.image_url} 
                         alt={promo.title}
-                        className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+                        fill
+                        sizes="(max-width: 768px) 100vw, 50vw"
+                        className="object-cover transition-transform duration-700 group-hover:scale-105"
                       />
                       <div className="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent" />
                       <div className="absolute bottom-4 left-4 right-4">
@@ -128,11 +131,12 @@ export function PromoBanners({ position }: { position: string }) {
                 <Link href={promo.link || "#"}>
                   <Card className="overflow-hidden border border-[var(--color-mandir-border)] bg-[var(--color-mandir-surface)] relative group h-full">
                     <div className="relative aspect-square w-full">
-                      {/* eslint-disable-next-line @next/next/no-img-element */}
-                      <img 
+                      <Image 
                         src={promo.image_url} 
                         alt={promo.title}
-                        className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+                        fill
+                        sizes="(max-width: 768px) 50vw, (max-width: 1024px) 33vw, 25vw"
+                        className="object-cover transition-transform duration-500 group-hover:scale-110"
                       />
                       <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent" />
                       <div className="absolute bottom-3 left-3 right-3 text-center">
