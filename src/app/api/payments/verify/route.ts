@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { cashfree } from "@/lib/cashfree";
+import { notifyOrderSuccess } from "@/lib/notifications";
 
 export async function POST(request: Request) {
   try {
@@ -26,10 +27,25 @@ export async function POST(request: Request) {
 
     if (isSuccess) {
       // Update Supabase Order
-      await supabase
+      const { data: updatedOrder, error: updateError } = await supabase
         .from('orders')
         .update({ status: 'booked' }) // Move from pending to booked once paid
-        .eq('cashfree_order_id', orderId);
+        .eq('cashfree_order_id', orderId)
+        .select('*')
+        .single();
+
+      if (updatedOrder) {
+        // Trigger Email & SMS Notifications in the background
+        notifyOrderSuccess(
+          updatedOrder.id,
+          {
+            customer_name: updatedOrder.customer_name,
+            customer_phone: updatedOrder.customer_phone,
+            customer_email: updatedOrder.customer_email
+          },
+          updatedOrder.amount
+        ).catch(err => console.error("Notification Error:", err));
+      }
 
       return NextResponse.json({ success: true, status: "SUCCESS" });
     } else {

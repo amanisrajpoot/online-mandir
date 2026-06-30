@@ -7,6 +7,9 @@ export async function POST(request: Request) {
     const supabase = await createClient();
     const { data: { user } } = await supabase.auth.getUser();
 
+    // Get origin from request headers for dynamic redirect URL
+    const origin = request.headers.get("origin") || process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
+
     if (!user) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
@@ -96,7 +99,7 @@ export async function POST(request: Request) {
         customer_email: customerEmail || user.email || "devotee@devmandir.app",
       },
       order_meta: {
-        return_url: `${process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000"}/book/confirmation?order_id=${dbOrder.id}&cf_id={order_id}`.replace("http://", "https://"),
+        return_url: `${origin}/book/confirmation?order_id=${dbOrder.id}&cf_id={order_id}`,
       }
     };
 
