@@ -120,7 +120,7 @@ export default function PujasPage() {
                   <img 
                     src={puja.image_url || "/images/puja_ganesh.png"} 
                     alt={puja.title}
-                    className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-110 opacity-80 group-hover:opacity-100"
+                    className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-110"
                   />
                   <div className="absolute top-3 left-3 flex gap-2">
                     <Badge variant="secondary" className="bg-black/60 backdrop-blur-md border-white/10 text-white">

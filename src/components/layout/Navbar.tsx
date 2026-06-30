@@ -8,6 +8,7 @@ import { User, Bell, LogOut, Settings } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/Button"
 import { createClient } from "@/lib/supabase/client"
+import { ThemeToggle } from "./ThemeToggle"
 
 export function Navbar() {
   const pathname = usePathname()
@@ -75,7 +76,8 @@ export function Navbar() {
         </nav>
 
         {/* User Actions */}
-        <div className="flex items-center gap-4">
+        <div className="flex items-center gap-2">
+          <ThemeToggle />
           <button className="relative rounded-full p-2 text-[var(--color-mandir-text-muted)] hover:bg-[var(--color-mandir-surface)] hover:text-[var(--color-saffron-400)] transition-colors">
             <Bell className="h-5 w-5" />
             <span className="absolute right-1 top-1 h-2 w-2 rounded-full bg-[var(--color-sacred-red)] ring-2 ring-[var(--color-mandir-bg)]"></span>

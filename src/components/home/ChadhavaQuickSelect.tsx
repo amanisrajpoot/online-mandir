@@ -84,12 +84,12 @@ export function ChadhavaQuickSelect() {
                         alt={item.title}
                         fill
                         sizes="(max-width: 640px) 50vw, 25vw"
-                        className="object-cover transition-transform duration-500 group-hover:scale-110 opacity-80 group-hover:opacity-100"
+                        className="object-cover transition-transform duration-500 group-hover:scale-110"
                       />
-                      <div className="absolute inset-0 bg-gradient-to-t from-[var(--color-mandir-surface)] to-transparent opacity-80" />
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
                       
                       <div className="absolute bottom-2 left-2 right-2 flex justify-between items-end">
-                        <div className="text-[10px] font-medium text-[var(--color-saffron-300)] truncate bg-black/40 px-1.5 py-0.5 rounded backdrop-blur-sm border border-white/10">
+                        <div className="text-[10px] font-medium text-[var(--color-saffron-600)] truncate bg-[var(--color-mandir-card)]/80 px-1.5 py-0.5 rounded backdrop-blur-sm border border-[var(--color-mandir-border)]">
                           {item.temples?.name}
                         </div>
                       </div>

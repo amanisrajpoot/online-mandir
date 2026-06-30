@@ -99,7 +99,7 @@ export default function TemplesPage() {
                       alt={temple.name}
                       className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-110"
                     />
-                    <div className="absolute inset-0 bg-gradient-to-t from-[var(--color-mandir-surface)] via-transparent to-transparent opacity-90" />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent" />
                     
                     <div className="absolute bottom-4 left-4 right-4">
                       <div className="inline-flex items-center rounded-full bg-white/20 backdrop-blur-md px-3 py-1.5 text-xs font-medium text-white shadow-lg border border-white/20 mb-2">

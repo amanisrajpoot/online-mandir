@@ -149,19 +149,19 @@ export default function PujaDetailPage() {
         <div className="absolute inset-0 bg-gradient-to-t from-[var(--color-mandir-bg)] via-[var(--color-mandir-bg)]/60 to-transparent" />
         
         <div className="absolute bottom-0 left-0 right-0 p-4 md:p-8 max-w-6xl mx-auto">
-          <Badge variant="secondary" className="mb-4 bg-black/50 backdrop-blur-md border-white/10 text-white">
+          <Badge variant="secondary" className="mb-4 bg-[var(--color-mandir-surface)]/80 backdrop-blur-md border-[var(--color-mandir-border)] text-[var(--color-mandir-text)]">
             {puja.category}
           </Badge>
-          <h1 className="text-3xl md:text-5xl font-bold font-[var(--font-heading)] text-white mb-2 leading-tight">
+          <h1 className="text-3xl md:text-5xl font-bold font-[var(--font-heading)] text-[var(--color-mandir-text)] mb-2 leading-tight">
             {puja.title}
           </h1>
-          <div className="flex flex-wrap items-center gap-4 text-sm font-medium text-white/90">
+          <div className="flex flex-wrap items-center gap-4 text-sm font-medium text-[var(--color-mandir-text-muted)]">
             <span className="flex items-center">
-              <MapPin className="mr-1.5 h-4 w-4 text-[var(--color-saffron-400)]" />
+              <MapPin className="mr-1.5 h-4 w-4 text-[var(--color-saffron-500)]" />
               {puja.temples?.name}, {puja.temples?.location}
             </span>
             <span className="flex items-center">
-              <Calendar className="mr-1.5 h-4 w-4 text-[var(--color-saffron-400)]" />
+              <Calendar className="mr-1.5 h-4 w-4 text-[var(--color-saffron-500)]" />
               Book by {new Date(puja.booking_deadline).toLocaleDateString()}
             </span>
           </div>

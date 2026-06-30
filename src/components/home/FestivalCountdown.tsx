@@ -53,7 +53,7 @@ export function FestivalCountdown({ position }: { position: string }) {
               transition={{ duration: 0.5, delay: i * 0.1 }}
               className={event.display_style === 'compact' ? 'max-w-3xl mx-auto w-full' : 'w-full'}
             >
-              <Card className="overflow-hidden border border-[var(--color-saffron-500)]/30 bg-gradient-to-br from-[var(--color-mandir-surface)] via-[var(--color-mandir-surface)] to-[#3a1c0d] shadow-[0_0_30px_rgba(249,115,22,0.15)] relative">
+              <Card className="overflow-hidden border border-[var(--color-saffron-500)]/30 bg-gradient-to-br from-[var(--color-mandir-surface)] via-[var(--color-mandir-surface)] to-[var(--color-saffron-100)] shadow-lg relative">
                 {/* Background elements */}
                 <div className="absolute -top-24 -right-24 w-64 h-64 rounded-full bg-[var(--color-saffron-500)]/10 blur-[80px] pointer-events-none" />
                 <div className="absolute -bottom-24 -left-24 w-64 h-64 rounded-full bg-[var(--color-temple-gold)]/10 blur-[80px] pointer-events-none" />
@@ -67,11 +67,11 @@ export function FestivalCountdown({ position }: { position: string }) {
                       sizes="(max-width: 640px) 100vw, 50vw"
                       className="object-cover"
                     />
-                    <div className={`absolute inset-0 bg-gradient-to-t sm:bg-gradient-to-r from-[var(--color-mandir-surface)] sm:from-transparent to-transparent via-transparent sm:via-[var(--color-mandir-surface)]/80 sm:to-[var(--color-mandir-surface)] ${event.display_style === 'compact' ? 'hidden' : 'sm:left-auto sm:right-0 sm:w-32'}`} />
+                    <div className={`absolute inset-0 bg-gradient-to-t sm:bg-gradient-to-r from-[var(--color-mandir-surface)] to-transparent sm:from-transparent sm:to-[var(--color-mandir-surface)] ${event.display_style === 'compact' ? 'hidden' : 'sm:left-auto sm:right-0 sm:w-32'}`} />
                     
-                    <div className="absolute top-4 left-4 bg-black/60 backdrop-blur-md px-3 py-1.5 rounded-full border border-white/10 flex items-center shadow-lg">
-                      <CalendarIcon className="w-4 h-4 text-[var(--color-saffron-400)] mr-2" />
-                      <span className="text-xs font-medium text-white uppercase tracking-wider">Upcoming</span>
+                    <div className="absolute top-4 left-4 bg-[var(--color-mandir-card)]/80 backdrop-blur-md px-3 py-1.5 rounded-full border border-[var(--color-mandir-border)] flex items-center shadow-lg">
+                      <CalendarIcon className="w-4 h-4 text-[var(--color-saffron-500)] mr-2" />
+                      <span className="text-xs font-medium text-[var(--color-mandir-text)] uppercase tracking-wider">Upcoming</span>
                     </div>
                   </div>
                   
@@ -89,7 +89,7 @@ export function FestivalCountdown({ position }: { position: string }) {
                       </p>
                     )}
                     
-                    <div className="bg-black/20 rounded-xl p-4 sm:p-6 border border-white/5 inline-block self-start">
+                    <div className="bg-[var(--color-mandir-card-hover)] rounded-xl p-4 sm:p-6 border border-[var(--color-mandir-border)] inline-block self-start">
                       <div className="text-xs text-[var(--color-mandir-text-muted)] uppercase tracking-wider mb-3 font-semibold">
                         Time remaining
                       </div>

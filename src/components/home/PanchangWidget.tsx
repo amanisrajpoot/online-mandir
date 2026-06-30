@@ -49,23 +49,23 @@ export function PanchangWidget() {
             animate={{ opacity: 1, y: 0 }}
             className="lg:col-span-1"
           >
-            <Card className="h-full bg-gradient-to-br from-[var(--color-mandir-surface)] to-[#2a1b38] border-[#4a326b] shadow-[0_0_20px_rgba(124,58,237,0.1)]">
-              <CardHeader className="pb-2 border-b border-white/5">
+            <Card className="h-full bg-gradient-to-br from-[var(--color-mandir-card)] to-[var(--color-mandir-card-hover)] border-[var(--color-mandir-border)] shadow-md">
+              <CardHeader className="pb-2 border-b border-[var(--color-mandir-border)]">
                 <CardTitle className="flex items-center justify-between">
                   <span className="text-[var(--color-saffron-300)]">{format(today, "EEEE")}</span>
                   <span className="text-sm font-normal text-[var(--color-mandir-text-muted)]">{format(today, "dd MMM yyyy")}</span>
                 </CardTitle>
               </CardHeader>
               <CardContent className="pt-4 space-y-4">
-                <div className="flex justify-between items-center py-2 border-b border-white/5">
+                <div className="flex justify-between items-center py-2 border-b border-[var(--color-mandir-border)]">
                   <span className="text-sm text-[var(--color-mandir-text-muted)]">Tithi</span>
                   <span className="font-medium text-[var(--color-mandir-text)]">{data.tithi}</span>
                 </div>
-                <div className="flex justify-between items-center py-2 border-b border-white/5">
+                <div className="flex justify-between items-center py-2 border-b border-[var(--color-mandir-border)]">
                   <span className="text-sm text-[var(--color-mandir-text-muted)]">Nakshatra</span>
                   <span className="font-medium text-[var(--color-mandir-text)]">{data.nakshatra}</span>
                 </div>
-                <div className="flex justify-between items-center py-2 border-b border-white/5">
+                <div className="flex justify-between items-center py-2 border-b border-[var(--color-mandir-border)]">
                   <span className="text-sm text-[var(--color-mandir-text-muted)]">Yoga</span>
                   <span className="font-medium text-[var(--color-mandir-text)]">{data.yoga}</span>
                 </div>
@@ -103,7 +103,7 @@ export function PanchangWidget() {
                       </div>
                       <div className="font-medium">{data.sunset}</div>
                     </div>
-                    <div className="col-span-2 mt-1 pt-2 border-t border-white/5">
+                    <div className="col-span-2 mt-1 pt-2 border-t border-[var(--color-mandir-border)]">
                       <span className="text-xs text-[var(--color-mandir-text-muted)]">Sign:</span> <span className="text-sm font-medium">{data.sunSign}</span>
                     </div>
                   </div>
@@ -131,7 +131,7 @@ export function PanchangWidget() {
                       </div>
                       <div className="font-medium">{data.moonset}</div>
                     </div>
-                    <div className="col-span-2 mt-1 pt-2 border-t border-white/5">
+                    <div className="col-span-2 mt-1 pt-2 border-t border-[var(--color-mandir-border)]">
                       <span className="text-xs text-[var(--color-mandir-text-muted)]">Sign:</span> <span className="text-sm font-medium">{data.moonSign}</span>
                     </div>
                   </div>

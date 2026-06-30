@@ -256,7 +256,7 @@ export default function PujaBookingPage() {
       </div>
 
       {/* Puja Summary Card */}
-      <Card className="mb-8 bg-gradient-to-r from-[var(--color-mandir-surface)] to-[#2a1b38] border-[#4a326b]">
+      <Card className="mb-8 bg-[var(--color-mandir-surface)] border-[var(--color-mandir-border)] shadow-md">
         <CardContent className="p-4 sm:p-6 flex flex-col sm:flex-row gap-4 sm:gap-6 items-center sm:items-start">
           <div className="w-24 h-24 rounded-xl overflow-hidden shrink-0 border-2 border-[var(--color-saffron-500)]/30">
             {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -271,8 +271,8 @@ export default function PujaBookingPage() {
               <MapPin className="h-3 w-3 mr-1" />
               {puja.temples?.name}
             </div>
-            <h2 className="text-xl font-bold text-white mb-2">{displayName}</h2>
-            <div className="text-2xl font-bold text-[var(--color-temple-gold)]">
+            <h2 className="text-xl font-bold text-[var(--color-mandir-text)] mb-2">{displayName}</h2>
+            <div className="text-2xl font-bold text-[var(--color-saffron-600)]">
               ₹{displayPrice}
             </div>
           </div>

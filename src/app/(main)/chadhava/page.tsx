@@ -100,12 +100,12 @@ export default function ChadhavaPage() {
                     <img 
                       src={item.image_url || "/images/chadhava_pushp.png"} 
                       alt={item.title}
-                      className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-110 opacity-90 group-hover:opacity-100"
+                      className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-110"
                     />
-                    <div className="absolute inset-0 bg-gradient-to-t from-[var(--color-mandir-surface)] to-transparent opacity-90" />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
                     
                     <div className="absolute bottom-2 left-2 right-2">
-                      <div className="text-[10px] sm:text-xs font-medium text-[var(--color-saffron-300)] truncate bg-black/50 px-2 py-1 rounded backdrop-blur-md border border-white/10 inline-flex items-center">
+                      <div className="text-[10px] sm:text-xs font-medium text-[var(--color-saffron-600)] truncate bg-[var(--color-mandir-card)]/80 px-2 py-1 rounded backdrop-blur-md border border-[var(--color-mandir-border)] inline-flex items-center">
                         <MapPin className="w-3 h-3 mr-1 shrink-0" />
                         {item.temples?.name}
                       </div>

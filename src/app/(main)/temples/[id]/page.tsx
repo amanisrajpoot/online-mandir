@@ -110,7 +110,7 @@ export default function TempleDetailPage() {
           alt={temple.name}
           className="w-full h-full object-cover rounded-b-[2rem] sm:rounded-b-[3rem] shadow-2xl"
         />
-        <div className="absolute inset-0 bg-gradient-to-t from-[var(--color-mandir-bg)] via-black/40 to-transparent rounded-b-[2rem] sm:rounded-b-[3rem]" />
+        <div className="absolute inset-0 bg-gradient-to-t from-[var(--color-mandir-bg)] via-[var(--color-mandir-bg)]/50 to-transparent rounded-b-[2rem] sm:rounded-b-[3rem]" />
         
         <div className="absolute bottom-0 left-0 right-0 transform translate-y-1/2 flex justify-center px-4">
           <div className="bg-[var(--color-mandir-surface)]/90 backdrop-blur-xl border border-[var(--color-mandir-border)] shadow-xl rounded-2xl p-6 sm:p-8 w-full max-w-4xl text-center">

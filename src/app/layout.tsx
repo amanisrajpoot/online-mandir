@@ -6,6 +6,7 @@ import { BottomNav } from "@/components/layout/BottomNav";
 import { Footer } from "@/components/layout/Footer";
 import { AdminSidebar } from "@/components/layout/AdminSidebar";
 import { Toaster } from "@/components/ui/Toast";
+import { ThemeProvider } from "@/components/layout/ThemeProvider";
 
 const inter = Inter({ 
   subsets: ["latin"],
@@ -87,23 +88,33 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className={`${inter.variable} ${outfit.variable} ${tiroDevanagari.variable}`}>
+    <html lang="en" suppressHydrationWarning className={`${inter.variable} ${outfit.variable} ${tiroDevanagari.variable}`}>
+      <head>
+        {/* Inline script to prevent flash-of-wrong-theme (FOWT) */}
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `(function(){try{var t=localStorage.getItem('vandanam-theme');if(t==='dark'){document.documentElement.classList.add('dark')}}catch(e){}})()`
+          }}
+        />
+      </head>
       <body className="antialiased min-h-screen flex flex-col bg-[var(--color-mandir-bg)] text-[var(--color-mandir-text)] selection:bg-[var(--color-saffron-500)]/30">
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
         />
-        <Toaster />
-        <Navbar />
-        <AdminSidebar />
-        
-        {/* Main Content Area */}
-        <main className="flex-1 w-full pb-20 sm:pb-0 sm:pl-0 admin-layout:sm:pl-64">
-          {children}
-        </main>
-        
-        <Footer />
-        <BottomNav />
+        <ThemeProvider>
+          <Toaster />
+          <Navbar />
+          <AdminSidebar />
+          
+          {/* Main Content Area */}
+          <main className="flex-1 w-full pb-20 sm:pb-0 sm:pl-0 admin-layout:sm:pl-64">
+            {children}
+          </main>
+          
+          <Footer />
+          <BottomNav />
+        </ThemeProvider>
       </body>
     </html>
   );
