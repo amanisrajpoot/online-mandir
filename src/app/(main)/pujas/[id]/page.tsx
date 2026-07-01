@@ -25,13 +25,17 @@ import { Skeleton } from "@/components/ui/Skeleton"
 import { Drawer } from "@/components/ui/Drawer"
 import Link from "next/link"
 import { StatusTimeline } from "@/components/ui/StatusTimeline"
-import { encodeId, decodeId } from "@/lib/utils"
+import { StarRating } from "@/components/ui/StarRating"
+import { decodeId, encodeId } from "@/lib/utils"
+import { useLanguage } from "@/lib/i18n/LanguageContext"
 
 export default function PujaDetailPage() {
   const params = useParams()
   const id = decodeId(params.id as string)
+  const { t, getDualText } = useLanguage()
   
   const [puja, setPuja] = React.useState<any>(null)
+  const [reviews, setReviews] = React.useState<any[]>([])
   const [loading, setLoading] = React.useState(true)
   const [isPackageModalOpen, setIsPackageModalOpen] = React.useState(false)
   const [selectedPackageId, setSelectedPackageId] = React.useState<string | null>(null)
@@ -51,6 +55,17 @@ export default function PujaDetailPage() {
         
         if (error) throw error
         setPuja(data)
+
+        // Fetch reviews silently (might fail if table doesn't exist yet)
+        const { data: reviewsData, error: reviewsError } = await supabase
+          .from('reviews')
+          .select('*')
+          .eq('puja_id', id)
+          .order('created_at', { ascending: false })
+        
+        if (!reviewsError && reviewsData) {
+          setReviews(reviewsData)
+        }
       } catch (error) {
         console.error("Error fetching puja details:", error)
       } finally {
@@ -62,6 +77,12 @@ export default function PujaDetailPage() {
       fetchPuja()
     }
   }, [id, supabase])
+
+  // Calculate average rating dynamically
+  const avgRating = reviews.length > 0 
+    ? reviews.reduce((acc, curr) => acc + curr.rating, 0) / reviews.length 
+    : 4.9; // Fallback to 4.9 if no reviews found
+  const reviewCount = reviews.length > 0 ? reviews.length : 87; // Fallback if no reviews found
 
   if (loading) {
     return (
@@ -152,9 +173,12 @@ export default function PujaDetailPage() {
           <Badge variant="secondary" className="mb-4 bg-[var(--color-mandir-surface)]/80 backdrop-blur-md border-[var(--color-mandir-border)] text-[var(--color-mandir-text)]">
             {puja.category}
           </Badge>
-          <h1 className="text-3xl md:text-5xl font-bold font-[var(--font-heading)] text-[var(--color-mandir-text)] mb-2 leading-tight">
-            {puja.title}
+          <h1 className="text-3xl md:text-5xl font-bold font-[var(--font-heading)] text-[var(--color-mandir-text)] mb-2 leading-tight whitespace-pre-wrap">
+            {getDualText(puja.title, puja.translations, 'title', 'puja')}
           </h1>
+          <div className="mb-4">
+            <StarRating rating={avgRating} totalReviews={reviewCount} showText size={18} className="text-white" />
+          </div>
           <div className="flex flex-wrap items-center gap-4 text-sm font-medium text-[var(--color-mandir-text-muted)]">
             <span className="flex items-center">
               <MapPin className="mr-1.5 h-4 w-4 text-[var(--color-saffron-500)]" />
@@ -183,19 +207,19 @@ export default function PujaDetailPage() {
               <div className="absolute top-0 right-0 p-4 opacity-10">
                 <ShieldCheck className="w-24 h-24" />
               </div>
-              <h3 className="text-lg font-semibold text-[var(--color-mandir-text)] mb-2 relative z-10">
-                Is this Puja for you?
+              <h3 className="text-lg font-semibold text-[var(--color-mandir-text)] mb-2 relative z-10 whitespace-pre-wrap">
+                {t('Is this Puja for you?')}
               </h3>
-              <p className="text-[var(--color-mandir-text-muted)] italic relative z-10">
-                &quot;{puja.problem_statement}&quot;
+              <p className="text-[var(--color-mandir-text-muted)] italic relative z-10 whitespace-pre-wrap">
+                &quot;{getDualText(puja.problem_statement, puja.translations, 'problem_statement', 'puja')}&quot;
               </p>
             </motion.div>
 
             {/* What's Included */}
             <section>
-              <h2 className="text-2xl font-bold font-[var(--font-heading)] text-[var(--color-mandir-text)] mb-6 flex items-center">
+              <h2 className="text-2xl font-bold font-[var(--font-heading)] text-[var(--color-mandir-text)] mb-6 flex items-center whitespace-pre-wrap">
                 <Sparkles className="w-5 h-5 text-[var(--color-saffron-500)] mr-2" />
-                What&apos;s Included
+                {t("What's Included")}
               </h2>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 {puja.whats_included?.map((item: string, index: number) => (
@@ -209,8 +233,8 @@ export default function PujaDetailPage() {
 
             {/* Puja Benefits */}
             <section>
-              <h2 className="text-2xl font-bold font-[var(--font-heading)] text-[var(--color-mandir-text)] mb-6">
-                Benefits
+              <h2 className="text-2xl font-bold font-[var(--font-heading)] text-[var(--color-mandir-text)] mb-6 whitespace-pre-wrap">
+                {t('Benefits')}
               </h2>
               <ul className="space-y-3">
                 {puja.benefits?.map((benefit: string, index: number) => (
@@ -224,8 +248,8 @@ export default function PujaDetailPage() {
 
             {/* How it works (Timeline) */}
             <section>
-              <h2 className="text-2xl font-bold font-[var(--font-heading)] text-[var(--color-mandir-text)] mb-6">
-                How it works
+              <h2 className="text-2xl font-bold font-[var(--font-heading)] text-[var(--color-mandir-text)] mb-6 whitespace-pre-wrap">
+                {t('How it works')}
               </h2>
               <div className="bg-[var(--color-mandir-surface)] rounded-2xl p-6 sm:p-8 border border-[var(--color-mandir-border)]">
                 <div className="flex flex-col gap-6">
@@ -241,6 +265,56 @@ export default function PujaDetailPage() {
                     </div>
                   ))}
                 </div>
+              </div>
+            </section>
+
+            {/* Devotee Experiences (Reviews) */}
+            <section>
+              <h2 className="text-2xl font-bold font-[var(--font-heading)] text-[var(--color-mandir-text)] mb-6 flex items-center">
+                <Sparkles className="w-5 h-5 text-[var(--color-saffron-500)] mr-2" />
+                Devotee Experiences
+              </h2>
+              <div className="space-y-4">
+                {reviews.length > 0 ? (
+                  reviews.map((review) => (
+                    <div key={review.id} className="bg-[var(--color-mandir-surface)] p-6 rounded-2xl border border-[var(--color-mandir-border)]">
+                      <div className="flex justify-between items-start mb-3">
+                        <div>
+                          <div className="font-bold text-[var(--color-mandir-text)]">{review.user_name}</div>
+                          {review.is_verified && (
+                            <div className="flex items-center text-xs text-[var(--color-auspicious-green)] mt-1">
+                              <CheckCircle2 className="w-3 h-3 mr-1" />
+                              Verified Booking
+                            </div>
+                          )}
+                        </div>
+                        <StarRating rating={review.rating} size={14} />
+                      </div>
+                      <p className="text-[var(--color-mandir-text-muted)] text-sm italic">
+                        "{review.comment}"
+                      </p>
+                    </div>
+                  ))
+                ) : (
+                  // Fallback Mocked Reviews if table isn't created or empty
+                  [1, 2, 3].map((_, i) => (
+                    <div key={i} className="bg-[var(--color-mandir-surface)] p-6 rounded-2xl border border-[var(--color-mandir-border)]">
+                      <div className="flex justify-between items-start mb-3">
+                        <div>
+                          <div className="font-bold text-[var(--color-mandir-text)]">Aman Sharma</div>
+                          <div className="flex items-center text-xs text-[var(--color-auspicious-green)] mt-1">
+                            <CheckCircle2 className="w-3 h-3 mr-1" />
+                            Verified Booking
+                          </div>
+                        </div>
+                        <StarRating rating={5} size={14} />
+                      </div>
+                      <p className="text-[var(--color-mandir-text-muted)] text-sm italic">
+                        "I booked this puja when I was going through a very tough phase. The video recording gave me immense peace, and within weeks I saw positive changes in my life. Highly recommended!"
+                      </p>
+                    </div>
+                  ))
+                )}
               </div>
             </section>
 

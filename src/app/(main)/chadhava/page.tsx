@@ -10,11 +10,13 @@ import { Input } from "@/components/ui/Input"
 import { Card, CardContent } from "@/components/ui/Card"
 import { createClient } from "@/lib/supabase/client"
 import Link from "next/link"
+import { useLanguage } from "@/lib/i18n/LanguageContext"
 
 export default function ChadhavaPage() {
   const [items, setItems] = React.useState<any[]>([])
   const [loading, setLoading] = React.useState(true)
   const [searchQuery, setSearchQuery] = React.useState("")
+  const { t } = useLanguage()
   const supabase = createClient()
 
   React.useEffect(() => {
@@ -49,12 +51,12 @@ export default function ChadhavaPage() {
   return (
     <div className="container mx-auto px-4 py-8 max-w-6xl">
       <div className="mb-8 text-center">
-        <h1 className="text-3xl sm:text-4xl font-bold font-[var(--font-heading)] text-transparent bg-clip-text bg-gradient-to-r from-[var(--color-temple-gold)] to-[var(--color-saffron-400)] inline-flex items-center gap-2">
+        <h1 className="text-3xl sm:text-4xl font-bold font-[var(--font-heading)] text-transparent bg-clip-text bg-gradient-to-r from-[var(--color-temple-gold)] to-[var(--color-saffron-400)] inline-flex items-center gap-2 whitespace-pre-wrap">
           <Flower2 className="h-8 w-8 text-[var(--color-saffron-500)]" />
-          Offer Chadhava
+          {t("Offer Chadhava")}
         </h1>
-        <p className="mt-2 text-[var(--color-mandir-text-muted)] max-w-2xl mx-auto">
-          Offer sacred items to the deity from the comfort of your home.
+        <p className="mt-2 text-[var(--color-mandir-text-muted)] max-w-2xl mx-auto whitespace-pre-wrap">
+          {t("Offer sacred items to the deity from the comfort of your home.")}
         </p>
       </div>
 
@@ -63,7 +65,7 @@ export default function ChadhavaPage() {
         <div className="relative">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-[var(--color-mandir-text-muted)]" />
           <Input 
-            placeholder="Search offerings (e.g., Deep Daan, Pushp)..." 
+            placeholder={t("Search")} 
             className="pl-10 w-full"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
@@ -81,8 +83,8 @@ export default function ChadhavaPage() {
       ) : items.length === 0 ? (
         <div className="text-center py-20">
           <Flower2 className="h-12 w-12 text-[var(--color-mandir-text-muted)] mx-auto mb-4" />
-          <h3 className="text-xl font-medium text-[var(--color-mandir-text)]">No offerings found</h3>
-          <p className="text-[var(--color-mandir-text-muted)] mt-2">Try a different search term.</p>
+          <h3 className="text-xl font-medium text-[var(--color-mandir-text)]">{t("No offerings found")}</h3>
+          <p className="text-[var(--color-mandir-text-muted)] mt-2">{t("Try a different search term")}</p>
         </div>
       ) : (
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-6">
@@ -123,7 +125,7 @@ export default function ChadhavaPage() {
                     
                     <div className="flex items-center justify-between border-t border-[var(--color-mandir-border)] pt-2">
                       <span className="text-base sm:text-lg font-bold text-[var(--color-mandir-text)]">₹{item.price}</span>
-                      <span className="text-xs uppercase font-bold text-[var(--color-saffron-500)] tracking-wider">Offer</span>
+                      <span className="text-xs uppercase font-bold text-[var(--color-saffron-500)] tracking-wider">{t("Offer")}</span>
                     </div>
                   </CardContent>
                 </Card>

@@ -7,6 +7,7 @@ import { Footer } from "@/components/layout/Footer";
 import { AdminSidebar } from "@/components/layout/AdminSidebar";
 import { Toaster } from "@/components/ui/Toast";
 import { ThemeProvider } from "@/components/layout/ThemeProvider";
+import { LanguageProvider } from "@/lib/i18n/LanguageContext";
 
 const inter = Inter({ 
   subsets: ["latin"],
@@ -98,22 +99,24 @@ export default function RootLayout({
         />
       </head>
       <body className="antialiased min-h-screen flex flex-col bg-[var(--color-mandir-bg)] text-[var(--color-mandir-text)] selection:bg-[var(--color-saffron-500)]/30">
-        <script
-          type="application/ld+json"
-          dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
-        />
         <ThemeProvider>
-          <Toaster />
-          <Navbar />
-          <AdminSidebar />
-          
-          {/* Main Content Area */}
-          <main className="flex-1 w-full pb-20 sm:pb-0 sm:pl-0 admin-layout:sm:pl-64">
-            {children}
-          </main>
-          
-          <Footer />
-          <BottomNav />
+          <LanguageProvider>
+            <script
+              type="application/ld+json"
+              dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+            />
+            <Toaster />
+            <Navbar />
+            <AdminSidebar />
+            
+            {/* Main Content Area */}
+            <main className="flex-1 w-full pb-20 sm:pb-0 sm:pl-0 admin-layout:sm:pl-64">
+              {children}
+            </main>
+            
+            <Footer />
+            <BottomNav />
+          </LanguageProvider>
         </ThemeProvider>
       </body>
     </html>

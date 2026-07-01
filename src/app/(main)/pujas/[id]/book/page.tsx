@@ -21,11 +21,13 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/Card"
 import { Stepper } from "@/components/ui/Stepper"
 import { toast } from "@/components/ui/Toast"
 import { CashfreeCheckout } from "@/components/payment/CashfreeCheckout"
+import { useLanguage } from "@/lib/i18n/LanguageContext"
 
 export default function PujaBookingPage() {
   const params = useParams()
   const router = useRouter()
   const id = decodeId(params.id as string)
+  const { t, getDualText } = useLanguage()
   
   const [puja, setPuja] = React.useState<any>(null)
   const [loading, setLoading] = React.useState(true)
@@ -208,9 +210,9 @@ export default function PujaBookingPage() {
   }
 
   const steps = [
-    { id: "step-0", title: "Sankalp Details" },
-    { id: "step-1", title: "Prasad Delivery" },
-    { id: "step-2", title: "Review & Pay" }
+    { id: "step-0", title: t("Sankalp Details") },
+    { id: "step-1", title: t("Prasad Delivery") },
+    { id: "step-2", title: t("Review & Pay") }
   ]
 
   const displayPrice = selectedPackage?.sale_price || puja.sale_price
@@ -221,7 +223,8 @@ export default function PujaBookingPage() {
   const prasadCost = isPrasadFree ? 0 : (optInPrasad ? PRASAD_DELIVERY_COST : 0)
   const finalPayableAmount = displayPrice + prasadCost
 
-  const displayName = selectedPackage ? `${puja.title} - ${selectedPackage.name}` : puja.title
+  const baseTitle = getDualText(puja.title, puja.translations, 'title', 'puja') || puja.title
+  const displayName = selectedPackage ? `${baseTitle} - ${selectedPackage.name}` : baseTitle
   const maxTotalMembers = selectedPackage?.max_members || 1
   const maxAdditionalMembers = maxTotalMembers > 20 ? 10 : Math.max(0, maxTotalMembers - 1)
   const isLargeGroup = maxTotalMembers > 20
@@ -251,7 +254,7 @@ export default function PujaBookingPage() {
           <ArrowLeft className="h-5 w-5 text-[var(--color-mandir-text)]" />
         </button>
         <h1 className="text-2xl font-bold font-[var(--font-heading)] text-[var(--color-mandir-text)]">
-          Complete Your Booking
+          {t("Complete Your Booking")}
         </h1>
       </div>
 
@@ -267,11 +270,13 @@ export default function PujaBookingPage() {
             />
           </div>
           <div className="flex-1 text-center sm:text-left">
-            <div className="text-xs font-medium text-[var(--color-saffron-400)] mb-1 flex items-center justify-center sm:justify-start">
-              <MapPin className="h-3 w-3 mr-1" />
-              {puja.temples?.name}
+            <div className="flex flex-col">
+              <h2 className="text-xl font-bold text-[var(--color-mandir-text)] mb-2 whitespace-pre-wrap">{displayName}</h2>
+              <div className="text-xs font-medium text-[var(--color-saffron-400)] mb-1 flex items-center justify-center sm:justify-start">
+                <MapPin className="h-3 w-3 mr-1" />
+                {puja.temples?.name}
+              </div>
             </div>
-            <h2 className="text-xl font-bold text-[var(--color-mandir-text)] mb-2">{displayName}</h2>
             <div className="text-2xl font-bold text-[var(--color-saffron-600)]">
               ₹{displayPrice}
             </div>

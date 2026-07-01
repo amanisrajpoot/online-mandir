@@ -7,10 +7,12 @@ import { Button } from "@/components/ui/Button"
 import Link from "next/link"
 import Image from "next/image"
 import { createClient } from "@/lib/supabase/client"
+import { useLanguage } from "@/lib/i18n/LanguageContext"
 
 export function HeroBanner() {
   const [currentSlide, setCurrentSlide] = React.useState(0)
   const [banners, setBanners] = React.useState<any[]>([])
+  const { t } = useLanguage()
   const supabase = createClient()
 
   React.useEffect(() => {
@@ -27,11 +29,11 @@ export function HeroBanner() {
         // Fallback just in case db is empty
         setBanners([{
           id: 'fallback',
-          title: "महा शिवरात्रि • Maha Shivratri",
-          subtitle: "रुद्राभिषेक बुक करें | Book your Rudrabhishek now",
+          title: t("Maha Shivratri"),
+          subtitle: t("Book your Rudrabhishek now"),
           image_url: "/images/hero_banner_shivratri.png",
           link: "/pujas",
-          cta_text: "अभी बुक करें | Book Now"
+          cta_text: t("Book Now")
         }])
       }
     }
@@ -82,7 +84,7 @@ export function HeroBanner() {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.3, duration: 0.5 }}
-              className="text-3xl md:text-5xl lg:text-6xl font-bold font-[var(--font-heading)] text-white leading-tight mb-4 drop-shadow-lg"
+              className="text-3xl md:text-5xl lg:text-6xl font-bold font-[var(--font-heading)] text-white leading-tight mb-4 drop-shadow-lg whitespace-pre-wrap"
             >
               {banners[currentSlide].title}
             </motion.h1>

@@ -6,20 +6,34 @@ import { format } from "date-fns"
 import { Sun, Moon, Sunrise, Sunset } from "lucide-react"
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/Card"
-
 import { calculatePanchang } from "@/lib/astrology/panchang"
+import { useLanguage } from "@/lib/i18n/LanguageContext"
 
 export function PanchangWidget() {
   const [data, setData] = React.useState<any>(null)
+  const { t, detectLanguageFromState } = useLanguage()
   const today = new Date()
 
   React.useEffect(() => {
     // Try to get user location, otherwise default to New Delhi
     if (typeof window !== "undefined" && "geolocation" in navigator) {
       navigator.geolocation.getCurrentPosition(
-        (position) => {
-          const panchang = calculatePanchang(today, position.coords.latitude, position.coords.longitude)
+        async (position) => {
+          const lat = position.coords.latitude;
+          const lon = position.coords.longitude;
+          const panchang = calculatePanchang(today, lat, lon)
           setData(panchang)
+
+          // Reverse geocode to get the state for language detection
+          try {
+            const res = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}`);
+            const locData = await res.json();
+            if (locData && locData.address && locData.address.state) {
+              detectLanguageFromState(locData.address.state);
+            }
+          } catch (e) {
+            console.error("Reverse geocoding failed", e);
+          }
         },
         (error) => {
           // Silently fall back to default coordinates without loud console errors in production
@@ -39,8 +53,8 @@ export function PanchangWidget() {
   return (
     <section id="panchang" className="w-full py-8 scroll-mt-20">
       <div className="container mx-auto px-4 max-w-6xl">
-        <h2 className="text-2xl font-bold font-[var(--font-heading)] text-[var(--color-mandir-text)] mb-6">
-          Today's Panchang
+        <h2 className="text-2xl font-bold font-[var(--font-heading)] text-[var(--color-mandir-text)] mb-6 whitespace-pre-wrap">
+          {t("Today's Panchang")}
         </h2>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -58,19 +72,19 @@ export function PanchangWidget() {
               </CardHeader>
               <CardContent className="pt-4 space-y-4">
                 <div className="flex justify-between items-center py-2 border-b border-[var(--color-mandir-border)]">
-                  <span className="text-sm text-[var(--color-mandir-text-muted)]">Tithi</span>
+                  <span className="text-sm text-[var(--color-mandir-text-muted)] whitespace-pre-wrap">{t('Tithi')}</span>
                   <span className="font-medium text-[var(--color-mandir-text)]">{data.tithi}</span>
                 </div>
                 <div className="flex justify-between items-center py-2 border-b border-[var(--color-mandir-border)]">
-                  <span className="text-sm text-[var(--color-mandir-text-muted)]">Nakshatra</span>
+                  <span className="text-sm text-[var(--color-mandir-text-muted)] whitespace-pre-wrap">{t('Nakshatra')}</span>
                   <span className="font-medium text-[var(--color-mandir-text)]">{data.nakshatra}</span>
                 </div>
                 <div className="flex justify-between items-center py-2 border-b border-[var(--color-mandir-border)]">
-                  <span className="text-sm text-[var(--color-mandir-text-muted)]">Yoga</span>
+                  <span className="text-sm text-[var(--color-mandir-text-muted)] whitespace-pre-wrap">{t('Yoga')}</span>
                   <span className="font-medium text-[var(--color-mandir-text)]">{data.yoga}</span>
                 </div>
                 <div className="flex justify-between items-center py-2">
-                  <span className="text-sm text-[var(--color-mandir-text-muted)]">Karana</span>
+                  <span className="text-sm text-[var(--color-mandir-text-muted)] whitespace-pre-wrap">{t('Karana')}</span>
                   <span className="font-medium text-[var(--color-mandir-text)]">{data.karana}</span>
                 </div>
               </CardContent>

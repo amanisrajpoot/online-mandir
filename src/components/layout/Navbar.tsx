@@ -9,10 +9,12 @@ import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/Button"
 import { createClient } from "@/lib/supabase/client"
 import { ThemeToggle } from "./ThemeToggle"
+import { useLanguage, LANGUAGES } from "@/lib/i18n/LanguageContext"
 
 export function Navbar() {
   const pathname = usePathname()
   const [user, setUser] = React.useState<any>(null)
+  const { language, setLanguage, t } = useLanguage()
   const supabase = createClient()
 
   React.useEffect(() => {
@@ -77,6 +79,17 @@ export function Navbar() {
 
         {/* User Actions */}
         <div className="flex items-center gap-2">
+          <select 
+            value={language} 
+            onChange={(e) => setLanguage(e.target.value)}
+            className="bg-transparent border border-[var(--color-mandir-border)] rounded-md text-sm text-[var(--color-mandir-text)] p-1 focus:ring-1 focus:ring-[var(--color-saffron-500)] outline-none"
+          >
+            {Object.entries(LANGUAGES).map(([code, lang]) => (
+              <option key={code} value={code} className="bg-[var(--color-mandir-surface)]">
+                {lang.native} ({lang.name})
+              </option>
+            ))}
+          </select>
           <ThemeToggle />
           <button className="relative rounded-full p-2 text-[var(--color-mandir-text-muted)] hover:bg-[var(--color-mandir-surface)] hover:text-[var(--color-saffron-400)] transition-colors">
             <Bell className="h-5 w-5" />

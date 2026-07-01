@@ -17,10 +17,12 @@ import { Skeleton } from "@/components/ui/Skeleton"
 import { Card, CardContent } from "@/components/ui/Card"
 import Link from "next/link"
 import { encodeId, decodeId } from "@/lib/utils"
+import { useLanguage } from "@/lib/i18n/LanguageContext"
 
 export default function TempleDetailPage() {
   const params = useParams()
   const id = decodeId(params.id as string)
+  const { t, getDualText } = useLanguage()
   
   const [temple, setTemple] = React.useState<any>(null)
   const [pujas, setPujas] = React.useState<any[]>([])
@@ -117,12 +119,12 @@ export default function TempleDetailPage() {
             <div className="inline-flex items-center rounded-full bg-[var(--color-saffron-500)]/10 px-3 py-1 text-xs font-medium text-[var(--color-saffron-500)] border border-[var(--color-saffron-500)]/20 mb-4">
               {temple.deity}
             </div>
-            <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold font-[var(--font-heading)] text-[var(--color-mandir-text)] mb-3">
-              {temple.name}
+            <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold font-[var(--font-heading)] text-[var(--color-mandir-text)] mb-3 whitespace-pre-wrap">
+              {getDualText(temple.name, temple.translations, 'name', 'temple')}
             </h1>
             <div className="flex items-center justify-center text-[var(--color-mandir-text-muted)] font-medium">
               <MapPin className="h-4 w-4 mr-1.5" />
-              {temple.location}
+              {getDualText(temple.location, temple.translations, 'location', 'temple')}
             </div>
           </div>
         </div>
@@ -136,12 +138,45 @@ export default function TempleDetailPage() {
             <Sparkles className="w-48 h-48" />
           </div>
           
-          <h2 className="text-2xl font-bold font-[var(--font-heading)] text-[var(--color-mandir-text)] mb-4 relative z-10">
-            About the Temple
+          <h2 className="text-2xl font-bold font-[var(--font-heading)] text-[var(--color-mandir-text)] mb-4 relative z-10 whitespace-pre-wrap">
+            {t('About the Temple')}
           </h2>
           <p className="text-[var(--color-mandir-text-muted)] text-base sm:text-lg leading-relaxed relative z-10 whitespace-pre-wrap">
-            {temple.description}
+            {getDualText(temple.description, temple.translations, 'description', 'temple')}
           </p>
+
+          {temple.history && (
+            <div className="mt-8 relative z-10">
+              <h3 className="text-xl font-bold font-[var(--font-heading)] text-[var(--color-mandir-text)] mb-3 whitespace-pre-wrap">
+                {t('History')}
+              </h3>
+              <p className="text-[var(--color-mandir-text-muted)] leading-relaxed whitespace-pre-wrap">
+                {getDualText(temple.history, temple.translations, 'history', 'temple')}
+              </p>
+            </div>
+          )}
+
+          {temple.architecture && (
+            <div className="mt-8 relative z-10">
+              <h3 className="text-xl font-bold font-[var(--font-heading)] text-[var(--color-mandir-text)] mb-3 whitespace-pre-wrap">
+                {t('Architecture')}
+              </h3>
+              <p className="text-[var(--color-mandir-text-muted)] leading-relaxed whitespace-pre-wrap">
+                {getDualText(temple.architecture, temple.translations, 'architecture', 'temple')}
+              </p>
+            </div>
+          )}
+
+          {temple.how_to_reach && (
+            <div className="mt-8 relative z-10">
+              <h3 className="text-xl font-bold font-[var(--font-heading)] text-[var(--color-mandir-text)] mb-3 whitespace-pre-wrap">
+                {t('Travel')}
+              </h3>
+              <p className="text-[var(--color-mandir-text-muted)] leading-relaxed whitespace-pre-wrap">
+                {getDualText(temple.how_to_reach, temple.translations, 'how_to_reach', 'temple')}
+              </p>
+            </div>
+          )}
           
           <div className="flex flex-wrap gap-4 mt-8 relative z-10">
             <div className="flex items-center bg-[var(--color-mandir-bg)] px-4 py-2 rounded-xl border border-[var(--color-mandir-border)]">

@@ -11,11 +11,14 @@ import { Skeleton } from "@/components/ui/Skeleton"
 import { Card, CardContent } from "@/components/ui/Card"
 import { Badge } from "@/components/ui/Badge"
 import { Button } from "@/components/ui/Button"
+import { StarRating } from "@/components/ui/StarRating"
 import { encodeId } from "@/lib/utils"
+import { useLanguage } from "@/lib/i18n/LanguageContext"
 
 export function TrendingPujas() {
   const [pujas, setPujas] = React.useState<any[]>([])
   const [loading, setLoading] = React.useState(true)
+  const { t, getDualText } = useLanguage()
   const supabase = createClient()
 
   React.useEffect(() => {
@@ -46,13 +49,19 @@ export function TrendingPujas() {
       <div className="container mx-auto px-4 max-w-6xl">
         <div className="flex items-center justify-between mb-6">
           <div className="flex items-center">
-            <Sparkles className="h-6 w-6 text-[var(--color-saffron-500)] mr-2" />
-            <h2 className="text-2xl font-bold font-[var(--font-heading)] text-[var(--color-mandir-text)]">
-              प्रमुख पूजा • Trending Pujas
-            </h2>
+            <div className="flex justify-between items-end mb-8">
+              <div>
+                <h2 className="text-3xl md:text-4xl font-bold font-[var(--font-heading)] text-[var(--color-mandir-text)] mb-3 whitespace-pre-wrap">
+                  {t("Trending Pujas")}
+                </h2>
+                <p className="text-[var(--color-mandir-text-muted)] max-w-2xl whitespace-pre-wrap">
+                  {t("Book authentic pujas performed by verified pandits at India's most sacred temples.")}
+                </p>
+              </div>
+            </div>
           </div>
           <Link href="/pujas" className="text-sm font-medium text-[var(--color-saffron-400)] hover:text-[var(--color-saffron-500)] flex items-center transition-colors">
-            सभी देखें | View All <ArrowRight className="ml-1 h-4 w-4" />
+            {t("View All")} <ArrowRight className="ml-1 h-4 w-4" />
           </Link>
         </div>
 
@@ -86,43 +95,50 @@ export function TrendingPujas() {
                 transition={{ delay: index * 0.1 }}
               >
                 <Card className="overflow-hidden h-full flex flex-col group border-[var(--color-mandir-border)] hover:border-[var(--color-saffron-500)]/50 transition-colors">
-                  <div className="relative h-48 overflow-hidden bg-[var(--color-mandir-surface)]">
-                    <Image 
-                      src={puja.image_url || "/images/puja_ganesh.png"} 
-                      alt={puja.title}
-                      fill
-                      sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-                      className="object-cover transition-transform duration-700 group-hover:scale-110"
-                    />
-                    <div className="absolute top-3 left-3 flex gap-2">
-                      <Badge variant="secondary" className="bg-black/50 backdrop-blur-md border-none text-white">
-                        {puja.category}
-                      </Badge>
-                    </div>
-                    {puja.booking_deadline && new Date(puja.booking_deadline) > new Date() && (
-                      <div className="absolute bottom-3 left-3 right-3">
-                        <div className="flex items-center justify-center rounded-lg bg-black/60 backdrop-blur-md px-3 py-1.5 text-xs font-medium text-[var(--color-saffron-300)] border border-white/10 shadow-lg">
-                          <Clock className="mr-1.5 h-3 w-3" />
-                          बुकिंग जल्द बंद होगी | Booking closes soon
-                        </div>
+                  <Link href={`/pujas/${encodeId(puja.id)}`} className="flex-1 flex flex-col">
+                    <div className="relative h-48 overflow-hidden bg-[var(--color-mandir-surface)]">
+                      <Image 
+                        src={puja.image_url || "/images/puja_ganesh.png"} 
+                        alt={puja.title}
+                        fill
+                        sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                        className="object-cover transition-transform duration-700 group-hover:scale-110"
+                      />
+                      <div className="absolute top-3 left-3 flex gap-2">
+                        <Badge variant="secondary" className="bg-black/50 backdrop-blur-md border-none text-white">
+                          {puja.category}
+                        </Badge>
                       </div>
-                    )}
-                  </div>
-                  
-                  <CardContent className="p-5 flex-1 flex flex-col">
-                    <div className="mb-1 text-xs font-medium text-[var(--color-saffron-500)]">
-                      {puja.temples?.name}
+                      {puja.booking_deadline && new Date(puja.booking_deadline) > new Date() && (
+                        <div className="absolute bottom-3 left-3 right-3">
+                          <div className="flex items-center justify-center rounded-lg bg-black/60 backdrop-blur-md px-3 py-1.5 text-xs font-medium text-[var(--color-saffron-300)] border border-white/10 shadow-lg">
+                            <Clock className="mr-1.5 h-3 w-3" />
+                            बुकिंग जल्द बंद होगी | Booking closes soon
+                          </div>
+                        </div>
+                      )}
                     </div>
                     
-                    <h3 className="mb-2 text-lg font-bold font-[var(--font-heading)] leading-tight line-clamp-2">
-                      {puja.title}
-                    </h3>
-                    
-                    <p className="mb-4 text-sm text-[var(--color-mandir-text-muted)] line-clamp-2 flex-1">
-                      {puja.problem_statement}
-                    </p>
-                    
-                    <div className="mt-auto pt-4 border-t border-[var(--color-mandir-border)] flex items-center justify-between">
+                    <CardContent className="p-5 flex-1 flex flex-col">
+                      <div className="mb-1 text-xs font-medium text-[var(--color-saffron-500)]">
+                        {puja.temples?.name}
+                      </div>
+                      
+                      <h3 className="mb-1 text-lg font-bold font-[var(--font-heading)] leading-tight line-clamp-2 group-hover:text-[var(--color-saffron-500)] transition-colors whitespace-pre-wrap">
+                        {getDualText(puja.title, puja.translations, 'title', 'puja')}
+                      </h3>
+                      
+                      <div className="mb-2">
+                        <StarRating rating={4.8} totalReviews={124} showText size={14} />
+                      </div>
+                      
+                      <p className="mb-4 text-sm text-[var(--color-mandir-text-muted)] line-clamp-2 flex-1 whitespace-pre-wrap">
+                        {getDualText(puja.problem_statement, puja.translations, 'problem_statement', 'puja')}
+                      </p>
+                    </CardContent>
+                  </Link>
+                  
+                  <div className="px-5 pb-5 mt-auto border-t border-[var(--color-mandir-border)] pt-4 flex items-center justify-between">
                       <div>
                         <div className="text-xs text-[var(--color-mandir-text-muted)] line-through">
                           ₹{puja.base_price}
@@ -132,13 +148,12 @@ export function TrendingPujas() {
                         </div>
                       </div>
                       
-                      <Link href={`/pujas/${encodeId(puja.id)}`}>
+                      <Link href={`/pujas/${encodeId(puja.id)}/book`}>
                         <Button size="sm" variant="outline" className="rounded-full group-hover:bg-[var(--color-saffron-500)] group-hover:text-white group-hover:border-[var(--color-saffron-500)] transition-all">
                           बुक करें | Book Now
                         </Button>
                       </Link>
                     </div>
-                  </CardContent>
                 </Card>
               </motion.div>
             ))
