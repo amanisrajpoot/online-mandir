@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Inter, Outfit, Tiro_Devanagari_Hindi } from "next/font/google";
+import Script from "next/script";
 import "./globals.css";
 import { Navbar } from "@/components/layout/Navbar";
 import { BottomNav } from "@/components/layout/BottomNav";
@@ -90,19 +91,21 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" suppressHydrationWarning className={`${inter.variable} ${outfit.variable} ${tiroDevanagari.variable}`}>
-      <head>
+      <body className="antialiased min-h-screen flex flex-col bg-[var(--color-mandir-bg)] text-[var(--color-mandir-text)] selection:bg-[var(--color-saffron-500)]/30">
         {/* Inline script to prevent flash-of-wrong-theme (FOWT) */}
-        <script
+        <Script
+          id="theme-script"
+          strategy="beforeInteractive"
           dangerouslySetInnerHTML={{
             __html: `(function(){try{var t=localStorage.getItem('vandanam-theme');if(t==='dark'){document.documentElement.classList.add('dark')}}catch(e){}})()`
           }}
         />
-      </head>
-      <body className="antialiased min-h-screen flex flex-col bg-[var(--color-mandir-bg)] text-[var(--color-mandir-text)] selection:bg-[var(--color-saffron-500)]/30">
         <ThemeProvider>
           <LanguageProvider>
-            <script
+            <Script
+              id="json-ld"
               type="application/ld+json"
+              strategy="beforeInteractive"
               dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
             />
             <Toaster />

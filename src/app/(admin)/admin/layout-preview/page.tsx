@@ -163,8 +163,7 @@ export default function LayoutPreviewPage() {
         {/* BOTTOM SECTIONS */}
         <FixedSection title="Chadhava Quick Select & Panchang" icon={LayoutDashboard} />
 
-        {/* DYNAMIC SLOT: ABOVE FOOTER */}
-        <SlotContent position="above_footer" title="Above Footer" />
+
 
         {/* FOOTER */}
         <div className="w-full h-24 bg-[var(--color-mandir-surface)] border-t border-[var(--color-mandir-border)] rounded-b-xl flex items-center justify-center text-[var(--color-mandir-text-muted)] opacity-70">

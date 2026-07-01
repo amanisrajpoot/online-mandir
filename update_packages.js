@@ -24,57 +24,52 @@ async function updatePujas() {
   }
   
   for (const puja of pujas) {
-    // We only update if packages is missing or has less than 4 packages
-    if (!puja.packages || puja.packages.length < 4) {
-      console.log(`Updating packages for puja: ${puja.title}`);
-      
-      const newPackages = [
-        {
-          id: crypto.randomUUID(),
-          name: 'अकेले के लिए (Individual)*',
-          members_text: 'For 1 Member',
-          max_members: 1,
-          base_price: puja.base_price,
-          sale_price: puja.sale_price
-        },
-        {
-          id: crypto.randomUUID(),
-          name: 'जोड़े के लिए (Couple)*',
-          members_text: 'For 2 Members',
-          max_members: 2,
-          base_price: puja.base_price + 1000,
-          sale_price: puja.sale_price + 500
-        },
-        {
-          id: crypto.randomUUID(),
-          name: 'परिवार के लिए (Family)*',
-          members_text: 'For 4 Members',
-          max_members: 4,
-          base_price: puja.base_price + 2500,
-          sale_price: puja.sale_price + 1500
-        },
-        {
-          id: crypto.randomUUID(),
-          name: 'संयुक्त परिवार (Joint Family)*',
-          members_text: 'For 6 Members',
-          max_members: 6,
-          base_price: puja.base_price + 4000,
-          sale_price: puja.sale_price + 2500
-        }
-      ];
-      
-      const { error: updateError } = await supabase
-        .from('pujas')
-        .update({ packages: newPackages })
-        .eq('id', puja.id);
-        
-      if (updateError) {
-        console.error(`Error updating puja ${puja.title}:`, updateError);
-      } else {
-        console.log(`Successfully updated ${puja.title}`);
+    console.log(`Updating packages for puja: ${puja.title}`);
+    
+    const newPackages = [
+      {
+        id: crypto.randomUUID(),
+        name: 'अकेले के लिए*',
+        members_text: 'For 1 Member',
+        max_members: 1,
+        base_price: 1001,
+        sale_price: 301
+      },
+      {
+        id: crypto.randomUUID(),
+        name: 'जोड़े के लिए*',
+        members_text: 'For 2 Members',
+        max_members: 2,
+        base_price: 5001,
+        sale_price: 501
+      },
+      {
+        id: crypto.randomUUID(),
+        name: 'परिवार के लिए*',
+        members_text: 'For Upto 10 Members',
+        max_members: 6,
+        base_price: 10001,
+        sale_price: 1001
+      },
+      {
+        id: crypto.randomUUID(),
+        name: 'VIP पूजा',
+        members_text: 'For Upto 50 Members',
+        max_members: 6,
+        base_price: 50001,
+        sale_price: 11001
       }
+    ];
+    
+    const { error: updateError } = await supabase
+      .from('pujas')
+      .update({ packages: newPackages, base_price: 1001, sale_price: 301 })
+      .eq('id', puja.id);
+      
+    if (updateError) {
+      console.error(`Error updating puja ${puja.title}:`, updateError);
     } else {
-      console.log(`Skipping ${puja.title} (already has ${puja.packages.length} packages)`);
+      console.log(`Successfully updated ${puja.title}`);
     }
   }
   console.log("Finished updating pujas.");

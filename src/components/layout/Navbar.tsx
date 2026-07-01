@@ -72,8 +72,8 @@ export function Navbar() {
           <Link href="/chadhava" className={cn("text-sm font-medium transition-colors hover:text-[var(--color-saffron-400)]", pathname.startsWith('/chadhava') ? "text-[var(--color-saffron-400)]" : "text-[var(--color-mandir-text)]")}>
             Chadhava
           </Link>
-          <Link href="/content" className={cn("text-sm font-medium transition-colors hover:text-[var(--color-saffron-400)]", pathname.startsWith('/content') ? "text-[var(--color-saffron-400)]" : "text-[var(--color-mandir-text)]")}>
-            Content
+          <Link href="/festivals" className={cn("text-sm font-medium transition-colors hover:text-[var(--color-saffron-400)]", pathname.startsWith('/festivals') ? "text-[var(--color-saffron-400)]" : "text-[var(--color-mandir-text)]")}>
+            Festivals
           </Link>
         </nav>
 

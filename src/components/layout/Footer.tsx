@@ -42,6 +42,7 @@ export function Footer() {
               <li><Link href="/pujas" className="hover:text-[var(--color-saffron-400)] transition-colors">Book a Puja</Link></li>
               <li><Link href="/chadhava" className="hover:text-[var(--color-saffron-400)] transition-colors">Offer Chadhava</Link></li>
               <li><Link href="/temples" className="hover:text-[var(--color-saffron-400)] transition-colors">Temple Directory</Link></li>
+              <li><Link href="/content" className="hover:text-[var(--color-saffron-400)] transition-colors">Spiritual Content</Link></li>
               <li><Link href="/astrology" className="hover:text-[var(--color-saffron-400)] transition-colors">Astrology (Coming Soon)</Link></li>
             </ul>
           </div>

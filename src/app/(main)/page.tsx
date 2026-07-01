@@ -43,7 +43,6 @@ export default function Home() {
       <ChadhavaQuickSelect />
       <PanchangWidget />
       
-      <FestivalCountdown position="above_footer" />
       <PromoBanners position="above_footer" />
       
       {/* Extra padding at the bottom for mobile nav */}
