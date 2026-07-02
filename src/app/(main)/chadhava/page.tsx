@@ -12,11 +12,13 @@ import { createClient } from "@/lib/supabase/client"
 import Link from "next/link"
 import { useLanguage } from "@/lib/i18n/LanguageContext"
 import { ChadhavaCard } from "@/components/chadhava/ChadhavaCard"
+import { useDebounce } from "@/hooks/use-debounce"
 
 export default function ChadhavaPage() {
   const [items, setItems] = React.useState<any[]>([])
   const [loading, setLoading] = React.useState(true)
   const [searchQuery, setSearchQuery] = React.useState("")
+  const debouncedSearchQuery = useDebounce(searchQuery, 400)
   const { t } = useLanguage()
   const supabase = createClient()
 
@@ -31,9 +33,11 @@ export default function ChadhavaPage() {
             temples (name, location)
           `)
           
-        if (searchQuery) {
-          query = query.ilike('title', `%${searchQuery}%`)
+        if (debouncedSearchQuery) {
+          query = query.ilike('title', `%${debouncedSearchQuery}%`)
         }
+        
+        query = query.limit(50)
         
         const { data, error } = await query
         
@@ -47,7 +51,7 @@ export default function ChadhavaPage() {
     }
 
     fetchItems()
-  }, [searchQuery, supabase])
+  }, [debouncedSearchQuery, supabase])
 
   return (
     <div className="container mx-auto px-4 py-8 max-w-6xl">

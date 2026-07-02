@@ -13,11 +13,13 @@ import { createClient } from "@/lib/supabase/client"
 import { StarRating } from "@/components/ui/StarRating"
 import Link from "next/link"
 import { PujaCard } from "@/components/pujas/PujaCard"
+import { useDebounce } from "@/hooks/use-debounce"
 
 export default function PujasPage() {
   const [pujas, setPujas] = React.useState<any[]>([])
   const [loading, setLoading] = React.useState(true)
   const [searchQuery, setSearchQuery] = React.useState("")
+  const debouncedSearchQuery = useDebounce(searchQuery, 400)
   const [category, setCategory] = React.useState("All")
   const supabase = createClient()
 
@@ -36,9 +38,11 @@ export default function PujasPage() {
           query = query.eq('category', category)
         }
         
-        if (searchQuery) {
-          query = query.ilike('title', `%${searchQuery}%`)
+        if (debouncedSearchQuery) {
+          query = query.ilike('title', `%${debouncedSearchQuery}%`)
         }
+        
+        query = query.limit(50)
         
         const { data, error } = await query
         
@@ -52,7 +56,7 @@ export default function PujasPage() {
     }
 
     fetchPujas()
-  }, [category, searchQuery, supabase])
+  }, [category, debouncedSearchQuery, supabase])
 
   const categories = ["All", "Health", "Marriage", "Wealth", "Festival", "Career"]
 

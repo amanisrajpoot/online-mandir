@@ -2,6 +2,7 @@
 
 import * as React from "react"
 import Link from "next/link"
+import Image from "next/image"
 import { motion } from "framer-motion"
 import { MapPin } from "lucide-react"
 import { Card, CardContent } from "@/components/ui/Card"
@@ -18,11 +19,12 @@ export function ChadhavaCard({ item, index = 0 }: { item: any, index?: number })
       <Link href={`/chadhava/${encodeId(item.id)}`} className="block">
         <Card className="overflow-hidden h-full group border-[var(--color-mandir-border)] hover:border-[var(--color-saffron-400)] transition-all hover:shadow-[0_0_15px_rgba(251,146,60,0.15)] bg-[var(--color-mandir-surface)]">
           <div className="relative h-32 sm:h-40 overflow-hidden">
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img 
+            <Image 
               src={item.image_url || "/images/chadhava_pushp.png"} 
               alt={item.title}
-              className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-110"
+              fill
+              className="object-cover transition-transform duration-500 group-hover:scale-110"
+              sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
             />
             <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
             

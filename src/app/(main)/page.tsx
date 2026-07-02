@@ -1,11 +1,14 @@
 import { HeroBanner } from "@/components/home/HeroBanner"
-import { CurrentOrders } from "@/components/home/CurrentOrders"
-import { TempleCarousel } from "@/components/home/TempleCarousel"
-import { TrendingPujas } from "@/components/home/TrendingPujas"
 import { FestivalCountdown } from "@/components/home/FestivalCountdown"
 import { PromoBanners } from "@/components/home/PromoBanners"
-import { ChadhavaQuickSelect } from "@/components/home/ChadhavaQuickSelect"
-import { PanchangWidget } from "@/components/home/PanchangWidget"
+import Script from "next/script"
+import dynamic from "next/dynamic"
+
+const CurrentOrders = dynamic(() => import("@/components/home/CurrentOrders").then(mod => mod.CurrentOrders))
+const TempleCarousel = dynamic(() => import("@/components/home/TempleCarousel").then(mod => mod.TempleCarousel))
+const TrendingPujas = dynamic(() => import("@/components/home/TrendingPujas").then(mod => mod.TrendingPujas))
+const ChadhavaQuickSelect = dynamic(() => import("@/components/home/ChadhavaQuickSelect").then(mod => mod.ChadhavaQuickSelect))
+const PanchangWidget = dynamic(() => import("@/components/home/PanchangWidget").then(mod => mod.PanchangWidget))
 
 export default function Home() {
   const websiteJsonLd = {
@@ -23,7 +26,8 @@ export default function Home() {
   return (
     <div className="flex flex-col min-h-screen">
       <h1 className="sr-only">Vandanam - Online Puja, Chadhava & Spiritual Services</h1>
-      <script
+      <Script
+        id="json-ld"
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(websiteJsonLd) }}
       />

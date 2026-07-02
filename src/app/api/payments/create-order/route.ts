@@ -27,19 +27,40 @@ export async function POST(request: Request) {
       packageId,
     } = body;
 
-    if (!type || !itemId || !amount || !customerPhone) {
+    if (!type || !itemId || !customerPhone) {
       return NextResponse.json({ error: "Missing required fields" }, { status: 400 });
     }
 
     let packageDetails = null;
+    let actualAmount = 0;
 
     if (type === 'puja') {
-      const { data: puja } = await supabase.from('pujas').select('packages').eq('id', itemId).single();
-      if (puja && puja.packages && packageId) {
-        packageDetails = puja.packages.find((p: any) => p.id === packageId) || null;
-      } else if (puja && puja.packages && puja.packages.length > 0) {
-        packageDetails = puja.packages[0];
+      const { data: puja, error: fetchError } = await supabase.from('pujas').select('sale_price, packages').eq('id', itemId).single();
+      
+      if (fetchError || !puja) {
+        return NextResponse.json({ error: "Puja not found" }, { status: 404 });
       }
+
+      if (puja.packages && packageId) {
+        packageDetails = puja.packages.find((p: any) => p.id === packageId) || null;
+        if (!packageDetails) {
+            return NextResponse.json({ error: "Selected package not found" }, { status: 404 });
+        }
+        actualAmount = packageDetails.price;
+      } else if (puja.packages && puja.packages.length > 0) {
+        packageDetails = puja.packages[0];
+        actualAmount = packageDetails.price;
+      } else {
+        actualAmount = puja.sale_price;
+      }
+    } else if (type === 'chadhava') {
+      const { data: chadhava, error: fetchError } = await supabase.from('chadhava_items').select('price').eq('id', itemId).single();
+      if (fetchError || !chadhava) {
+        return NextResponse.json({ error: "Chadhava item not found" }, { status: 404 });
+      }
+      actualAmount = chadhava.price;
+    } else {
+      return NextResponse.json({ error: "Invalid order type" }, { status: 400 });
     }
 
     // 1. Create Order in Supabase
@@ -50,7 +71,7 @@ export async function POST(request: Request) {
         order_type: type,
         item_id: itemId,
         status: 'pending',
-        amount: amount,
+        amount: actualAmount,
         package_details: packageDetails,
       })
       .select()
@@ -89,7 +110,7 @@ export async function POST(request: Request) {
     const cashfreeOrderId = `order_${dbOrder.id.replace(/-/g, '')}`;
     
     const requestArgs = {
-      order_amount: amount,
+      order_amount: actualAmount,
       order_currency: "INR",
       order_id: cashfreeOrderId,
       customer_details: {

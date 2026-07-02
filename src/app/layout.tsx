@@ -5,10 +5,12 @@ import "./globals.css";
 import { Navbar } from "@/components/layout/Navbar";
 import { BottomNav } from "@/components/layout/BottomNav";
 import { Footer } from "@/components/layout/Footer";
-import { AdminSidebar } from "@/components/layout/AdminSidebar";
-import { Toaster } from "@/components/ui/Toast";
 import { ThemeProvider } from "@/components/layout/ThemeProvider";
 import { LanguageProvider } from "@/lib/i18n/LanguageContext";
+import dynamic from "next/dynamic";
+
+const AdminSidebar = dynamic(() => import("@/components/layout/AdminSidebar").then(mod => mod.AdminSidebar));
+const Toaster = dynamic(() => import("@/components/ui/Toast").then(mod => mod.Toaster));
 
 const inter = Inter({ 
   subsets: ["latin"],
