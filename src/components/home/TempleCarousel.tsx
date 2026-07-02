@@ -76,7 +76,7 @@ export function TempleCarousel() {
                         src={temple.image_url} 
                         alt={temple.name} 
                         fill
-                        sizes="(max-width: 640px) 280px, 320px"
+                        sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
                         className="object-cover transition-transform duration-700 group-hover:scale-110"
                       />
                       <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />

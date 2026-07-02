@@ -53,6 +53,7 @@ export default async function FestivalsPage() {
                       src={festival.image_url || '/images/hero_banner_panchang.png'}
                       alt={festival.name}
                       fill
+                      sizes="(max-width: 768px) 100vw, 40vw"
                       className="object-cover transition-transform duration-700 group-hover:scale-105"
                     />
                     <div className="absolute inset-0 bg-gradient-to-t md:bg-gradient-to-r from-[var(--color-mandir-surface)] to-transparent md:from-transparent md:to-[var(--color-mandir-surface)]" />

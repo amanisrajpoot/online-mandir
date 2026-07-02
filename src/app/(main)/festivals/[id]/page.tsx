@@ -85,6 +85,7 @@ export default async function FestivalDetailPage({ params }: { params: Promise<{
           src={festival.image_url || '/images/hero_banner_panchang.png'}
           alt={festival.name}
           fill
+          sizes="(max-width: 1024px) 100vw, 50vw"
           priority
           className="object-cover"
         />
