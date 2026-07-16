@@ -9,6 +9,7 @@ const TempleCarousel = dynamic(() => import("@/components/home/TempleCarousel").
 const TrendingPujas = dynamic(() => import("@/components/home/TrendingPujas").then(mod => mod.TrendingPujas))
 const ChadhavaQuickSelect = dynamic(() => import("@/components/home/ChadhavaQuickSelect").then(mod => mod.ChadhavaQuickSelect))
 const PanchangWidget = dynamic(() => import("@/components/home/PanchangWidget").then(mod => mod.PanchangWidget))
+const DonationSection = dynamic(() => import("@/components/home/DonationSection").then(mod => mod.DonationSection))
 
 export default function Home() {
   const websiteJsonLd = {
@@ -43,6 +44,8 @@ export default function Home() {
       <TrendingPujas />
       <FestivalCountdown position="after_pujas" />
       <PromoBanners position="after_pujas" />
+      
+      <DonationSection />
       
       <ChadhavaQuickSelect />
       <PanchangWidget />

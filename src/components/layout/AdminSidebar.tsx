@@ -12,7 +12,8 @@ import {
   Image as ImageIcon,
   Calendar,
   Tag,
-  LogOut
+  LogOut,
+  Heart
 } from "lucide-react"
 
 import { cn } from "@/lib/utils"
@@ -24,6 +25,7 @@ const ADMIN_NAV_ITEMS = [
   { name: "Temples", href: "/admin/temples", icon: MapPin },
   { name: "Pujas", href: "/admin/pujas", icon: Sparkles },
   { name: "Chadhava", href: "/admin/chadhava", icon: Flower2 },
+  { name: "Donations", href: "/admin/donations", icon: Heart },
   { name: "Orders", href: "/admin/orders", icon: ShoppingCart },
   { name: "Banners", href: "/admin/banners", icon: ImageIcon },
   { name: "Panchang", href: "/admin/panchang", icon: Calendar },

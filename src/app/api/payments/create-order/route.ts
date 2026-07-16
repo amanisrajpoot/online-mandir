@@ -16,8 +16,8 @@ export async function POST(request: Request) {
 
     const body = await request.json();
     const { 
-      type, // 'puja' or 'chadhava'
-      itemId, // puja_id or chadhava_item_id
+      type, // 'puja', 'chadhava', or 'donation'
+      itemId, // puja_id, chadhava_item_id, or donation category slug
       amount, // Total amount in INR
       customerName,
       customerPhone,
@@ -25,6 +25,10 @@ export async function POST(request: Request) {
       sankalpDetails,
       deliveryAddress,
       packageId,
+      // Donation-specific
+      donorName,
+      donorMessage,
+      isAnonymous,
     } = body;
 
     if (!type || !itemId || !customerPhone) {
@@ -59,27 +63,67 @@ export async function POST(request: Request) {
         return NextResponse.json({ error: "Chadhava item not found" }, { status: 404 });
       }
       actualAmount = chadhava.price;
+    } else if (type === 'donation') {
+      // Validate minimum amount
+      if (!amount || amount < 11) {
+        return NextResponse.json({ error: "Minimum donation amount is ₹11" }, { status: 400 });
+      }
+      actualAmount = amount;
     } else {
       return NextResponse.json({ error: "Invalid order type" }, { status: 400 });
     }
 
     // 1. Create Order in Supabase
-    const { data: dbOrder, error: dbError } = await supabase
-      .from('orders')
-      .insert({
-        user_id: user.id,
-        order_type: type,
-        item_id: itemId,
-        status: 'pending',
-        amount: actualAmount,
-        package_details: packageDetails,
-      })
-      .select()
-      .single();
+    let dbOrder: any;
 
-    if (dbError || !dbOrder) {
-      console.error("Supabase Order Error:", dbError);
-      return NextResponse.json({ error: `Failed to create order record: ${dbError?.message || 'Unknown error'}` }, { status: 500 });
+    if (type === 'donation') {
+      // Find donation record by category slug
+      const { data: donationRecord } = await supabase
+        .from('donations')
+        .select('id')
+        .eq('category', itemId)
+        .single();
+
+      const donationId = donationRecord?.id || null;
+
+      const { data: donOrder, error: donError } = await supabase
+        .from('donation_orders')
+        .insert({
+          user_id: user.id,
+          donation_id: donationId,
+          amount: actualAmount,
+          donor_name: isAnonymous ? null : (donorName || customerName || null),
+          donor_message: donorMessage || null,
+          is_anonymous: isAnonymous || false,
+          status: 'pending',
+        })
+        .select()
+        .single();
+
+      if (donError || !donOrder) {
+        console.error("Donation Order Error:", donError);
+        return NextResponse.json({ error: `Failed to create donation record: ${donError?.message || 'Unknown error'}` }, { status: 500 });
+      }
+      dbOrder = donOrder;
+    } else {
+      const { data: regOrder, error: dbError } = await supabase
+        .from('orders')
+        .insert({
+          user_id: user.id,
+          order_type: type,
+          item_id: itemId,
+          status: 'pending',
+          amount: actualAmount,
+          package_details: packageDetails,
+        })
+        .select()
+        .single();
+
+      if (dbError || !regOrder) {
+        console.error("Supabase Order Error:", dbError);
+        return NextResponse.json({ error: `Failed to create order record: ${dbError?.message || 'Unknown error'}` }, { status: 500 });
+      }
+      dbOrder = regOrder;
     }
 
     // 2. Insert Sankalp and Address if provided
@@ -108,6 +152,9 @@ export async function POST(request: Request) {
 
     // 3. Create Cashfree Order
     const cashfreeOrderId = `order_${dbOrder.id.replace(/-/g, '')}`;
+    const returnUrl = type === 'donation'
+      ? `${origin}/donate/confirmation?order_id=${dbOrder.id}&cf_id={order_id}`
+      : `${origin}/book/confirmation?order_id=${dbOrder.id}&cf_id={order_id}`;
     
     const requestArgs = {
       order_amount: actualAmount,
@@ -115,25 +162,27 @@ export async function POST(request: Request) {
       order_id: cashfreeOrderId,
       customer_details: {
         customer_id: user.id.replace(/-/g, ''),
-        customer_phone: customerPhone,
+        customer_phone: customerPhone || "9999999999",
         customer_name: customerName || "Devotee",
-        customer_email: customerEmail || user.email || "devotee@devmandir.app",
+        customer_email: customerEmail || user.email || "devotee@vandanam.online",
       },
       order_meta: {
-        return_url: `${origin}/book/confirmation?order_id=${dbOrder.id}&cf_id={order_id}`,
+        return_url: returnUrl,
       }
     };
 
     const response = await cashfree.PGCreateOrder(requestArgs);
     const cfOrder = response.data;
 
-    // 4. Update Supabase Order with Cashfree details
+    // 4. Update record with Cashfree details
+    const updateTable = type === 'donation' ? 'donation_orders' : 'orders';
+    const updatePayload = type === 'donation'
+      ? { cashfree_order_id: cfOrder.order_id, cashfree_session_id: cfOrder.payment_session_id }
+      : { cashfree_order_id: cfOrder.order_id, cashfree_session_id: cfOrder.payment_session_id };
+
     await supabase
-      .from('orders')
-      .update({
-        cashfree_order_id: cfOrder.order_id,
-        cashfree_session_id: cfOrder.payment_session_id
-      })
+      .from(updateTable)
+      .update(updatePayload)
       .eq('id', dbOrder.id);
 
     return NextResponse.json({ 

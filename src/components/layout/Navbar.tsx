@@ -3,7 +3,7 @@
 import * as React from "react"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
-import { User, Bell, LogOut, Settings } from "lucide-react"
+import { User, Bell, LogOut, Settings, Heart } from "lucide-react"
 
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/Button"
@@ -74,6 +74,18 @@ export function Navbar() {
           </Link>
           <Link href="/festivals" className={cn("text-sm font-medium transition-colors hover:text-[var(--color-saffron-400)]", pathname.startsWith('/festivals') ? "text-[var(--color-saffron-400)]" : "text-[var(--color-mandir-text)]")}>
             Festivals
+          </Link>
+          <Link
+            href="/donate"
+            className={cn(
+              "flex items-center gap-1.5 text-sm font-semibold transition-all px-3 py-1.5 rounded-full",
+              pathname.startsWith('/donate')
+                ? "bg-[var(--color-sacred-red)] text-white"
+                : "bg-gradient-to-r from-[var(--color-sacred-red)]/10 to-[var(--color-saffron-500)]/10 text-[var(--color-sacred-red)] border border-[var(--color-sacred-red)]/30 hover:from-[var(--color-sacred-red)]/20 hover:to-[var(--color-saffron-500)]/20"
+            )}
+          >
+            <Heart className="w-3.5 h-3.5 fill-current" />
+            दान करें
           </Link>
         </nav>
 

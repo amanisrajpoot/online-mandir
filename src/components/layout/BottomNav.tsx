@@ -3,7 +3,7 @@
 import * as React from "react"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
-import { Home, Grid, Flower2, PlaySquare, User } from "lucide-react"
+import { Home, Grid, Flower2, Heart, User } from "lucide-react"
 
 import { cn } from "@/lib/utils"
 
@@ -24,9 +24,9 @@ const NAV_ITEMS = [
     icon: Flower2,
   },
   {
-    name: "Content",
-    href: "/content",
-    icon: PlaySquare,
+    name: "Donate",
+    href: "/donate",
+    icon: Heart,
   },
   {
     name: "Profile",

@@ -14,7 +14,8 @@ import {
   X,
   Calendar,
   Target,
-  Map
+  Map,
+  Heart
 } from "lucide-react"
 
 const ADMIN_NAV = [
@@ -23,6 +24,7 @@ const ADMIN_NAV = [
   { name: 'Temples', href: '/admin/temples', icon: MapPin },
   { name: 'Pujas', href: '/admin/pujas', icon: Sparkles },
   { name: 'Chadhava', href: '/admin/chadhava', icon: Flower2 },
+  { name: 'Donations', href: '/admin/donations', icon: Heart },
   { name: 'Banners', href: '/admin/banners', icon: ImageIcon },
   { name: 'Countdowns', href: '/admin/countdowns', icon: Calendar },
   { name: 'Promos', href: '/admin/promos', icon: Target },
