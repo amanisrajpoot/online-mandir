@@ -4,11 +4,14 @@ import * as React from "react"
 import Link from "next/link"
 import { useSearchParams } from "next/navigation"
 import { motion } from "framer-motion"
-import { CheckCircle, Heart, ArrowRight, Home } from "lucide-react"
+import { CheckCircle, Heart, ArrowRight, Home, Loader2, XCircle } from "lucide-react"
 
-export default function DonationConfirmationPage() {
+function DonationConfirmationContent() {
   const params = useSearchParams()
   const orderId = params.get("order_id")
+  const cfOrderId = params.get("cf_id")
+
+  const [status, setStatus] = React.useState<"loading" | "success" | "failed">("loading")
   const [confettiParts] = React.useState(() =>
     Array.from({ length: 20 }, (_, i) => ({
       id: i,
@@ -18,6 +21,69 @@ export default function DonationConfirmationPage() {
       size: 6 + Math.random() * 8,
     }))
   )
+
+  React.useEffect(() => {
+    const verifyPayment = async () => {
+      if (!cfOrderId) {
+        setStatus("failed")
+        return
+      }
+
+      try {
+        const res = await fetch("/api/payments/verify", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ orderId: cfOrderId, type: "donation" })
+        })
+
+        const data = await res.json()
+        if (data.success) {
+          setStatus("success")
+        } else {
+          setStatus("failed")
+        }
+      } catch (error) {
+        console.error("Verification error:", error)
+        setStatus("failed")
+      }
+    }
+
+    verifyPayment()
+  }, [cfOrderId])
+
+  if (status === "loading") {
+    return (
+      <div className="min-h-[70vh] flex flex-col items-center justify-center p-8">
+        <Loader2 className="h-16 w-16 animate-spin text-[var(--color-saffron-500)] mb-6" />
+        <h1 className="text-2xl font-bold font-[var(--font-heading)] text-[var(--color-mandir-text)] mb-2">Verifying Payment...</h1>
+        <p className="text-[var(--color-mandir-text-muted)]">Please wait while we confirm your donation transaction.</p>
+      </div>
+    )
+  }
+
+  if (status === "failed") {
+    return (
+      <div className="min-h-[70vh] flex flex-col items-center justify-center p-8">
+        <div className="w-20 h-20 bg-[var(--color-sacred-red)]/10 rounded-full flex items-center justify-center mb-6">
+          <XCircle className="h-12 w-12 text-[var(--color-sacred-red)]" />
+        </div>
+        <h1 className="text-3xl font-bold font-[var(--font-heading)] text-[var(--color-mandir-text)] mb-2">Donation Failed</h1>
+        <p className="text-[var(--color-mandir-text-muted)] mb-8 text-center max-w-md">We could not verify your payment. If money was deducted, it will be automatically refunded by your bank within 5-7 business days.</p>
+        <div className="flex gap-4">
+          <Link href="/donate">
+            <button className="px-6 py-2.5 rounded-xl border border-[var(--color-mandir-border)] text-sm font-semibold text-[var(--color-mandir-text)] hover:border-[var(--color-saffron-400)] transition-colors">
+              Try Again
+            </button>
+          </Link>
+          <Link href="/">
+            <button className="px-6 py-2.5 rounded-xl bg-gradient-to-r from-[var(--color-saffron-600)] to-[var(--color-saffron-400)] text-white text-sm font-bold shadow-md hover:shadow-lg transition-all">
+              Home
+            </button>
+          </Link>
+        </div>
+      </div>
+    )
+  }
 
   return (
     <div className="min-h-screen bg-[var(--color-mandir-bg)] flex items-center justify-center px-4 relative overflow-hidden">
@@ -37,7 +103,7 @@ export default function DonationConfirmationPage() {
         initial={{ opacity: 0, scale: 0.9 }}
         animate={{ opacity: 1, scale: 1 }}
         transition={{ type: "spring", stiffness: 200 }}
-        className="relative z-10 w-full max-w-md"
+        className="relative z-10 w-full max-w-md py-12"
       >
         <div className="rounded-3xl border border-[var(--color-mandir-border)] bg-[var(--color-mandir-card)] shadow-2xl overflow-hidden">
           {/* Top gradient banner */}
@@ -107,5 +173,13 @@ export default function DonationConfirmationPage() {
         </div>
       </motion.div>
     </div>
+  )
+}
+
+export default function DonationConfirmationPage() {
+  return (
+    <React.Suspense fallback={<div className="min-h-[70vh] flex justify-center items-center"><Loader2 className="h-12 w-12 animate-spin text-[var(--color-saffron-500)]" /></div>}>
+      <DonationConfirmationContent />
+    </React.Suspense>
   )
 }
