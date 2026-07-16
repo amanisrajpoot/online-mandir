@@ -7,6 +7,7 @@ import { motion, AnimatePresence } from "framer-motion"
 import { ArrowLeft, Heart, Shield, Users, ChevronRight, Pencil } from "lucide-react"
 import { Button } from "@/components/ui/Button"
 import { createClient } from "@/lib/supabase/client"
+import { CashfreeCheckout } from "@/components/payment/CashfreeCheckout"
 
 interface Seva {
   category: string
@@ -36,6 +37,7 @@ export function DonationFormPage({ seva }: DonationFormPageProps) {
   const [isAnonymous, setIsAnonymous] = React.useState(false)
   const [loading, setLoading] = React.useState(false)
   const [error, setError] = React.useState("")
+  const [paymentSessionId, setPaymentSessionId] = React.useState("")
 
   const finalAmount = isCustom ? parseInt(customAmount) || 0 : selectedAmount || 0
 
@@ -83,9 +85,9 @@ export function DonationFormPage({ seva }: DonationFormPageProps) {
 
       if (!response.ok) throw new Error(data.error || "Failed to initiate payment")
 
-      // Redirect to Cashfree / payment
+      // Render Cashfree checkout
       if (data.paymentSessionId) {
-        router.push(`/book/pay?session=${data.paymentSessionId}&order=${data.orderId}&type=donation`)
+        setPaymentSessionId(data.paymentSessionId)
       }
     } catch (err: any) {
       setError(err.message || "Something went wrong. Please try again.")
@@ -188,10 +190,15 @@ export function DonationFormPage({ seva }: DonationFormPageProps) {
           transition={{ delay: 0.15 }}
           className="lg:col-span-2"
         >
-          <div className="sticky top-20 rounded-3xl border border-[var(--color-mandir-border)] bg-[var(--color-mandir-card)] p-6 shadow-xl space-y-5">
-            <h2 className="font-bold font-[var(--font-heading)] text-xl text-[var(--color-mandir-text)]">
-              Select Amount
-            </h2>
+          {paymentSessionId ? (
+            <div className="sticky top-20">
+              <CashfreeCheckout paymentSessionId={paymentSessionId} />
+            </div>
+          ) : (
+            <div className="sticky top-20 rounded-3xl border border-[var(--color-mandir-border)] bg-[var(--color-mandir-card)] p-6 shadow-xl space-y-5">
+              <h2 className="font-bold font-[var(--font-heading)] text-xl text-[var(--color-mandir-text)]">
+                Select Amount
+              </h2>
 
             {/* Preset amounts */}
             <div className="grid grid-cols-3 gap-2">
@@ -326,6 +333,7 @@ export function DonationFormPage({ seva }: DonationFormPageProps) {
               </Link>
             </p>
           </div>
+          )}
         </motion.div>
       </div>
     </div>
