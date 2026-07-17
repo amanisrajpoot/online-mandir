@@ -84,11 +84,14 @@ export default function AdminCountdownsList() {
     } else {
       const tomorrow = new Date()
       tomorrow.setDate(tomorrow.getDate() + 1)
+      const end_date = new Date(tomorrow)
+      end_date.setDate(end_date.getDate() + 3)
       setEditingItem({
         name: "",
         description: "",
         image_url: "",
         target_date: tomorrow.toISOString().slice(0, 16),
+        end_date: end_date.toISOString().slice(0, 16),
         position: "after_hero",
         display_style: "full-width",
         sort_order: countdowns.length + 1,
@@ -107,8 +110,11 @@ export default function AdminCountdownsList() {
     setIsSaving(true)
     try {
       const payload = { ...editingItem }
-      if (payload.target_date.length === 16) {
+      if (payload.target_date && payload.target_date.length === 16) {
         payload.target_date = new Date(payload.target_date).toISOString()
+      }
+      if (payload.end_date && payload.end_date.length === 16) {
+        payload.end_date = new Date(payload.end_date).toISOString()
       }
 
       if (editingItem.id) {
@@ -181,8 +187,11 @@ export default function AdminCountdownsList() {
                           </div>
                           <div>
                             <div className="font-bold text-[var(--color-mandir-text)]">{item.name}</div>
-                            <div className="text-xs text-[var(--color-mandir-text-muted)] mt-1">
-                              Target: {new Date(item.target_date).toLocaleDateString()}
+                            <div className="text-xs text-[var(--color-mandir-text-muted)] mt-1 flex flex-col gap-0.5">
+                              <span>Start: {new Date(item.target_date).toLocaleDateString()}</span>
+                              {item.end_date && (
+                                <span>End: {new Date(item.end_date).toLocaleDateString()}</span>
+                              )}
                             </div>
                           </div>
                         </div>
@@ -244,14 +253,25 @@ export default function AdminCountdownsList() {
                 rows={2}
               />
             </div>
-            <div>
-              <label className="text-sm font-medium text-[var(--color-mandir-text)]">Target Date & Time *</label>
-              <Input 
-                type="datetime-local"
-                value={getFormatDate(editingItem.target_date)} 
-                onChange={e => setEditingItem({...editingItem, target_date: e.target.value})} 
-                className="mt-1"
-              />
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div>
+                <label className="text-sm font-medium text-[var(--color-mandir-text)]">Start Date & Time *</label>
+                <Input 
+                  type="datetime-local"
+                  value={getFormatDate(editingItem.target_date)} 
+                  onChange={e => setEditingItem({...editingItem, target_date: e.target.value})} 
+                  className="mt-1"
+                />
+              </div>
+              <div>
+                <label className="text-sm font-medium text-[var(--color-mandir-text)]">End Date & Time</label>
+                <Input 
+                  type="datetime-local"
+                  value={getFormatDate(editingItem.end_date)} 
+                  onChange={e => setEditingItem({...editingItem, end_date: e.target.value})} 
+                  className="mt-1"
+                />
+              </div>
             </div>
             
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">

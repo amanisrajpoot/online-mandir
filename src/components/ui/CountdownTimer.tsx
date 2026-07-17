@@ -7,18 +7,22 @@ import { cn } from "@/lib/utils"
 
 export interface CountdownTimerProps {
   targetDate: string | Date
+  endDate?: string | Date
   className?: string
   showLabels?: boolean
   compact?: boolean
   onComplete?: () => void
+  onPhaseChange?: (phase: 'starts_in' | 'ends_in' | 'ended') => void
 }
 
 export function CountdownTimer({ 
   targetDate, 
+  endDate,
   className, 
   showLabels = true,
   compact = false,
-  onComplete
+  onComplete,
+  onPhaseChange
 }: CountdownTimerProps) {
   const [timeLeft, setTimeLeft] = React.useState({
     days: 0,
@@ -26,19 +30,51 @@ export function CountdownTimer({
     minutes: 0,
     seconds: 0
   })
-  const [isExpired, setIsExpired] = React.useState(false)
+  const [phase, setPhase] = React.useState<'starts_in' | 'ends_in' | 'ended'>(() => {
+    // Determine initial phase synchronously to avoid flickers
+    const now = +new Date()
+    const start = +new Date(targetDate)
+    const end = endDate ? +new Date(endDate) : 0
+    if (start - now <= 0) {
+      return (end > now) ? 'ends_in' : 'ended'
+    }
+    return 'starts_in'
+  })
+
+  // Call onPhaseChange only once when component mounts or when phase actually changes
+  const initialPhaseReported = React.useRef(false)
+  
+  React.useEffect(() => {
+    if (!initialPhaseReported.current && onPhaseChange) {
+      onPhaseChange(phase)
+      initialPhaseReported.current = true
+    }
+  }, [phase, onPhaseChange])
 
   React.useEffect(() => {
     const calculateTimeLeft = () => {
-      const difference = +new Date(targetDate) - +new Date()
+      const now = +new Date()
+      const start = +new Date(targetDate)
+      const end = endDate ? +new Date(endDate) : 0
       
+      let difference = start - now
+      let currentPhase: 'starts_in' | 'ends_in' | 'ended' = 'starts_in'
+
+      // If past start date
       if (difference <= 0) {
-        setIsExpired(true)
-        if (onComplete) onComplete()
-        return { days: 0, hours: 0, minutes: 0, seconds: 0 }
+        if (end > now) {
+          // In the active phase, count down to end
+          difference = end - now
+          currentPhase = 'ends_in'
+        } else {
+          // Completely expired
+          difference = 0
+          currentPhase = 'ended'
+        }
       }
-      
+
       return {
+        phase: currentPhase,
         days: Math.floor(difference / (1000 * 60 * 60 * 24)),
         hours: Math.floor((difference / (1000 * 60 * 60)) % 24),
         minutes: Math.floor((difference / 1000 / 60) % 60),
@@ -46,24 +82,30 @@ export function CountdownTimer({
       }
     }
 
-    // Initial calculation
+    // Initial calculation (only update time left, phase is handled by useState init)
     setTimeLeft(calculateTimeLeft())
 
-    // Update every second
     const timer = setInterval(() => {
       const newTimeLeft = calculateTimeLeft()
+      
       setTimeLeft(newTimeLeft)
       
+      if (newTimeLeft.phase !== phase) {
+        setPhase(newTimeLeft.phase)
+        if (onPhaseChange) onPhaseChange(newTimeLeft.phase)
+      }
+      
       // Stop timer if expired
-      if (newTimeLeft.days === 0 && newTimeLeft.hours === 0 && newTimeLeft.minutes === 0 && newTimeLeft.seconds === 0) {
+      if (newTimeLeft.phase === 'ended') {
         clearInterval(timer)
+        if (onComplete) onComplete()
       }
     }, 1000)
 
     return () => clearInterval(timer)
-  }, [targetDate, onComplete])
+  }, [targetDate, endDate, phase]) // Removed onPhaseChange from dependencies to prevent infinite loops
 
-  if (isExpired) {
+  if (phase === 'ended') {
     return (
       <div className={cn("text-sm font-medium text-[var(--color-sacred-red)]", className)}>
         Booking Closed

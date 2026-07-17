@@ -13,6 +13,7 @@ import { encodeId } from "@/lib/utils"
 
 export function FestivalCountdown({ position }: { position: string }) {
   const [countdowns, setCountdowns] = React.useState<any[]>([])
+  const [phases, setPhases] = React.useState<Record<string, 'starts_in' | 'ends_in' | 'ended'>>({})
   const [loading, setLoading] = React.useState(true)
   const supabase = createClient()
 
@@ -28,7 +29,7 @@ export function FestivalCountdown({ position }: { position: string }) {
           .select('*')
           .eq('is_active', true)
           .eq('position', position)
-          .gte('target_date', today.toISOString())
+          .gte('end_date', today.toISOString())
           .lte('target_date', thirtyDaysFromNow.toISOString())
           .order('sort_order', { ascending: true })
           .limit(1)
@@ -101,11 +102,13 @@ export function FestivalCountdown({ position }: { position: string }) {
                       
                       <div className="bg-[var(--color-mandir-card-hover)] rounded-xl p-4 sm:p-6 border border-[var(--color-mandir-border)] inline-block self-start">
                         <div className="text-xs text-[var(--color-mandir-text-muted)] uppercase tracking-wider mb-3 font-semibold">
-                          Time remaining
+                          {phases[event.id] === 'ends_in' ? 'Festival Ends In' : 'Festival Starts In'}
                         </div>
                         <CountdownTimer 
                           targetDate={event.target_date} 
+                          endDate={event.end_date}
                           className="gap-2 sm:gap-4"
+                          onPhaseChange={(phase) => setPhases(prev => ({ ...prev, [event.id]: phase }))}
                         />
                       </div>
                       
