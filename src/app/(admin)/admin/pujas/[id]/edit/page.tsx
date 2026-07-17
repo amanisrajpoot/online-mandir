@@ -47,12 +47,25 @@ export default function AdminPujaEdit() {
         if (templesRes.data) setTemples(templesRes.data)
         
         if (pujaRes.data) {
+          // Backward compatibility: If packages is empty but base_price exists, create a default package
+          const loadedPackages = pujaRes.data.packages || [];
+          if (loadedPackages.length === 0 && pujaRes.data.sale_price) {
+            loadedPackages.push({
+              id: Math.random().toString(36).substr(2, 9),
+              name: "अकेले के लिए*",
+              members_text: "For 1 Member",
+              max_members: 1,
+              base_price: pujaRes.data.base_price || 0,
+              sale_price: pujaRes.data.sale_price || 0
+            })
+          }
+
           setFormData({
             title: pujaRes.data.title || "",
             category: pujaRes.data.category || "",
             temple_id: pujaRes.data.temple_id || "",
             problem_statement: pujaRes.data.problem_statement || "",
-            packages: pujaRes.data.packages || [],
+            packages: loadedPackages,
             benefits: pujaRes.data.benefits || [],
             whats_included: pujaRes.data.whats_included || [],
             ritual_process: pujaRes.data.ritual_process || [],
