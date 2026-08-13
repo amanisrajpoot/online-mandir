@@ -39,11 +39,11 @@ export async function POST(request: Request) {
       if (updatedOrder) {
         // Fetch email from Auth if user_id exists
         let authEmail = null;
-        if (updatedOrder.user_id) {
+        if (type === 'donation' && updatedOrder.donor_message?.includes('| EMAIL:')) {
+          authEmail = updatedOrder.donor_message.split('| EMAIL:')[1].trim();
+        } else if (updatedOrder.user_id) {
           const { data: userData } = await supabaseAdmin.auth.admin.getUserById(updatedOrder.user_id);
           authEmail = userData.user?.email || null;
-        } else if (type === 'donation' && updatedOrder.donor_message?.includes('| EMAIL:')) {
-          authEmail = updatedOrder.donor_message.split('| EMAIL:')[1].trim();
         }
 
         // Prepare notification details based on table type
@@ -59,12 +59,17 @@ export async function POST(request: Request) {
               customer_email: authEmail
             };
 
-        // Trigger Email & SMS Notifications in the background
-        notifyOrderSuccess(
-          updatedOrder.id,
-          notifyDetails,
-          updatedOrder.amount
-        ).catch(err => console.error("Notification Error:", err));
+        // Trigger Email & SMS Notifications
+        // AWAIT this to ensure serverless functions don't terminate before the email is fully sent.
+        try {
+          await notifyOrderSuccess(
+            updatedOrder.id,
+            notifyDetails,
+            updatedOrder.amount
+          );
+        } catch (err) {
+          console.error("Notification Error:", err);
+        }
 
         return NextResponse.json({ 
           success: true, 

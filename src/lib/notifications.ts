@@ -95,7 +95,7 @@ export async function notifyOrderSuccess(orderId: string, customerDetails: any, 
   // 1. Send SMS (Only if amount >= 51)
   if (customer_phone && amount >= 51) {
     const smsMessage = `Namaste ${customer_name || 'Devotee'}, your booking (ID: ${orderId.split('-')[0]}) of Rs${amount} is confirmed. We will notify you once the rituals begin. - Vandanam`;
-    sendSMS({ phone: customer_phone, message: smsMessage });
+    await sendSMS({ phone: customer_phone, message: smsMessage });
   }
 
   // 2. Send Email (Receipt/Details) using HTML Template
@@ -108,7 +108,7 @@ export async function notifyOrderSuccess(orderId: string, customerDetails: any, 
       "Vandanam Spiritual Service"
     );
     
-    sendEmail({ to: customer_email, subject: emailSubject, html: emailHtml });
+    await sendEmail({ to: customer_email, subject: emailSubject, html: emailHtml });
   }
 }
 
@@ -124,7 +124,7 @@ export async function notifyOrderStatusUpdate(
   // 1. Send SMS (Only for Critical event: Completed)
   if (customer_phone && newStatus === 'completed') {
     const smsMessage = `Namaste ${customer_name || 'Devotee'}, your booked service (ID: ${orderId.split('-')[0]}) is now completed. May you be blessed with peace and prosperity. - Vandanam`;
-    sendSMS({ phone: customer_phone, message: smsMessage });
+    await sendSMS({ phone: customer_phone, message: smsMessage });
   }
 
   // 2. Send Email (Detailed Status) using HTML Template
@@ -137,6 +137,6 @@ export async function notifyOrderStatusUpdate(
       videoUrl
     );
     
-    sendEmail({ to: customer_email, subject: emailSubject, html: emailHtml });
+    await sendEmail({ to: customer_email, subject: emailSubject, html: emailHtml });
   }
 }
