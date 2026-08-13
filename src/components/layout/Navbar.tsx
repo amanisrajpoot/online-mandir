@@ -52,7 +52,7 @@ export function Navbar() {
   }
 
   return (
-    <header className="sticky top-0 z-40 w-full border-b border-[var(--color-mandir-border)] bg-[var(--color-mandir-bg)]/80 backdrop-blur-md">
+    <header className="sticky top-0 z-40 w-full border-b border-[var(--color-mandir-border)] bg-[var(--color-mandir-bg)]/80 backdrop-blur-md print:hidden">
       <div className="container mx-auto flex h-16 items-center justify-between px-4">
         {/* Logo */}
         <Link href="/" className="flex items-center gap-2">

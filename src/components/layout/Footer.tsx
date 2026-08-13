@@ -18,7 +18,7 @@ export function Footer() {
   }
 
   return (
-    <footer className="hidden md:block w-full border-t border-[var(--color-mandir-border)] bg-[var(--color-mandir-bg)] py-8 mt-12">
+    <footer className="hidden md:block w-full border-t border-[var(--color-mandir-border)] bg-[var(--color-mandir-bg)] py-8 mt-12 print:hidden">
       <div className="container mx-auto px-4">
         <div className="grid grid-cols-1 gap-8 md:grid-cols-4">
           <div className="flex flex-col space-y-4">

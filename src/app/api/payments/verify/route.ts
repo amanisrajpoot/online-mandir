@@ -70,7 +70,7 @@ export async function POST(request: Request) {
           success: true, 
           status: "SUCCESS",
           emailSent: !!authEmail,
-          smsSent: !!updatedOrder.customer_phone && updatedOrder.amount > 51
+          smsSent: !!updatedOrder.customer_phone && updatedOrder.amount >= 51
         });
       }
 

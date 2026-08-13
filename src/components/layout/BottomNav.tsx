@@ -49,7 +49,7 @@ export function BottomNav() {
   }
 
   return (
-    <div className="fixed bottom-0 left-0 right-0 z-40 border-t border-[var(--color-mandir-border)] bg-[var(--color-mandir-surface)]/90 backdrop-blur-lg pb-safe">
+    <div className="fixed bottom-0 left-0 right-0 z-40 border-t border-[var(--color-mandir-border)] bg-[var(--color-mandir-surface)]/90 backdrop-blur-lg pb-safe print:hidden">
       <nav className="flex h-16 w-full items-center justify-around px-2 sm:hidden">
         {NAV_ITEMS.map((item) => {
           const isActive = 

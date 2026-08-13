@@ -58,7 +58,7 @@ export default async function ReceiptPage(props: { searchParams: Promise<{ order
         <PrintReceiptClient />
       </div>
 
-      <div id="receipt-content" className="w-full max-w-2xl bg-white p-8 md:p-12 shadow-lg rounded-xl border border-gray-200 print:shadow-none print:border-none print:p-0">
+      <div id="receipt-content" className="w-full max-w-2xl bg-white p-8 md:p-12 shadow-lg rounded-xl border border-gray-200 print:shadow-none print:border-none print:p-0 print:m-0 print:w-full print:max-w-none print:text-black">
         {/* Header */}
         <div className="flex justify-between items-start border-b border-gray-200 pb-6 mb-6">
           <div>
@@ -126,9 +126,9 @@ export default async function ReceiptPage(props: { searchParams: Promise<{ order
         </div>
 
         {/* Footer Note */}
-        <div className="text-center mt-12 pt-6 border-t border-gray-100">
-          <p className="text-sm font-semibold text-gray-800">Thank you for your generous contribution.</p>
-          <p className="text-xs text-gray-500 mt-2 max-w-sm mx-auto leading-relaxed">
+        <div className="text-center mt-12 pt-6 border-t border-gray-100 print:border-gray-800">
+          <p className="text-sm font-semibold text-gray-800 print:text-black">Thank you for your generous contribution.</p>
+          <p className="text-xs text-gray-500 mt-2 max-w-sm mx-auto leading-relaxed print:text-black">
             This is a computer-generated receipt and does not require a physical signature. Vandanam ensures that 100% of your donation reaches the intended cause.
           </p>
         </div>
