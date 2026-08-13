@@ -52,6 +52,8 @@ export async function updateSession(request: NextRequest) {
     !request.nextUrl.pathname.startsWith('/pujas') &&
     !request.nextUrl.pathname.startsWith('/temples') &&
     !request.nextUrl.pathname.startsWith('/chadhava') &&
+    !request.nextUrl.pathname.startsWith('/festivals') &&
+    !request.nextUrl.pathname.startsWith('/donate') &&
     !request.nextUrl.pathname.startsWith('/content') &&
     !request.nextUrl.pathname.startsWith('/profile')
   ) {

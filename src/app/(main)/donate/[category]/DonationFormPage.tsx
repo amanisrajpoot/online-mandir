@@ -33,6 +33,7 @@ export function DonationFormPage({ seva }: DonationFormPageProps) {
   const [customAmount, setCustomAmount] = React.useState("")
   const [isCustom, setIsCustom] = React.useState(false)
   const [donorName, setDonorName] = React.useState("")
+  const [donorPhone, setDonorPhone] = React.useState("")
   const [donorMessage, setDonorMessage] = React.useState("")
   const [isAnonymous, setIsAnonymous] = React.useState(false)
   const [loading, setLoading] = React.useState(false)
@@ -62,6 +63,11 @@ export function DonationFormPage({ seva }: DonationFormPageProps) {
     }
 
     const { data: { user } } = await supabase.auth.getUser()
+    
+    if (!user && !donorPhone) {
+      setError("Please enter your mobile number so we can send you the receipt.")
+      return
+    }
 
     setLoading(true)
     try {
@@ -73,7 +79,7 @@ export function DonationFormPage({ seva }: DonationFormPageProps) {
           itemId: seva.category,
           amount: finalAmount,
           customerName: isAnonymous ? "Anonymous Donor" : (donorName || user?.email?.split("@")[0] || "Devotee"),
-          customerPhone: user?.phone || "9999999999",
+          customerPhone: donorPhone || user?.phone || "9999999999",
           customerEmail: user?.email || "donor@vandanam.online",
           donorName: isAnonymous ? null : donorName,
           donorMessage,
@@ -239,28 +245,47 @@ export function DonationFormPage({ seva }: DonationFormPageProps) {
               </div>
             </div>
 
-            {/* Donor name */}
-            <div>
-              <label className="block text-xs font-semibold text-[var(--color-mandir-text-muted)] uppercase tracking-wider mb-1.5">
-                Your Name (optional)
-              </label>
-              <input
-                type="text"
-                value={donorName}
-                onChange={(e) => setDonorName(e.target.value)}
-                disabled={isAnonymous}
-                placeholder="e.g., Ram Sharma"
-                className="w-full px-4 py-2.5 rounded-xl border border-[var(--color-mandir-border)] text-sm bg-[var(--color-mandir-surface)] text-[var(--color-mandir-text)] focus:border-[var(--color-saffron-500)] outline-none transition-all disabled:opacity-40"
-              />
-              <label className="flex items-center gap-2 mt-2 cursor-pointer">
+            {/* Donor name & phone */}
+            <div className="space-y-4">
+              <div>
+                <label className="block text-xs font-semibold text-[var(--color-mandir-text-muted)] uppercase tracking-wider mb-1.5">
+                  Your Name (optional)
+                </label>
                 <input
-                  type="checkbox"
-                  checked={isAnonymous}
-                  onChange={(e) => setIsAnonymous(e.target.checked)}
-                  className="rounded accent-[var(--color-saffron-500)]"
+                  type="text"
+                  value={donorName}
+                  onChange={(e) => setDonorName(e.target.value)}
+                  disabled={isAnonymous}
+                  placeholder="e.g., Ram Sharma"
+                  className="w-full px-4 py-2.5 rounded-xl border border-[var(--color-mandir-border)] text-sm bg-[var(--color-mandir-surface)] text-[var(--color-mandir-text)] focus:border-[var(--color-saffron-500)] outline-none transition-all disabled:opacity-40"
                 />
-                <span className="text-xs text-[var(--color-mandir-text-muted)]">Donate anonymously</span>
-              </label>
+                <label className="flex items-center gap-2 mt-2 cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={isAnonymous}
+                    onChange={(e) => setIsAnonymous(e.target.checked)}
+                    className="rounded accent-[var(--color-saffron-500)]"
+                  />
+                  <span className="text-xs text-[var(--color-mandir-text-muted)]">Donate anonymously</span>
+                </label>
+              </div>
+
+              <div>
+                <label className="block text-xs font-semibold text-[var(--color-mandir-text-muted)] uppercase tracking-wider mb-1.5">
+                  Mobile Number (required for receipt)
+                </label>
+                <div className="relative">
+                  <span className="absolute left-3 top-1/2 -translate-y-1/2 text-[var(--color-mandir-text-muted)] font-medium text-sm">+91</span>
+                  <input
+                    type="tel"
+                    value={donorPhone}
+                    onChange={(e) => setDonorPhone(e.target.value.replace(/\D/g, ''))}
+                    maxLength={10}
+                    placeholder="10-digit number"
+                    className="w-full pl-11 pr-4 py-2.5 rounded-xl border border-[var(--color-mandir-border)] text-sm bg-[var(--color-mandir-surface)] text-[var(--color-mandir-text)] focus:border-[var(--color-saffron-500)] outline-none transition-all"
+                  />
+                </div>
+              </div>
             </div>
 
             {/* Message */}

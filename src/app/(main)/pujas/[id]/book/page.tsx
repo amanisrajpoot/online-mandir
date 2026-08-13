@@ -60,22 +60,21 @@ export default function PujaBookingPage() {
   React.useEffect(() => {
     const fetchPujaAndUser = async () => {
       try {
-        // Check Auth
+        // Remove mandatory auth check to allow guest checkout
         const { data: { user } } = await supabase.auth.getUser()
-        if (!user) {
-          router.push(`/login?next=/pujas/${encodeId(id)}/book`)
-          return
-        }
 
-        // Fetch user profile for default data
-        const { data: profile } = await supabase
-          .from('users')
-          .select('*')
-          .eq('id', user.id)
-          .single()
 
-        if (profile) {
-          setSankalpData(prev => ({ ...prev, fullName: profile.name || "", phone: profile.phone || "" }))
+        // Fetch user profile for default data if logged in
+        if (user) {
+          const { data: profile } = await supabase
+            .from('users')
+            .select('*')
+            .eq('id', user.id)
+            .single()
+
+          if (profile) {
+            setSankalpData(prev => ({ ...prev, fullName: profile.name || "", phone: profile.phone || "" }))
+          }
         }
 
         // Fetch Puja Details

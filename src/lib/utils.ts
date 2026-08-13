@@ -1,13 +1,13 @@
 import { clsx, type ClassValue } from "clsx"
 import { twMerge } from "tailwind-merge"
 
-import * as shortUUID from "short-uuid"
+import * as shortUUIDModule from "short-uuid"
+const shortUUID = (shortUUIDModule as any).default || shortUUIDModule;
+const translator = shortUUID.createTranslator();
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs))
 }
-
-const translator = shortUUID.createTranslator ? shortUUID.createTranslator() : (shortUUID as any)()
 
 export function encodeId(uuid: string): string {
   try {

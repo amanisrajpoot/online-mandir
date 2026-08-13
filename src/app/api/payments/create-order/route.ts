@@ -10,9 +10,12 @@ export async function POST(request: Request) {
     // Get origin from request headers for dynamic redirect URL
     const origin = request.headers.get("origin") || process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
 
-    if (!user) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-    }
+    // Initialize Admin Client to bypass RLS for backend order creation
+    const { createClient: createSupabaseClient } = await import('@supabase/supabase-js');
+    const supabaseAdmin = createSupabaseClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.SUPABASE_SERVICE_ROLE_KEY!
+    );
 
     const body = await request.json();
     const { 
@@ -72,13 +75,33 @@ export async function POST(request: Request) {
     } else {
       return NextResponse.json({ error: "Invalid order type" }, { status: 400 });
     }
+    
+    // Link to existing user if guest uses a registered phone number
+    let orderUserId = user?.id || null;
+    if (!orderUserId && customerPhone) {
+      const searchPhone = customerPhone.replace('+', '');
+      const searchPhoneWithoutCountry = searchPhone.startsWith('91') ? searchPhone.substring(2) : searchPhone;
+      
+      const { data: usersData } = await supabaseAdmin.auth.admin.listUsers();
+      if (usersData?.users) {
+        const existingUser = usersData.users.find(u => 
+          u.phone === customerPhone || 
+          u.phone === searchPhone || 
+          u.phone === searchPhoneWithoutCountry ||
+          u.phone === `+91${searchPhoneWithoutCountry}`
+        );
+        if (existingUser) {
+          orderUserId = existingUser.id;
+        }
+      }
+    }
 
     // 1. Create Order in Supabase
     let dbOrder: any;
 
     if (type === 'donation') {
       // Find donation record by category slug
-      const { data: donationRecord } = await supabase
+      const { data: donationRecord } = await supabaseAdmin
         .from('donations')
         .select('id')
         .eq('category', itemId)
@@ -86,15 +109,16 @@ export async function POST(request: Request) {
 
       const donationId = donationRecord?.id || null;
 
-      const { data: donOrder, error: donError } = await supabase
+      const { data: donOrder, error: donError } = await supabaseAdmin
         .from('donation_orders')
         .insert({
-          user_id: user.id,
+          user_id: orderUserId,
           donation_id: donationId,
           amount: actualAmount,
           donor_name: isAnonymous ? null : (donorName || customerName || null),
           donor_message: donorMessage || null,
           is_anonymous: isAnonymous || false,
+          customer_phone: customerPhone || null,
           status: 'pending',
         })
         .select()
@@ -106,15 +130,17 @@ export async function POST(request: Request) {
       }
       dbOrder = donOrder;
     } else {
-      const { data: regOrder, error: dbError } = await supabase
+      const { data: regOrder, error: dbError } = await supabaseAdmin
         .from('orders')
         .insert({
-          user_id: user.id,
+          user_id: orderUserId,
           order_type: type,
           item_id: itemId,
           status: 'pending',
           amount: actualAmount,
           package_details: packageDetails,
+          customer_phone: customerPhone || null,
+          customer_name: customerName || null,
         })
         .select()
         .single();
@@ -128,7 +154,7 @@ export async function POST(request: Request) {
 
     // 2. Insert Sankalp and Address if provided
     if (sankalpDetails) {
-      await supabase.from('sankalp_details').insert({
+      await supabaseAdmin.from('sankalp_details').insert({
         order_id: dbOrder.id,
         devotee_name: sankalpDetails.name,
         gotra: sankalpDetails.gotra,
@@ -138,8 +164,8 @@ export async function POST(request: Request) {
     }
 
     if (deliveryAddress) {
-      await supabase.from('delivery_addresses').insert({
-        user_id: user.id,
+      await supabaseAdmin.from('delivery_addresses').insert({
+        user_id: orderUserId,
         order_id: dbOrder.id,
         name: deliveryAddress.name,
         phone: deliveryAddress.phone,
@@ -152,19 +178,24 @@ export async function POST(request: Request) {
 
     // 3. Create Cashfree Order
     const cashfreeOrderId = `order_${dbOrder.id.replace(/-/g, '')}`;
-    const returnUrl = type === 'donation'
+    let returnUrl = type === 'donation'
       ? `${origin}/donate/confirmation?order_id=${dbOrder.id}&cf_id={order_id}`
       : `${origin}/book/confirmation?order_id=${dbOrder.id}&cf_id={order_id}`;
+    
+    // Cashfree strictly requires HTTPS for the return_url, even in local development.
+    if (returnUrl.startsWith('http://')) {
+      returnUrl = returnUrl.replace('http://', 'https://');
+    }
     
     const requestArgs = {
       order_amount: actualAmount,
       order_currency: "INR",
       order_id: cashfreeOrderId,
       customer_details: {
-        customer_id: user.id.replace(/-/g, ''),
+        customer_id: user ? user.id.replace(/-/g, '') : `guest_${Date.now()}`,
         customer_phone: customerPhone || "9999999999",
         customer_name: customerName || "Devotee",
-        customer_email: customerEmail || user.email || "devotee@vandanam.online",
+        customer_email: customerEmail || user?.email || "devotee@vandanam.online",
       },
       order_meta: {
         return_url: returnUrl,
@@ -180,7 +211,7 @@ export async function POST(request: Request) {
       ? { cashfree_order_id: cfOrder.order_id, cashfree_session_id: cfOrder.payment_session_id }
       : { cashfree_order_id: cfOrder.order_id, cashfree_session_id: cfOrder.payment_session_id };
 
-    await supabase
+    await supabaseAdmin
       .from(updateTable)
       .update(updatePayload)
       .eq('id', dbOrder.id);

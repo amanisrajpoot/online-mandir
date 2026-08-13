@@ -60,7 +60,25 @@ function LoginContent() {
       }
 
       if (error) {
-        throw error
+        // Fallback for SMS if Supabase fails (e.g. 500 error)
+        if (!isEmail) {
+          console.log("Supabase OTP failed, falling back to custom Fast2SMS API...");
+          const fallbackRes = await fetch('/api/auth/send-otp', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ phone: formattedIdentifier })
+          });
+          const fallbackData = await fallbackRes.json();
+          if (!fallbackRes.ok) {
+             throw new Error(fallbackData.error || 'Failed to send custom OTP');
+          }
+          // Mark that we are using the custom fallback
+          sessionStorage.setItem('auth_custom_fallback', 'true');
+        } else {
+          throw error;
+        }
+      } else {
+         sessionStorage.removeItem('auth_custom_fallback');
       }
 
       toast({
@@ -109,19 +127,42 @@ function LoginContent() {
     }
 
     try {
-      let result;
-      if (isEmail) {
-        result = await supabase.auth.verifyOtp({
-          email: formattedIdentifier,
-          token: otp,
-          type: 'email',
-        })
+      let result: any = { data: null, error: null };
+      
+      const isCustomFallback = sessionStorage.getItem('auth_custom_fallback') === 'true';
+
+      if (isCustomFallback && !isEmail) {
+        // Custom verification
+        const verifyRes = await fetch('/api/auth/verify-otp', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ phone: formattedIdentifier, otp })
+        });
+        const verifyData = await verifyRes.json();
+        
+        if (!verifyRes.ok) {
+          throw new Error(verifyData.error || 'Invalid OTP');
+        }
+
+        // Login with temp password
+        result = await supabase.auth.signInWithPassword({
+          phone: verifyData.phone,
+          password: verifyData.tempPassword
+        });
       } else {
-        result = await supabase.auth.verifyOtp({
-          phone: formattedIdentifier,
-          token: otp,
-          type: 'sms',
-        })
+        if (isEmail) {
+          result = await supabase.auth.verifyOtp({
+            email: formattedIdentifier,
+            token: otp,
+            type: 'email',
+          })
+        } else {
+          result = await supabase.auth.verifyOtp({
+            phone: formattedIdentifier,
+            token: otp,
+            type: 'sms',
+          })
+        }
       }
       
       const { data, error } = result;
