@@ -46,6 +46,9 @@ export function Navbar() {
 
   const handleLogout = async () => {
     await supabase.auth.signOut()
+    // Force a hard reload to clear Next.js client-side router cache
+    // This fixes the issue where clicking Login right after Logout does nothing
+    window.location.href = '/'
   }
 
   return (

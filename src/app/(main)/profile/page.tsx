@@ -255,13 +255,26 @@ function ProfileContent() {
 
 
       const verifyParams: any = {
-        token: otp,
+        token: otp.trim(),
         type: type
       }
       if (otpMode === 'email') verifyParams.email = identifier
       else verifyParams.phone = identifier
 
-      const { data: { user }, error } = await supabase.auth.verifyOtp(verifyParams)
+      let { data: { user }, error } = await supabase.auth.verifyOtp(verifyParams)
+
+      // Fallback: If phone_change fails, try 'sms' type. Sometimes Supabase treats adding a phone for the first time as 'sms'
+      if (error && otpMode === 'phone' && (error.message.toLowerCase().includes('invalid') || error.message.toLowerCase().includes('expired'))) {
+        const fallbackResult = await supabase.auth.verifyOtp({
+          phone: identifier,
+          token: otp.trim(),
+          type: 'sms'
+        })
+        if (!fallbackResult.error && fallbackResult.data.user) {
+          user = fallbackResult.data.user
+          error = null
+        }
+      }
 
       if (error) throw error
       if (!user) throw new Error("Verification failed")
