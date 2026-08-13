@@ -125,8 +125,8 @@ function BaseEmailTemplate(content: string) {
         
         <!-- Sacred Header -->
         <div class="header-bg">
-          <img src="${BASE_URL}/email-assets/om-symbol.png" alt="Om" class="om-symbol" /><br/>
-          <img src="${BASE_URL}/email-assets/logo.png" alt="Vandanam" class="logo" />
+          <img src="${BASE_URL}/email-assets/om-symbol.png" alt="Om" class="om-symbol" style="height: 80px; margin-bottom: 20px;" /><br/>
+          <img src="${BASE_URL}/email-assets/logo.png" alt="Vandanam" class="logo" style="height: 50px;" />
         </div>
         
         <!-- Main Content -->
@@ -161,7 +161,7 @@ export function OrderSuccessTemplate(
     <p>Your divine offering and booking have been successfully received.</p>
     
     <div class="diya-divider">
-      <img src="${BASE_URL}/email-assets/diya-divider.png" alt="Diya" />
+      <img src="${BASE_URL}/email-assets/diya-divider.png" alt="Diya" style="max-width: 250px; height: auto;" />
     </div>
     
     <div class="order-box">
@@ -210,7 +210,7 @@ export function StatusUpdateTemplate(
     <p>${message}</p>
     
     <div class="diya-divider">
-      <img src="${BASE_URL}/email-assets/diya-divider.png" alt="Diya" />
+      <img src="${BASE_URL}/email-assets/diya-divider.png" alt="Diya" style="max-width: 250px; height: auto;" />
     </div>
 
     ${videoUrl ? `

@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { notifyOrderStatusUpdate } from "@/lib/notifications";
+import { cashfree } from "@/lib/cashfree";
 
 export async function POST(request: Request) {
   try {
@@ -43,11 +44,22 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "Failed to update order" }, { status: 500 });
     }
 
-    // Safely extract customer details. Priority: Order details -> User profile details
+    // Fetch customer_email from Cashfree since it's not in the orders table for guests
+    let cfCustomerEmail = null;
+    if (updatedOrder.cashfree_order_id) {
+      try {
+        const orderDetailsResponse = await cashfree.PGFetchOrder(updatedOrder.cashfree_order_id);
+        cfCustomerEmail = orderDetailsResponse.data?.customer_details?.customer_email || null;
+      } catch (err) {
+        console.error("Failed to fetch order details from Cashfree:", err);
+      }
+    }
+
+    // Safely extract customer details. Priority: Order details -> User profile details -> Cashfree details
     const customerDetails = {
       customer_name: updatedOrder.customer_name || updatedOrder.users?.name,
       customer_phone: updatedOrder.customer_phone || updatedOrder.users?.phone,
-      customer_email: updatedOrder.customer_email || updatedOrder.users?.email
+      customer_email: cfCustomerEmail || updatedOrder.users?.email
     };
 
     // Trigger Notification

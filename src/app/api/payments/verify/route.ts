@@ -46,17 +46,28 @@ export async function POST(request: Request) {
           authEmail = userData.user?.email || null;
         }
 
+        // Fetch customer_email from Cashfree since it's not in the orders table for guests
+        let cfCustomerEmail = null;
+        try {
+          const orderDetailsResponse = await cashfree.PGFetchOrder(orderId);
+          cfCustomerEmail = orderDetailsResponse.data?.customer_details?.customer_email || null;
+        } catch (err) {
+          console.error("Failed to fetch order details from Cashfree:", err);
+        }
+
+        const finalEmail = cfCustomerEmail || authEmail;
+
         // Prepare notification details based on table type
         const notifyDetails = type === 'donation' 
           ? {
               customer_name: updatedOrder.donor_name || 'Donor',
               customer_phone: updatedOrder.customer_phone,
-              customer_email: authEmail
+              customer_email: finalEmail
             }
           : {
               customer_name: updatedOrder.customer_name,
               customer_phone: updatedOrder.customer_phone,
-              customer_email: authEmail
+              customer_email: finalEmail
             };
 
         // Trigger Email & SMS Notifications
