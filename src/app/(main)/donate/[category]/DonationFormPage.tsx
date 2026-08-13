@@ -65,7 +65,7 @@ export function DonationFormPage({ seva }: DonationFormPageProps) {
 
     const { data: { user } } = await supabase.auth.getUser()
     
-    if (!user && !donorPhone) {
+    if (!donorPhone && !user?.phone) {
       setError("Please enter your mobile number so we can send you the receipt.")
       return
     }

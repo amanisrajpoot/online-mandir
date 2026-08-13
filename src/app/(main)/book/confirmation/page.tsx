@@ -5,6 +5,7 @@ import { useSearchParams, useRouter } from "next/navigation"
 import { CheckCircle2, XCircle, Loader2 } from "lucide-react"
 import { Card, CardContent } from "@/components/ui/Card"
 import { Button } from "@/components/ui/Button"
+import { CashfreeCheckout } from "@/components/payment/CashfreeCheckout"
 
 function ConfirmationContent() {
   const searchParams = useSearchParams()
@@ -13,7 +14,8 @@ function ConfirmationContent() {
   const dbOrderId = searchParams.get("order_id")
   const cfOrderId = searchParams.get("cf_id")
 
-  const [status, setStatus] = React.useState<"loading" | "success" | "failed">("loading")
+  const [status, setStatus] = React.useState<"loading" | "success" | "failed" | "retrying">("loading")
+  const [retrySessionId, setRetrySessionId] = React.useState<string | null>(null)
 
   React.useEffect(() => {
     const verifyPayment = async () => {
@@ -44,6 +46,40 @@ function ConfirmationContent() {
     verifyPayment()
   }, [cfOrderId])
 
+  const handleRetry = async () => {
+    if (!dbOrderId) {
+      router.push('/')
+      return
+    }
+
+    setStatus("retrying")
+    try {
+      const res = await fetch("/api/payments/retry-order", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ orderId: dbOrderId, type: "order" }) 
+      })
+
+      const data = await res.json()
+      if (data.paymentSessionId) {
+        setRetrySessionId(data.paymentSessionId)
+      } else {
+        router.push('/')
+      }
+    } catch (error) {
+      console.error("Retry error:", error)
+      router.push('/')
+    }
+  }
+
+  if (retrySessionId) {
+    return (
+      <div className="min-h-[50vh]">
+        <CashfreeCheckout paymentSessionId={retrySessionId} />
+      </div>
+    )
+  }
+
   return (
     <Card className="border-[var(--color-mandir-border)] bg-[var(--color-mandir-surface)] shadow-2xl">
       <CardContent className="pt-12 pb-12 flex flex-col items-center">
@@ -72,7 +108,7 @@ function ConfirmationContent() {
           </>
         )}
 
-        {status === "failed" && (
+        {(status === "failed" || status === "retrying") && (
           <>
             <div className="w-20 h-20 bg-[var(--color-sacred-red)]/10 rounded-full flex items-center justify-center mb-6">
               <XCircle className="h-12 w-12 text-[var(--color-sacred-red)]" />
@@ -83,9 +119,10 @@ function ConfirmationContent() {
               <Button 
                 variant="outline" 
                 className="flex-1"
-                onClick={() => router.push('/')}
+                disabled={status === "retrying"}
+                onClick={handleRetry}
               >
-                Go Home
+                {status === "retrying" ? "Connecting..." : "Try Again"}
               </Button>
               <Button 
                 variant="gradient" 

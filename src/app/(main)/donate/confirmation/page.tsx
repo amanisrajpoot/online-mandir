@@ -5,13 +5,16 @@ import Link from "next/link"
 import { useSearchParams } from "next/navigation"
 import { motion } from "framer-motion"
 import { CheckCircle, Heart, ArrowRight, Home, Loader2, XCircle } from "lucide-react"
+import { CashfreeCheckout } from "@/components/payment/CashfreeCheckout"
 
 function DonationConfirmationContent() {
   const params = useSearchParams()
   const orderId = params.get("order_id")
   const cfOrderId = params.get("cf_id")
+  const category = params.get("category")
 
-  const [status, setStatus] = React.useState<"loading" | "success" | "failed">("loading")
+  const [status, setStatus] = React.useState<"loading" | "success" | "failed" | "retrying">("loading")
+  const [retrySessionId, setRetrySessionId] = React.useState<string | null>(null)
   const [confettiParts] = React.useState(() =>
     Array.from({ length: 20 }, (_, i) => ({
       id: i,
@@ -61,7 +64,47 @@ function DonationConfirmationContent() {
     )
   }
 
-  if (status === "failed") {
+  const handleRetry = async () => {
+    if (!orderId) {
+      if (category) window.location.href = `/donate/${category}`
+      else window.location.href = `/donate`
+      return
+    }
+
+    setStatus("retrying")
+    try {
+      const res = await fetch("/api/payments/retry-order", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ orderId, type: "donation" })
+      })
+
+      const data = await res.json()
+      if (data.paymentSessionId) {
+        setRetrySessionId(data.paymentSessionId)
+      } else {
+        // Fallback to navigating back to form if retry fails
+        if (category) window.location.href = `/donate/${category}`
+        else window.location.href = `/donate`
+      }
+    } catch (error) {
+      console.error("Retry error:", error)
+      if (category) window.location.href = `/donate/${category}`
+      else window.location.href = `/donate`
+    }
+  }
+
+  if (retrySessionId) {
+    return (
+      <div className="min-h-screen bg-[var(--color-mandir-bg)] flex items-center justify-center p-4">
+        <div className="w-full max-w-md bg-[var(--color-mandir-card)] border border-[var(--color-mandir-border)] rounded-3xl shadow-2xl overflow-hidden">
+          <CashfreeCheckout paymentSessionId={retrySessionId} />
+        </div>
+      </div>
+    )
+  }
+
+  if (status === "failed" || status === "retrying") {
     return (
       <div className="min-h-[70vh] flex flex-col items-center justify-center p-8">
         <div className="w-20 h-20 bg-[var(--color-sacred-red)]/10 rounded-full flex items-center justify-center mb-6">
@@ -70,11 +113,13 @@ function DonationConfirmationContent() {
         <h1 className="text-3xl font-bold font-[var(--font-heading)] text-[var(--color-mandir-text)] mb-2">Donation Failed</h1>
         <p className="text-[var(--color-mandir-text-muted)] mb-8 text-center max-w-md">We could not verify your payment. If money was deducted, it will be automatically refunded by your bank within 5-7 business days.</p>
         <div className="flex gap-4">
-          <Link href="/donate">
-            <button className="px-6 py-2.5 rounded-xl border border-[var(--color-mandir-border)] text-sm font-semibold text-[var(--color-mandir-text)] hover:border-[var(--color-saffron-400)] transition-colors">
-              Try Again
-            </button>
-          </Link>
+          <button 
+            onClick={handleRetry}
+            disabled={status === "retrying"}
+            className="px-6 py-2.5 rounded-xl border border-[var(--color-mandir-border)] text-sm font-semibold text-[var(--color-mandir-text)] hover:border-[var(--color-saffron-400)] transition-colors disabled:opacity-50"
+          >
+            {status === "retrying" ? "Connecting..." : "Try Again"}
+          </button>
           <Link href="/">
             <button className="px-6 py-2.5 rounded-xl bg-gradient-to-r from-[var(--color-saffron-600)] to-[var(--color-saffron-400)] text-white text-sm font-bold shadow-md hover:shadow-lg transition-all">
               Home

@@ -179,8 +179,8 @@ export async function POST(request: Request) {
     // 3. Create Cashfree Order
     const cashfreeOrderId = `order_${dbOrder.id.replace(/-/g, '')}`;
     let returnUrl = type === 'donation'
-      ? `${origin}/donate/confirmation?order_id=${dbOrder.id}&cf_id={order_id}`
-      : `${origin}/book/confirmation?order_id=${dbOrder.id}&cf_id={order_id}`;
+      ? `${origin}/donate/confirmation?order_id=${dbOrder.id}&cf_id={order_id}&category=${itemId}`
+      : `${origin}/book/confirmation?order_id=${dbOrder.id}&cf_id={order_id}&itemId=${itemId}`;
     
     // Cashfree strictly requires HTTPS for the return_url, even in local development.
     if (returnUrl.startsWith('http://')) {
