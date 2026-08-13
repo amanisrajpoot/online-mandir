@@ -5,7 +5,8 @@ import { PrintReceiptClient } from "./PrintReceiptClient"
 import Link from "next/link"
 import { ArrowLeft, Printer } from "lucide-react"
 
-export default async function ReceiptPage({ searchParams }: { searchParams: { order_id?: string } }) {
+export default async function ReceiptPage(props: { searchParams: Promise<{ order_id?: string }> }) {
+  const searchParams = await props.searchParams
   const orderId = searchParams.order_id
 
   if (!orderId) {
