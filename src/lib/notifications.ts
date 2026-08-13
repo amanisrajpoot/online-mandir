@@ -1,4 +1,5 @@
 import nodemailer from 'nodemailer';
+import { OrderSuccessTemplate, StatusUpdateTemplate } from './email-templates';
 
 // Helper to send Email via SMTP
 export async function sendEmail({
@@ -91,26 +92,50 @@ export async function sendSMS({
 export async function notifyOrderSuccess(orderId: string, customerDetails: any, amount: number) {
   const { customer_name, customer_phone, customer_email } = customerDetails;
   
-  // 1. Send SMS (Super Critical)
+  // 1. Send SMS (Critical event: Payment Confirmed)
   if (customer_phone) {
     const smsMessage = `Namaste ${customer_name || 'Devotee'}, your booking (ID: ${orderId.split('-')[0]}) of Rs${amount} is confirmed. We will notify you once the rituals begin. - Vandanam`;
-    // We don't await SMS so it runs in background and doesn't block the API
     sendSMS({ phone: customer_phone, message: smsMessage });
   }
 
-  // 2. Send Email (Receipt/Details)
+  // 2. Send Email (Receipt/Details) using HTML Template
   if (customer_email) {
     const emailSubject = `Order Confirmed: Vandanam Spiritual Services (#${orderId.split('-')[0]})`;
-    const emailHtml = `
-      <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto;">
-        <h2 style="color: #f97316;">Namaste ${customer_name || 'Devotee'},</h2>
-        <p>Your payment of <strong>₹${amount}</strong> was successful and your order is confirmed.</p>
-        <p><strong>Order ID:</strong> ${orderId}</p>
-        <p>We will keep you updated on the progress of your rituals. You can check your dashboard on vandanam.online for live updates.</p>
-        <br/>
-        <p>Har Har Mahadev,<br/>The Vandanam Team</p>
-      </div>
-    `;
+    const emailHtml = OrderSuccessTemplate(
+      customer_name,
+      orderId,
+      amount,
+      "Vandanam Spiritual Service"
+    );
+    
+    sendEmail({ to: customer_email, subject: emailSubject, html: emailHtml });
+  }
+}
+
+// Order Status Update Triggers
+export async function notifyOrderStatusUpdate(
+  orderId: string, 
+  customerDetails: any, 
+  newStatus: string, 
+  videoUrl?: string
+) {
+  const { customer_name, customer_phone, customer_email } = customerDetails;
+  
+  // 1. Send SMS (Only for Critical event: Completed)
+  if (customer_phone && newStatus === 'completed') {
+    const smsMessage = `Namaste ${customer_name || 'Devotee'}, your booked service (ID: ${orderId.split('-')[0]}) is now completed. May you be blessed with peace and prosperity. - Vandanam`;
+    sendSMS({ phone: customer_phone, message: smsMessage });
+  }
+
+  // 2. Send Email (Detailed Status) using HTML Template
+  if (customer_email) {
+    const emailSubject = `Booking Update: Status is now ${newStatus.replace('_', ' ')} (#${orderId.split('-')[0]})`;
+    const emailHtml = StatusUpdateTemplate(
+      customer_name,
+      orderId,
+      newStatus,
+      videoUrl
+    );
     
     sendEmail({ to: customer_email, subject: emailSubject, html: emailHtml });
   }

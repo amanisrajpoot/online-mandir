@@ -99,15 +99,19 @@ export default function AdminOrderDetail() {
   const handleUpdateStatus = async (newStatus: string) => {
     setUpdating(true)
     try {
-      const { error } = await supabase
-        .from('orders')
-        .update({ status: newStatus })
-        .eq('id', id)
+      const response = await fetch('/api/admin/update-order-status', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ orderId: id, status: newStatus })
+      })
 
-      if (error) throw error
+      if (!response.ok) {
+        const errorData = await response.json()
+        throw new Error(errorData.error || 'Failed to update')
+      }
       
       setOrder({ ...order, status: newStatus })
-      toast({ type: "success", title: "Status Updated", description: `Order status changed to ${newStatus}` })
+      toast({ type: "success", title: "Status Updated", description: `Order status changed to ${newStatus} and notifications sent.` })
     } catch (error) {
       console.error("Error updating status:", error)
       toast({ type: "error", title: "Update Failed" })
@@ -119,15 +123,19 @@ export default function AdminOrderDetail() {
   const handleSaveVideoUrl = async () => {
     setUpdating(true)
     try {
-      const { error } = await supabase
-        .from('orders')
-        .update({ video_url: videoUrl, status: 'video_uploaded' })
-        .eq('id', id)
+      const response = await fetch('/api/admin/update-order-status', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ orderId: id, status: 'video_uploaded', videoUrl: videoUrl })
+      })
 
-      if (error) throw error
+      if (!response.ok) {
+        const errorData = await response.json()
+        throw new Error(errorData.error || 'Failed to update')
+      }
       
       setOrder({ ...order, video_url: videoUrl, status: 'video_uploaded' })
-      toast({ type: "success", title: "Video Saved", description: "Proof video link updated." })
+      toast({ type: "success", title: "Video Saved", description: "Proof video link updated and user notified." })
     } catch (error) {
       console.error("Error saving video:", error)
       toast({ type: "error", title: "Save Failed" })
