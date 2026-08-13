@@ -85,7 +85,7 @@ export async function POST(request: Request) {
         return NextResponse.json({ 
           success: true, 
           status: "SUCCESS",
-          emailSent: !!authEmail,
+          emailSent: !!finalEmail,
           smsSent: !!updatedOrder.customer_phone && updatedOrder.amount >= 51
         });
       }

@@ -13,10 +13,14 @@ export default async function ReceiptPage(props: { searchParams: Promise<{ order
     return notFound()
   }
 
-  const supabase = await createClient()
+  const { createClient: createSupabaseClient } = await import('@supabase/supabase-js')
+  const supabaseAdmin = createSupabaseClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.SUPABASE_SERVICE_ROLE_KEY!
+  )
 
-  // Fetch the donation order
-  const { data: order, error } = await supabase
+  // Fetch the donation order using admin client to bypass RLS
+  const { data: order, error } = await supabaseAdmin
     .from('donation_orders')
     .select(`
       *,
@@ -43,7 +47,7 @@ export default async function ReceiptPage(props: { searchParams: Promise<{ order
   // Determine email if stored in donor_message
   let customerEmail = "Not provided"
   if (order.user_id) {
-    const { data: userData } = await supabase.auth.admin.getUserById(order.user_id)
+    const { data: userData } = await supabaseAdmin.auth.admin.getUserById(order.user_id)
     if (userData.user?.email) customerEmail = userData.user.email
   } else if (order.donor_message?.includes('| EMAIL:')) {
     customerEmail = order.donor_message.split('| EMAIL:')[1].trim()
