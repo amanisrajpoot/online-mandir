@@ -57,8 +57,9 @@ export function DonationFormPage({ seva }: DonationFormPageProps) {
   const handleDonate = async () => {
     setError("")
 
-    if (finalAmount < (seva.min_amount || 11)) {
-      setError(`Minimum donation amount is ₹${seva.min_amount || 11}`)
+    if (finalAmount < (seva.min_amount || 1)) {
+      setError(`Minimum donation amount is ₹${seva.min_amount || 1}`)
+      setLoading(false)
       return
     }
 
@@ -236,7 +237,7 @@ export function DonationFormPage({ seva }: DonationFormPageProps) {
                   type="number"
                   value={customAmount}
                   onChange={(e) => handleCustomAmountChange(e.target.value)}
-                  placeholder={`Min ₹${seva.min_amount || 11}`}
+                  placeholder={`Min ₹${seva.min_amount || 1}`}
                   className={`
                     w-full pl-7 pr-4 py-2.5 rounded-xl border text-sm bg-[var(--color-mandir-surface)] text-[var(--color-mandir-text)] outline-none transition-all
                     ${isCustom ? "border-[var(--color-saffron-500)] ring-2 ring-[var(--color-saffron-500)]/20" : "border-[var(--color-mandir-border)] focus:border-[var(--color-saffron-500)]"}
@@ -331,7 +332,7 @@ export function DonationFormPage({ seva }: DonationFormPageProps) {
               whileHover={{ scale: 1.02 }}
               whileTap={{ scale: 0.98 }}
               onClick={handleDonate}
-              disabled={loading || finalAmount < (seva.min_amount || 11)}
+              disabled={loading || finalAmount < (seva.min_amount || 1)}
               className="w-full flex items-center justify-center gap-2 py-4 rounded-2xl bg-gradient-to-r from-[var(--color-sacred-red)] via-[var(--color-saffron-600)] to-[var(--color-saffron-500)] text-white font-bold text-base shadow-lg hover:shadow-[0_8px_30px_rgba(249,115,22,0.4)] disabled:opacity-60 disabled:cursor-not-allowed transition-all"
             >
               {loading ? (

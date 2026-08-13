@@ -68,8 +68,8 @@ export async function POST(request: Request) {
       actualAmount = chadhava.price;
     } else if (type === 'donation') {
       // Validate minimum amount
-      if (!amount || amount < 11) {
-        return NextResponse.json({ error: "Minimum donation amount is ₹11" }, { status: 400 });
+      if (!amount || amount < 1) {
+        return NextResponse.json({ error: "Minimum donation amount is ₹1" }, { status: 400 });
       }
       actualAmount = amount;
     } else {

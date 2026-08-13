@@ -24,7 +24,7 @@ export default function AdminDonationEdit({ params }: { params: Promise<{ id: st
     subtitle: "",
     description: "",
     image_url: "",
-    min_amount: 11,
+    min_amount: 1,
     impact_statement: "",
     display_order: 99,
     suggested_amounts: "51, 101, 251, 501, 1001, 2101, 5100" 
@@ -52,7 +52,7 @@ export default function AdminDonationEdit({ params }: { params: Promise<{ id: st
             subtitle: data.subtitle || "",
             description: data.description || "",
             image_url: data.image_url || "",
-            min_amount: data.min_amount || 11,
+            min_amount: data.min_amount || 1,
             impact_statement: data.impact_statement || "",
             display_order: data.display_order || 99,
             suggested_amounts: data.suggested_amounts ? data.suggested_amounts.join(', ') : "51, 101, 251, 501, 1001"
@@ -188,7 +188,7 @@ export default function AdminDonationEdit({ params }: { params: Promise<{ id: st
                 <Input 
                   type="number"
                   value={formData.min_amount}
-                  onChange={(e) => setFormData({...formData, min_amount: parseInt(e.target.value) || 11})}
+                  onChange={(e) => setFormData({...formData, min_amount: parseInt(e.target.value) || 1})}
                   className="mt-1"
                 />
               </div>

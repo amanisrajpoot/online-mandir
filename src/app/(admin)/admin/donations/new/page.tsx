@@ -23,7 +23,7 @@ export default function AdminDonationNew() {
     subtitle: "",
     description: "",
     image_url: "",
-    min_amount: 11,
+    min_amount: 1,
     impact_statement: "",
     display_order: 99,
     suggested_amounts: "51, 101, 251, 501, 1001, 2101, 5100" // stored as string for input, parsed on save
@@ -141,7 +141,7 @@ export default function AdminDonationNew() {
                 <Input 
                   type="number"
                   value={formData.min_amount}
-                  onChange={(e) => setFormData({...formData, min_amount: parseInt(e.target.value) || 11})}
+                  onChange={(e) => setFormData({...formData, min_amount: parseInt(e.target.value) || 1})}
                   className="mt-1"
                 />
               </div>
