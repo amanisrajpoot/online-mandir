@@ -4,7 +4,7 @@ import * as React from "react"
 import Link from "next/link"
 import { useSearchParams } from "next/navigation"
 import { motion } from "framer-motion"
-import { CheckCircle, Heart, ArrowRight, Home, Loader2, XCircle } from "lucide-react"
+import { CheckCircle, Heart, ArrowRight, Home, Loader2, XCircle, Download } from "lucide-react"
 import { CashfreeCheckout } from "@/components/payment/CashfreeCheckout"
 
 function DonationConfirmationContent() {
@@ -15,6 +15,8 @@ function DonationConfirmationContent() {
 
   const [status, setStatus] = React.useState<"loading" | "success" | "failed" | "retrying">("loading")
   const [retrySessionId, setRetrySessionId] = React.useState<string | null>(null)
+  const [emailSent, setEmailSent] = React.useState(false)
+  const [smsSent, setSmsSent] = React.useState(false)
   const [confettiParts] = React.useState(() =>
     Array.from({ length: 20 }, (_, i) => ({
       id: i,
@@ -42,6 +44,8 @@ function DonationConfirmationContent() {
         const data = await res.json()
         if (data.success) {
           setStatus("success")
+          if (data.emailSent) setEmailSent(true)
+          if (data.smsSent) setSmsSent(true)
         } else {
           setStatus("failed")
         }
@@ -191,12 +195,29 @@ function DonationConfirmationContent() {
 
             <div className="space-y-2">
               <p className="text-sm text-[var(--color-mandir-text-muted)]">
-                A confirmation and donation receipt has been sent to your email.
+                {emailSent && smsSent 
+                  ? "A confirmation and donation receipt has been sent to your email and mobile."
+                  : emailSent 
+                    ? "A confirmation and donation receipt has been sent to your email."
+                    : smsSent
+                      ? "A confirmation has been sent to your mobile via SMS."
+                      : "Your donation has been confirmed."}
               </p>
               {orderId && (
                 <p className="text-xs text-[var(--color-mandir-text-muted)] font-mono">
                   Order: {orderId.slice(0, 8).toUpperCase()}…
                 </p>
+              )}
+            </div>
+
+            <div className="flex flex-col sm:flex-row gap-3 mt-4">
+              {orderId && (
+                <Link href={`/donate/receipt?order_id=${orderId}`} target="_blank" className="flex-1">
+                  <button className="w-full flex items-center justify-center gap-2 py-3 rounded-xl bg-gradient-to-r from-[var(--color-saffron-600)] to-[var(--color-saffron-400)] text-white text-sm font-bold shadow-md hover:shadow-lg transition-all">
+                    <Download className="w-4 h-4" />
+                    Download Receipt
+                  </button>
+                </Link>
               )}
             </div>
 
@@ -208,7 +229,7 @@ function DonationConfirmationContent() {
                 </button>
               </Link>
               <Link href="/" className="flex-1">
-                <button className="w-full flex items-center justify-center gap-2 py-3 rounded-xl bg-gradient-to-r from-[var(--color-saffron-600)] to-[var(--color-saffron-400)] text-white text-sm font-bold shadow-md hover:shadow-lg transition-all">
+                <button className="w-full flex items-center justify-center gap-2 py-3 rounded-xl border border-[var(--color-mandir-border)] text-sm font-semibold text-[var(--color-mandir-text)] hover:border-[var(--color-saffron-400)] transition-colors">
                   <Home className="w-4 h-4" />
                   Back to Home
                 </button>

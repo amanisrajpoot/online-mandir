@@ -116,7 +116,7 @@ export async function POST(request: Request) {
           donation_id: donationId,
           amount: actualAmount,
           donor_name: isAnonymous ? null : (donorName || customerName || null),
-          donor_message: donorMessage || null,
+          donor_message: (donorMessage || "") + (customerEmail && !orderUserId ? ` | EMAIL:${customerEmail}` : ""),
           is_anonymous: isAnonymous || false,
           customer_phone: customerPhone || null,
           status: 'pending',

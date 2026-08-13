@@ -92,8 +92,8 @@ export async function sendSMS({
 export async function notifyOrderSuccess(orderId: string, customerDetails: any, amount: number) {
   const { customer_name, customer_phone, customer_email } = customerDetails;
   
-  // 1. Send SMS (Critical event: Payment Confirmed)
-  if (customer_phone) {
+  // 1. Send SMS (Only if amount > 51)
+  if (customer_phone && amount > 51) {
     const smsMessage = `Namaste ${customer_name || 'Devotee'}, your booking (ID: ${orderId.split('-')[0]}) of Rs${amount} is confirmed. We will notify you once the rituals begin. - Vandanam`;
     sendSMS({ phone: customer_phone, message: smsMessage });
   }

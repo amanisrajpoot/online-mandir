@@ -33,6 +33,7 @@ export function DonationFormPage({ seva }: DonationFormPageProps) {
   const [customAmount, setCustomAmount] = React.useState("")
   const [isCustom, setIsCustom] = React.useState(false)
   const [donorName, setDonorName] = React.useState("")
+  const [donorEmail, setDonorEmail] = React.useState("")
   const [donorPhone, setDonorPhone] = React.useState("")
   const [donorMessage, setDonorMessage] = React.useState("")
   const [isAnonymous, setIsAnonymous] = React.useState(false)
@@ -81,7 +82,7 @@ export function DonationFormPage({ seva }: DonationFormPageProps) {
           amount: finalAmount,
           customerName: isAnonymous ? "Anonymous Donor" : (donorName || user?.email?.split("@")[0] || "Devotee"),
           customerPhone: donorPhone || user?.phone || "9999999999",
-          customerEmail: user?.email || "donor@vandanam.online",
+          customerEmail: donorEmail || user?.email || "donor@vandanam.online",
           donorName: isAnonymous ? null : donorName,
           donorMessage,
           isAnonymous,
@@ -269,6 +270,19 @@ export function DonationFormPage({ seva }: DonationFormPageProps) {
                   />
                   <span className="text-xs text-[var(--color-mandir-text-muted)]">Donate anonymously</span>
                 </label>
+              </div>
+
+              <div>
+                <label className="block text-xs font-semibold text-[var(--color-mandir-text-muted)] uppercase tracking-wider mb-1.5">
+                  Email Address (optional)
+                </label>
+                <input
+                  type="email"
+                  value={donorEmail}
+                  onChange={(e) => setDonorEmail(e.target.value)}
+                  placeholder="For email receipt"
+                  className="w-full px-4 py-2.5 rounded-xl border border-[var(--color-mandir-border)] text-sm bg-[var(--color-mandir-surface)] text-[var(--color-mandir-text)] focus:border-[var(--color-saffron-500)] outline-none transition-all"
+                />
               </div>
 
               <div>

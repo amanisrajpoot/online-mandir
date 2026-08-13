@@ -37,17 +37,26 @@ export async function POST(request: Request) {
         .single();
 
       if (updatedOrder) {
+        // Fetch email from Auth if user_id exists
+        let authEmail = null;
+        if (updatedOrder.user_id) {
+          const { data: userData } = await supabaseAdmin.auth.admin.getUserById(updatedOrder.user_id);
+          authEmail = userData.user?.email || null;
+        } else if (type === 'donation' && updatedOrder.donor_message?.includes('| EMAIL:')) {
+          authEmail = updatedOrder.donor_message.split('| EMAIL:')[1].trim();
+        }
+
         // Prepare notification details based on table type
         const notifyDetails = type === 'donation' 
           ? {
               customer_name: updatedOrder.donor_name || 'Donor',
               customer_phone: updatedOrder.customer_phone,
-              customer_email: updatedOrder.customer_email || null // Assuming no email column in donation_orders, fallback to null
+              customer_email: authEmail
             }
           : {
               customer_name: updatedOrder.customer_name,
               customer_phone: updatedOrder.customer_phone,
-              customer_email: updatedOrder.customer_email
+              customer_email: authEmail
             };
 
         // Trigger Email & SMS Notifications in the background
@@ -56,6 +65,13 @@ export async function POST(request: Request) {
           notifyDetails,
           updatedOrder.amount
         ).catch(err => console.error("Notification Error:", err));
+
+        return NextResponse.json({ 
+          success: true, 
+          status: "SUCCESS",
+          emailSent: !!authEmail,
+          smsSent: !!updatedOrder.customer_phone && updatedOrder.amount > 51
+        });
       }
 
       return NextResponse.json({ success: true, status: "SUCCESS" });
