@@ -53,12 +53,12 @@ export async function POST(request: Request) {
         if (!packageDetails) {
             return NextResponse.json({ error: "Selected package not found" }, { status: 404 });
         }
-        actualAmount = packageDetails.price;
+        actualAmount = Number(packageDetails.sale_price ?? packageDetails.price ?? puja.sale_price ?? 0);
       } else if (puja.packages && puja.packages.length > 0) {
         packageDetails = puja.packages[0];
-        actualAmount = packageDetails.price;
+        actualAmount = Number(packageDetails.sale_price ?? packageDetails.price ?? puja.sale_price ?? 0);
       } else {
-        actualAmount = puja.sale_price;
+        actualAmount = Number(puja.sale_price ?? 0);
       }
     } else if (type === 'chadhava') {
       const { data: chadhava, error: fetchError } = await supabase.from('chadhava_items').select('price').eq('id', itemId).single();
