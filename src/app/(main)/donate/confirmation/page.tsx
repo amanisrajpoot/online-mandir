@@ -152,11 +152,15 @@ function DonationConfirmationContent() {
         initial={{ opacity: 0, scale: 0.9 }}
         animate={{ opacity: 1, scale: 1 }}
         transition={{ type: "spring", stiffness: 200 }}
-        className="relative z-10 w-full max-w-md py-12"
+        className="relative z-10 w-full max-w-lg py-12"
       >
         <div className="rounded-3xl border border-[var(--color-mandir-border)] bg-[var(--color-mandir-card)] shadow-2xl overflow-hidden">
           {/* Top gradient banner */}
-          <div className="bg-gradient-to-r from-[var(--color-auspicious-green)] to-[var(--color-auspicious-green)]/70 px-8 py-8 text-center">
+          <div className={`px-8 py-8 text-center text-white ${
+            category === "nepal-flood-relief"
+              ? "bg-gradient-to-r from-red-600 via-rose-600 to-amber-600"
+              : "bg-gradient-to-r from-[var(--color-auspicious-green)] to-[var(--color-auspicious-green)]/70"
+          }`}>
             <motion.div
               initial={{ scale: 0 }}
               animate={{ scale: 1 }}
@@ -165,23 +169,58 @@ function DonationConfirmationContent() {
             >
               <CheckCircle className="w-12 h-12 text-white" strokeWidth={1.5} />
             </motion.div>
-            <h1 className="text-2xl font-extrabold font-[var(--font-heading)] text-white">
-              आपका दान सफल रहा! 🙏
+            <h1 className="text-2xl font-extrabold font-[var(--font-heading)]">
+              {category === "nepal-flood-relief" 
+                ? "नेपाल बाढ़ राहत में आपका योगदान सफल रहा! 🙏" 
+                : "आपका दान सफल रहा! 🙏"
+              }
             </h1>
-            <p className="text-white/80 text-sm mt-1">
-              Your donation was successful. Thank you for your generosity!
+            <p className="text-white/90 text-sm mt-1">
+              {category === "nepal-flood-relief"
+                ? "Thank you for standing with flood survivors in Nepal. Your support is reaching the ground tonight."
+                : "Your donation was successful. Thank you for your generosity!"
+              }
             </p>
           </div>
 
           <div className="p-8 space-y-6 text-center">
-            {/* Quote */}
-            <div className="rounded-2xl bg-[var(--color-saffron-50)] dark:bg-[var(--color-saffron-500)]/10 border border-[var(--color-saffron-500)]/20 px-6 py-4">
-              <p className="text-sm font-semibold text-[var(--color-saffron-600)] dark:text-[var(--color-saffron-400)] italic">
-                "अन्नं परमं ब्रह्म" — Food is the Supreme Divine
+            {/* Quote / Relief Hero Badge */}
+            <div className={`rounded-2xl px-6 py-4 border ${
+              category === "nepal-flood-relief"
+                ? "bg-red-500/10 border-red-500/20 text-red-700 dark:text-red-400"
+                : "bg-[var(--color-saffron-50)] dark:bg-[var(--color-saffron-500)]/10 border-[var(--color-saffron-500)]/20 text-[var(--color-saffron-600)] dark:text-[var(--color-saffron-400)]"
+            }`}>
+              <p className="text-sm font-semibold italic">
+                {category === "nepal-flood-relief"
+                  ? '"मानव सेवा ही माधव सेवा" — True devotion manifests in healing lives.'
+                  : '"अन्नं परमं ब्रह्म" — Food is the Supreme Divine'
+                }
               </p>
               <p className="text-xs text-[var(--color-mandir-text-muted)] mt-1">
-                Your act of giving creates ripples of positive karma
+                {category === "nepal-flood-relief"
+                  ? "Your contribution is directly feeding and sheltering displaced families in Timure & Syabrubesi."
+                  : "Your act of giving creates ripples of positive karma"
+                }
               </p>
+            </div>
+
+            {/* Optional Community Join Callout */}
+            <div className="rounded-2xl bg-amber-500/10 border border-amber-500/20 p-4 text-left space-y-2">
+              <div className="flex items-center gap-2">
+                <span className="text-lg">🤝</span>
+                <h4 className="font-bold text-xs sm:text-sm text-[var(--color-mandir-text)]">
+                  Join the Vandanam Relief & Seva Community
+                </h4>
+              </div>
+              <p className="text-xs text-[var(--color-mandir-text-muted)] leading-relaxed">
+                Connect with our compassionate family of changemakers. Receive on-ground rescue photos, track your relief impact, and be notified when emergency humanitarian support is needed.
+              </p>
+              <Link 
+                href="/login?returnUrl=/profile"
+                className="inline-flex items-center gap-1 text-xs font-bold text-amber-700 dark:text-amber-400 hover:underline pt-1"
+              >
+                Log In or Create Profile &rarr;
+              </Link>
             </div>
 
             {/* Heart animation */}

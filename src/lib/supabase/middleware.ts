@@ -54,6 +54,7 @@ export async function updateSession(request: NextRequest) {
     !request.nextUrl.pathname.startsWith('/chadhava') &&
     !request.nextUrl.pathname.startsWith('/festivals') &&
     !request.nextUrl.pathname.startsWith('/donate') &&
+    !request.nextUrl.pathname.startsWith('/nepal-flood-relief') &&
     !request.nextUrl.pathname.startsWith('/content') &&
     !request.nextUrl.pathname.startsWith('/profile')
   ) {

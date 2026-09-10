@@ -8,18 +8,18 @@ import { createClient } from "@/lib/supabase/client"
 import { Skeleton } from "@/components/ui/Skeleton"
 import { SevaCard } from "./SevaCard"
 
-// Static fallback if DB not yet seeded
+// Static fallback with urgent disaster reliefs + core sevas
 const STATIC_SEVAS = [
-  { category: "bhandara", title: "भंडारा • Bhandara", subtitle: "Annadanam — Feed the Hungry", image_url: "/images/donations/bhandara.png", impactStatement: "₹101 feeds 10 people", donors_count: 1248 },
+  { category: "nepal-flood-relief", title: "नेपाल बाढ़ राहत • Nepal Flood Relief", subtitle: "Emergency Flash Flood Humanitarian Aid", image_url: "/images/nepal-flood/nepal-flood-hero.jpg", impactStatement: "₹101 feeds a survivor", donors_count: 1840 },
+  { category: "wayanad-relief", title: "वायनाड भूस्खलन राहत • Wayanad Relief", subtitle: "Landslide & Flood Relief in Kerala", image_url: "/images/donations/wayanad-relief.jpg", impactStatement: "₹101 provides 1 warm meal", donors_count: 340 },
+  { category: "assam-flood-relief", title: "असम बाढ़ राहत • Assam Flood Relief", subtitle: "Brahmaputra Flood Relief & Rations", image_url: "/images/donations/assam-flood-relief.jpg", impactStatement: "₹101 supplies drinking water", donors_count: 195 },
+  { category: "bhandara", title: "भंडारा • Bhandara", subtitle: "Annadanam — Feed the Hungry", image_url: "/images/donations/bhandara-annadanam.jpg", impactStatement: "₹101 feeds 10 people", donors_count: 1248 },
   { category: "gau-seva", title: "गौ सेवा • Gau Seva", subtitle: "Cow Protection & Care", image_url: "/images/donations/gau-seva.png", impactStatement: "₹101 feeds a cow for a day", donors_count: 984 },
-  { category: "janwar-seva", title: "जानवर सेवा • Janwar Seva", subtitle: "Stray Animal Rescue", image_url: "/images/donations/janwar-seva.png", impactStatement: "₹101 feeds 20 strays", donors_count: 762 },
-  { category: "vriddha-seva", title: "वृद्ध आश्रम सेवा • Vriddha Seva", subtitle: "Care for the Elderly", image_url: "/images/donations/vriddha-seva.png", impactStatement: "₹251 feeds an elder for a month", donors_count: 543 },
-  { category: "vidya-daan", title: "विद्या दान • Vidya Daan", subtitle: "Education for Children", image_url: "/images/donations/vidya-daan.png", impactStatement: "₹501 covers a child's books", donors_count: 891 },
 ]
 
 export function DonationSection() {
-  const [sevas, setSevas] = React.useState<any[]>([])
-  const [loading, setLoading] = React.useState(true)
+  const [sevas, setSevas] = React.useState<any[]>(STATIC_SEVAS)
+  const [loading, setLoading] = React.useState(false)
   const supabase = createClient()
 
   React.useEffect(() => {
@@ -30,12 +30,17 @@ export function DonationSection() {
           .select("*")
           .eq("is_active", true)
           .order("display_order", { ascending: true })
-          .limit(5)
+          .limit(8)
 
-        if (error || !data || data.length === 0) {
+        // Filter out any redundant/deactivated causes
+        const validData = (data || []).filter(s => ![
+          'janwar-seva', 'gav-seva', 'vidya-daan', 'vriksha-seva', 'swasthya-seva'
+        ].includes(s.category)).slice(0, 5)
+
+        if (error || validData.length === 0) {
           setSevas(STATIC_SEVAS)
         } else {
-          setSevas(data)
+          setSevas(validData)
         }
       } catch {
         setSevas(STATIC_SEVAS)
@@ -53,16 +58,16 @@ export function DonationSection() {
         <div className="flex items-center justify-between mb-6">
           <div>
             <div className="flex items-center gap-2 mb-1">
-              <div className="flex items-center gap-1.5 bg-[var(--color-sacred-red)]/10 text-[var(--color-sacred-red)] text-xs font-bold px-2.5 py-1 rounded-full border border-[var(--color-sacred-red)]/20">
-                <Sparkles className="w-3 h-3" />
-                Trending Sevas
+              <div className="flex items-center gap-1.5 bg-red-500/10 text-red-600 dark:text-red-400 text-xs font-bold px-2.5 py-1 rounded-full border border-red-500/20">
+                <span className="w-2 h-2 rounded-full bg-red-500 animate-pulse" />
+                Emergency Relief & Seva
               </div>
             </div>
             <h2 className="text-3xl md:text-4xl font-bold font-[var(--font-heading)] text-[var(--color-mandir-text)]">
-              सेवा दान करें
+              मानव सेवा एवं राहत कोष
             </h2>
             <p className="text-sm text-[var(--color-mandir-text-muted)] mt-1">
-              Donate to meaningful causes — earn divine blessings
+              Disaster Relief & Divine Seva — Turning Compassion Into Direct On-Ground Action
             </p>
           </div>
           <Link
