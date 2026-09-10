@@ -2,31 +2,20 @@ import type { Metadata } from "next"
 import { createClient } from "@/lib/supabase/server"
 import { NepalFloodReliefPage } from "@/components/donation/NepalFloodReliefPage"
 
+import { constructDynamicMetadata } from "@/lib/seo"
+
 // Revalidate every 60 seconds so live totals stay fresh without a full rebuild
 export const revalidate = 60
 
-export const metadata: Metadata = {
+export const metadata: Metadata = constructDynamicMetadata({
   title: "Nepal Flood Relief Fund — Emergency Disaster Aid | Vandanam",
-  description: "Nepal is devastated. Flash floods have swept away entire Himalayan villages overnight. Support our on-ground teams sending emergency meals, drinking water, medical kits, and shelter to stranded families in Timure & Syabrubesi.",
-  openGraph: {
-    title: "Nepal Flood Relief Fund — Emergency Disaster Aid | Vandanam",
-    description: "Entire villages wiped out. Over 10,000+ meals distributed. Support emergency relief efforts — UPI, Cards, NetBanking supported.",
-    images: [
-      {
-        url: "/images/nepal-flood/nepal-flood-hero.jpg",
-        width: 1080,
-        height: 1350,
-        alt: "Nepal Flood Relief Operations",
-      },
-    ],
-  },
-  twitter: {
-    card: "summary_large_image",
-    title: "Nepal Flood Relief Fund | Urgent Emergency Appeal",
-    description: "Send immediate food, water, and shelter essentials to flood survivors in Nepal.",
-    images: ["/images/nepal-flood/nepal-flood-hero.jpg"],
-  },
-}
+  description: "Flash floods have swept away entire Himalayan villages. Support emergency cooked meals, clean drinking water, medical kits, and shelter for stranded families in Timure & Syabrubesi.",
+  path: "/nepal-flood-relief",
+  subtitle: "Emergency Disaster Relief for Flooded Himalayan Villages",
+  badge: "🚨 Urgent Disaster Relief",
+  type: "donation",
+  highlight: "Over 10,000+ Meals Distributed • 100% Direct On-Ground Relief",
+})
 
 export default async function Page() {
   const supabase = await createClient()

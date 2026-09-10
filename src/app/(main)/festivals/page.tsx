@@ -5,10 +5,17 @@ import { createClient } from "@/lib/supabase/server"
 import { Calendar, Sparkles } from "lucide-react"
 import { encodeId } from "@/lib/utils"
 
-export const metadata = {
-  title: 'Hindu Festivals & Celebrations | Vandanam',
-  description: 'Explore upcoming Hindu festivals, book special festive pujas, and make auspicious chadhavas on Vandanam.',
-}
+import { constructDynamicMetadata } from "@/lib/seo"
+
+export const metadata = constructDynamicMetadata({
+  title: 'Hindu Festivals & Celebrations | Special Festive Pujas & Offerings',
+  description: 'Explore upcoming Hindu festivals including Maha Shivratri, Janmashtami, Navratri & Diwali. Book special festival pujas and divine offerings online.',
+  path: '/festivals',
+  subtitle: 'Festive Pujas, Havans & Auspicious Muhurats',
+  badge: 'Sacred Festivals of Sanatan Dharma',
+  type: 'festival',
+  highlight: 'Book Festive Pujas with Video Proof on WhatsApp',
+})
 
 export default async function FestivalsPage() {
   const supabase = await createClient()

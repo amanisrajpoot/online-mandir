@@ -1,6 +1,7 @@
 import { Metadata } from 'next'
 import { createClient } from '@supabase/supabase-js'
 import { decodeId } from '@/lib/utils'
+import { constructDynamicMetadata } from '@/lib/seo'
 
 export async function generateMetadata({ params }: { params: Promise<{ id: string }> }): Promise<Metadata> {
   const { id } = await params
@@ -18,31 +19,28 @@ export async function generateMetadata({ params }: { params: Promise<{ id: strin
     .single()
 
   if (!item) {
-    return {
-      title: 'Chadhava Item Not Found',
-      description: 'The requested chadhava offering could not be found.',
-    }
+    return constructDynamicMetadata({
+      title: 'Chadhava Offerings | Vandanam',
+      description: 'Offer sacred chadhava at India\'s holiest temples with personalized video proof.',
+      path: `/chadhava/${id}`,
+      badge: 'Sacred Chadhava',
+      type: 'chadhava',
+    })
   }
 
-  const title = `Offer ${item.title} at ${item.temples?.name || 'Sacred Temple'}`
-  const description = item.description?.substring(0, 160) || `Offer ${item.title} online at ${item.temples?.name}.`
+  const templeName = item.temples?.name || 'Sacred Temple'
+  const title = `Offer ${item.title} at ${templeName}`
+  const description = item.description?.substring(0, 160) || `Offer ${item.title} online at ${templeName}. Authentic video proof sent on WhatsApp.`
 
-  return {
+  return constructDynamicMetadata({
     title,
     description,
-    openGraph: {
-      title,
-      description,
-      images: [item.image_url || '/images/prasad_thali.png'],
-      type: 'website',
-    },
-    twitter: {
-      card: 'summary_large_image',
-      title,
-      description,
-      images: [item.image_url || '/images/prasad_thali.png'],
-    },
-  }
+    path: `/chadhava/${id}`,
+    subtitle: `📍 ${templeName}`,
+    badge: 'Divine Chadhava Offering',
+    type: 'chadhava',
+    highlight: item.price ? `Offering from ₹${item.price} • Video Proof on WhatsApp` : 'Video Proof on WhatsApp',
+  })
 }
 
 export default async function ChadhavaLayout({

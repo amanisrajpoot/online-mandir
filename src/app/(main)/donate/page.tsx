@@ -2,19 +2,20 @@ import type { Metadata } from "next"
 import { createClient } from "@/lib/supabase/server"
 import { DonatePage } from "./DonatePage"
 
+import { constructDynamicMetadata } from "@/lib/seo"
+
 // Refresh live donor counts & totals every 60 seconds
 export const revalidate = 60
 
-export const metadata: Metadata = {
-  title: "Seva Daan — Donate | Vandanam",
-  description:
-    "Donate to meaningful Hindu charitable causes — Bhandara, Gau Seva, Janwar Seva, Gav Seva, Vriddha Seva, Vidya Daan, Vriksha Seva, Nadi Seva, Swasthya Seva, and Mandir Seva. Earn divine blessings through your generosity.",
-  openGraph: {
-    title: "Seva Daan — Donate to a Sacred Cause | Vandanam",
-    description: "Feed the hungry, protect cows, educate children, and care for the elderly. Every donation earns divine blessings.",
-    type: "website",
-  },
-}
+export const metadata: Metadata = constructDynamicMetadata({
+  title: "Seva Daan — Sacred Donations & Disaster Relief | Vandanam",
+  description: "Feed the hungry with Annadanam Bhandara, protect cows with Gau Seva, care for elderly in Vrindavan, and support urgent Himalayan disaster relief.",
+  path: "/donate",
+  subtitle: "Earn Divine Merit through Sacred Seva",
+  badge: "Sacred Seva & Humanitarian Aid",
+  type: "donation",
+  highlight: "100% Direct Distribution • Verified NGO & Temple Partners",
+})
 
 export default async function Page() {
   const supabase = await createClient()

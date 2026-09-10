@@ -18,6 +18,7 @@ import { Card, CardContent } from "@/components/ui/Card"
 import Link from "next/link"
 import { encodeId, decodeId } from "@/lib/utils"
 import { useLanguage } from "@/lib/i18n/LanguageContext"
+import { ShareButton } from "@/components/ui/ShareModal"
 
 export default function TempleDetailPage() {
   const params = useParams()
@@ -123,8 +124,17 @@ export default function TempleDetailPage() {
               {getDualText(temple.name, temple.translations, 'name', 'temple')}
             </h1>
             <div className="flex items-center justify-center text-[var(--color-mandir-text-muted)] font-medium">
-              <MapPin className="h-4 w-4 mr-1.5" />
+              <MapPin className="h-4 w-4 mr-1.5 text-[var(--color-saffron-500)]" />
               {getDualText(temple.location, temple.translations, 'location', 'temple')}
+            </div>
+
+            <div className="mt-4 flex justify-center">
+              <ShareButton
+                title={temple.name}
+                subtitle={temple.location ? `📍 ${temple.location}` : undefined}
+                buttonText="Share Temple"
+                buttonVariant="outline"
+              />
             </div>
           </div>
         </div>

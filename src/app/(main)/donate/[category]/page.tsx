@@ -4,6 +4,9 @@ import { createClient } from "@/lib/supabase/server"
 import { DonationFormPage } from "./DonationFormPage"
 import { NepalFloodReliefPage } from "@/components/donation/NepalFloodReliefPage"
 
+import { CAUSES_DATA } from "@/lib/donationCausesData"
+import { constructDynamicMetadata } from "@/lib/seo"
+
 interface Props {
   params: Promise<{ category: string }>
 }
@@ -17,11 +20,21 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     .eq("category", category)
     .single()
 
-  const title = seva?.title || category
-  return {
-    title: `${title} — Donate | Vandanam`,
-    description: seva?.description?.slice(0, 155) || `Donate to ${title} and earn divine blessings.`,
-  }
+  const staticData = CAUSES_DATA[category]
+  const title = seva?.title || staticData?.title || category.replace(/-/g, " ").replace(/\b\w/g, c => c.toUpperCase())
+  const subtitle = seva?.subtitle || staticData?.subtitle || "Sacred Humanitarian & Devotional Cause"
+  const description = seva?.description || staticData?.story?.paragraphs?.[0] || `Support ${title} on Vandanam. 100% verified transparent distribution.`
+  const isUrgent = staticData?.isUrgent || category.includes("relief") || category.includes("flood")
+
+  return constructDynamicMetadata({
+    title: `${title} | Vandanam Seva`,
+    description,
+    path: `/donate/${category}`,
+    subtitle: `🤝 ${subtitle}`,
+    badge: isUrgent ? "🚨 Urgent Humanitarian Relief" : "🙏 Sacred Seva Daan",
+    type: "donation",
+    highlight: "100% Transparent • Video Documentation Shared with Donors",
+  })
 }
 
 export default async function Page({ params }: Props) {

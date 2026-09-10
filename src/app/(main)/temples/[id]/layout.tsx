@@ -1,6 +1,7 @@
 import { Metadata } from 'next'
 import { createClient } from '@supabase/supabase-js'
 import { decodeId } from '@/lib/utils'
+import { constructDynamicMetadata } from '@/lib/seo'
 
 export async function generateMetadata({ params }: { params: Promise<{ id: string }> }): Promise<Metadata> {
   const { id } = await params
@@ -18,31 +19,27 @@ export async function generateMetadata({ params }: { params: Promise<{ id: strin
     .single()
 
   if (!temple) {
-    return {
-      title: 'Temple Not Found',
-      description: 'The requested temple could not be found.',
-    }
+    return constructDynamicMetadata({
+      title: 'Sacred Temple | Vandanam',
+      description: 'Explore sacred temples across India, book pujas, and offer chadhava online.',
+      path: `/temples/${id}`,
+      badge: 'Sacred Temple',
+      type: 'temple',
+    })
   }
 
-  const title = `${temple.name} | Book Pujas & Offer Chadhava`
-  const description = temple.description?.substring(0, 160) || `Explore ${temple.name} in ${temple.location}. Book pujas and offer chadhava online.`
+  const title = `${temple.name} | Book Pujas & Chadhava`
+  const description = temple.description?.substring(0, 160) || `Explore ${temple.name} in ${temple.location}. Book authentic pujas and offer chadhava with video proof.`
 
-  return {
+  return constructDynamicMetadata({
     title,
     description,
-    openGraph: {
-      title,
-      description,
-      images: [temple.image_url || '/images/temple_placeholder.png'],
-      type: 'website',
-    },
-    twitter: {
-      card: 'summary_large_image',
-      title,
-      description,
-      images: [temple.image_url || '/images/temple_placeholder.png'],
-    },
-  }
+    path: `/temples/${id}`,
+    subtitle: temple.location ? `📍 ${temple.location}` : 'Sacred Hindu Temple, India',
+    badge: 'Sacred Temple & Tirtha',
+    type: 'temple',
+    highlight: temple.deity ? `Presiding Deity: ${temple.deity}` : 'Daily Pujas & Authentic Chadhava',
+  })
 }
 
 export default async function TempleLayout({

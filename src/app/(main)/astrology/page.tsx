@@ -1,4 +1,15 @@
 import { ComingSoon } from "@/components/ui/ComingSoon"
+import { constructDynamicMetadata } from "@/lib/seo"
+
+export const metadata = constructDynamicMetadata({
+  title: 'Vedic Astrology Consultations & Kundli Predictions | Vandanam',
+  description: 'Connect with verified Vedic astrologers for authentic Kundli matching, Tarot, horoscope analysis, and remedial pujas.',
+  path: '/astrology',
+  subtitle: 'Personalized Horoscope & Kundli Consultations',
+  badge: 'Vedic Jyotish & Astrology',
+  type: 'astrology',
+  highlight: 'Verified Astrologers & Remedial Pujas',
+})
 
 export default function AstrologyPage() {
   return (

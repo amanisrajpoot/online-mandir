@@ -28,6 +28,7 @@ import { StatusTimeline } from "@/components/ui/StatusTimeline"
 import { StarRating } from "@/components/ui/StarRating"
 import { decodeId, encodeId } from "@/lib/utils"
 import { useLanguage } from "@/lib/i18n/LanguageContext"
+import { ShareButton } from "@/components/ui/ShareModal"
 
 export default function PujaDetailPage() {
   const params = useParams()
@@ -179,15 +180,24 @@ export default function PujaDetailPage() {
           <div className="mb-4">
             <StarRating rating={avgRating} totalReviews={reviewCount} showText size={18} className="text-white" />
           </div>
-          <div className="flex flex-wrap items-center gap-4 text-sm font-medium text-[var(--color-mandir-text-muted)]">
-            <span className="flex items-center">
-              <MapPin className="mr-1.5 h-4 w-4 text-[var(--color-saffron-500)]" />
-              {puja.temples?.name}, {puja.temples?.location}
-            </span>
-            <span className="flex items-center">
-              <Calendar className="mr-1.5 h-4 w-4 text-[var(--color-saffron-500)]" />
-              Book by {new Date(puja.booking_deadline).toLocaleDateString()}
-            </span>
+          <div className="flex flex-wrap items-center justify-between gap-4 text-sm font-medium text-[var(--color-mandir-text-muted)]">
+            <div className="flex flex-wrap items-center gap-4">
+              <span className="flex items-center">
+                <MapPin className="mr-1.5 h-4 w-4 text-[var(--color-saffron-500)]" />
+                {puja.temples?.name}, {puja.temples?.location}
+              </span>
+              <span className="flex items-center">
+                <Calendar className="mr-1.5 h-4 w-4 text-[var(--color-saffron-500)]" />
+                Book by {new Date(puja.booking_deadline).toLocaleDateString()}
+              </span>
+            </div>
+            <ShareButton
+              title={puja.title}
+              subtitle={puja.temples?.name ? `${puja.temples.name}, ${puja.temples.location}` : undefined}
+              buttonText="Share Puja"
+              buttonVariant="secondary"
+              className="bg-[var(--color-mandir-surface)]/80 backdrop-blur-md border-[var(--color-mandir-border)] hover:bg-[var(--color-mandir-surface)]"
+            />
           </div>
         </div>
       </div>
@@ -420,6 +430,16 @@ export default function PujaDetailPage() {
                     Book Puja Now
                   </Button>
                 </Link>
+
+                <div className="mt-3">
+                  <ShareButton
+                    title={puja.title}
+                    subtitle={puja.temples?.name ? `${puja.temples.name}, ${puja.temples.location}` : undefined}
+                    buttonText="Share with Family & Friends"
+                    buttonVariant="outline"
+                    className="w-full justify-center"
+                  />
+                </div>
                 
                 <p className="text-center text-xs text-[var(--color-mandir-text-muted)] mt-4">
                   Secure payments via Razorpay
@@ -437,14 +457,23 @@ export default function PujaDetailPage() {
           <div className="text-sm text-[var(--color-mandir-text-muted)] line-through">₹{puja.base_price}</div>
           <div className="text-xl font-bold text-[var(--color-mandir-text)]">₹{puja.sale_price}</div>
         </div>
-        <Link 
-          href={puja.packages?.length ? "#" : `/pujas/${encodeId(puja.id)}/book`}
-          onClick={handleBookNowClick}
-        >
-          <Button variant="gradient" className="rounded-full px-8 shadow-lg">
-            Book Now
-          </Button>
-        </Link>
+        <div className="flex items-center gap-2">
+          <ShareButton
+            title={puja.title}
+            subtitle={puja.temples?.name ? `${puja.temples.name}, ${puja.temples.location}` : undefined}
+            buttonSize="sm"
+            buttonVariant="outline"
+            buttonText=""
+          />
+          <Link 
+            href={puja.packages?.length ? "#" : `/pujas/${encodeId(puja.id)}/book`}
+            onClick={handleBookNowClick}
+          >
+            <Button variant="gradient" className="rounded-full px-8 shadow-lg">
+              Book Now
+            </Button>
+          </Link>
+        </div>
       </div>
 
       {/* Package Selection Drawer */}

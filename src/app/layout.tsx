@@ -50,10 +50,11 @@ export const metadata: Metadata = {
     siteName: "Vandanam",
     images: [
       {
-        url: "/icon.png",
-        width: 800,
-        height: 600,
-        alt: "Vandanam Logo",
+        url: "/api/og?title=Vandanam%20Online%20Mandir&subtitle=Book%20Pujas%20at%20India's%20Sacred%20Temples&badge=Sacred%20Temple%20Network&type=website",
+        width: 1200,
+        height: 630,
+        alt: "Vandanam Sacred Mandir Network",
+        type: "image/png",
       },
     ],
     locale: "en_IN",
@@ -63,7 +64,7 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: "Vandanam | Online Puja & Chadhava Services",
     description: "Connect with divine spirituality through our trusted online platform for authentic temple pujas, chadhava, and astrology services.",
-    images: ["/icon.png"],
+    images: ["/api/og?title=Vandanam%20Online%20Mandir&subtitle=Book%20Pujas%20at%20India's%20Sacred%20Temples&badge=Sacred%20Temple%20Network&type=website"],
   },
   alternates: {
     canonical: "https://www.vandanam.online",

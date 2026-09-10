@@ -8,6 +8,8 @@ import { CountdownTimer } from "@/components/ui/CountdownTimer"
 import { Calendar, Sparkles, Gift } from "lucide-react"
 
 import { decodeId } from "@/lib/utils"
+import { constructDynamicMetadata } from "@/lib/seo"
+import { ShareButton } from "@/components/ui/ShareModal"
 
 export async function generateMetadata({ params }: { params: Promise<{ id: string }> | { id: string } }) {
   const supabase = await createClient()
@@ -15,16 +17,32 @@ export async function generateMetadata({ params }: { params: Promise<{ id: strin
   const festivalId = decodeId(resolvedParams.id)
   const { data: festival } = await supabase
     .from('festival_countdown')
-    .select('name, description')
+    .select('name, description, festival_date')
     .eq('id', festivalId)
     .single()
 
-  if (!festival) return { title: 'Festival Not Found | Vandanam' }
-
-  return {
-    title: `${festival.name} | Special Pujas & Offerings | Vandanam`,
-    description: festival.description,
+  if (!festival) {
+    return constructDynamicMetadata({
+      title: 'Sacred Hindu Festival | Vandanam',
+      description: 'Participate in auspicious festival pujas and chadhava at India\'s holiest temples.',
+      path: `/festivals/${resolvedParams.id}`,
+      badge: 'Hindu Festival',
+      type: 'festival',
+    })
   }
+
+  const title = `${festival.name} | Special Pujas & Offerings`
+  const description = festival.description || `Celebrate ${festival.name} with authentic Vedic rituals, online puja booking, and sacred chadhava.`
+
+  return constructDynamicMetadata({
+    title,
+    description,
+    path: `/festivals/${resolvedParams.id}`,
+    subtitle: festival.festival_date ? `🗓️ Festival Date: ${new Date(festival.festival_date).toLocaleDateString("en-IN", { month: "short", day: "numeric", year: "numeric" })}` : "Auspicious Hindu Mahotsav",
+    badge: 'Auspicious Hindu Festival',
+    type: 'festival',
+    highlight: 'Special Pujas, Archana & Chadhava Available',
+  })
 }
 
 export default async function FestivalDetailPage({ params }: { params: Promise<{ id: string }> | { id: string } }) {
@@ -120,6 +138,16 @@ export default async function FestivalDetailPage({ params }: { params: Promise<{
               <CountdownTimer targetDate={festival.target_date} className="gap-4 text-white" />
             </div>
           )}
+
+          <div className="mt-6 flex justify-center">
+            <ShareButton
+              title={festival.name}
+              subtitle={`🗓️ ${new Date(festival.target_date).toLocaleDateString('en-IN', { month: 'long', day: 'numeric', year: 'numeric' })}`}
+              buttonText="Share Festival"
+              buttonVariant="secondary"
+              className="bg-white/15 backdrop-blur-md text-white border-white/20 hover:bg-white/25"
+            />
+          </div>
         </div>
       </section>
 

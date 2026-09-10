@@ -1,6 +1,7 @@
 import { Metadata } from 'next'
 import { createClient } from '@supabase/supabase-js'
 import { decodeId } from '@/lib/utils'
+import { constructDynamicMetadata } from '@/lib/seo'
 
 export async function generateMetadata({ params }: { params: Promise<{ id: string }> }): Promise<Metadata> {
   const { id } = await params
@@ -18,31 +19,28 @@ export async function generateMetadata({ params }: { params: Promise<{ id: strin
     .single()
 
   if (!puja) {
-    return {
-      title: 'Puja Not Found',
-      description: 'The requested puja could not be found.',
-    }
+    return constructDynamicMetadata({
+      title: 'Puja Details | Vandanam',
+      description: 'Book authentic temple pujas online with personal Sankalp and video proof.',
+      path: `/pujas/${id}`,
+      badge: 'Vandanam Puja',
+    })
   }
 
-  const title = `${puja.title} at ${puja.temples?.name || 'Sacred Temple'}`
-  const description = puja.description?.substring(0, 160) || `Book ${puja.title} online at ${puja.temples?.name}.`
+  const templeLocation = puja.temples?.location ? `, ${puja.temples.location}` : ''
+  const templeName = puja.temples?.name ? `${puja.temples.name}${templeLocation}` : 'Sacred Vedic Temple'
+  const title = `${puja.title} | ${puja.temples?.name || 'Vandanam'}`
+  const description = puja.description?.substring(0, 160) || `Book ${puja.title} online at ${puja.temples?.name || 'Sacred Temple'}. Personalized video proof provided on WhatsApp.`
 
-  return {
+  return constructDynamicMetadata({
     title,
     description,
-    openGraph: {
-      title,
-      description,
-      images: [puja.image_url || '/images/prasad_thali.png'],
-      type: 'website',
-    },
-    twitter: {
-      card: 'summary_large_image',
-      title,
-      description,
-      images: [puja.image_url || '/images/prasad_thali.png'],
-    },
-  }
+    path: `/pujas/${id}`,
+    subtitle: `📍 ${templeName}`,
+    badge: 'Special Temple Puja',
+    type: 'puja',
+    highlight: puja.price ? `From ₹${puja.price} • Video Proof on WhatsApp` : 'Personalized Video Proof on WhatsApp',
+  })
 }
 
 export default async function PujaLayout({
