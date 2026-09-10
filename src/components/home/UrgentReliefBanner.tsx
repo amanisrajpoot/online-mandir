@@ -1,11 +1,13 @@
-﻿"use client"
+"use client"
 
 import * as React from "react"
 import Link from "next/link"
 import { motion } from "framer-motion"
 import { AlertTriangle, Heart, ArrowRight, Users, TrendingUp } from "lucide-react"
+import { createClient } from "@/lib/supabase/client"
 
-const RELIEF_CAUSES = [
+// Static content (copy, images, badges) — numbers come from DB
+const RELIEF_CONFIG = [
   {
     category: "nepal-flood-relief",
     flag: "🇳🇵",
@@ -13,12 +15,13 @@ const RELIEF_CAUSES = [
     title: "Nepal Flood Relief",
     hindiTitle: "नेपाल बाढ़ राहत",
     location: "Koshi Basin, Terai, Nepal",
-    description: "Catastrophic flash floods have displaced 1.8 lakh families. Survivors need food, water & shelter — urgently.",
+    description: "Catastrophic flash floods have displaced thousands of families. Survivors need food, water & shelter — urgently.",
     image: "/images/nepal-flood/nepal-flood-hero.jpg",
-    raised: 924000,
-    goal: 2500000,
-    donors: 1840,
     impactStat: "₹101 feeds a survivor for a day",
+    // fallback values (used only if DB fetch fails)
+    raised: 24500,
+    goal: 1000000,
+    donors: 23,
   },
   {
     category: "wayanad-relief",
@@ -29,10 +32,10 @@ const RELIEF_CAUSES = [
     location: "Chooralmala & Mundakkai, Kerala",
     description: "Midnight landslides erased entire villages in the Western Ghats. 400+ lives lost. Survivors rebuilding from nothing.",
     image: "/images/donations/wayanad-relief.jpg",
-    raised: 184500,
-    goal: 1000000,
-    donors: 340,
     impactStat: "₹101 provides 1 warm meal",
+    raised: 15200,
+    goal: 500000,
+    donors: 18,
   },
   {
     category: "assam-flood-relief",
@@ -43,20 +46,49 @@ const RELIEF_CAUSES = [
     location: "Brahmaputra Basin, Assam",
     description: "1.5 million marooned. Char island villages completely cut off. Boat rescues and water purification underway.",
     image: "/images/donations/assam-flood-relief.jpg",
-    raised: 98200,
-    goal: 600000,
-    donors: 195,
     impactStat: "₹101 supplies clean drinking water",
+    raised: 9800,
+    goal: 300000,
+    donors: 11,
   },
 ]
 
 function formatINR(n: number) {
+  if (n >= 10000000) return `₹${(n / 10000000).toFixed(1)}Cr`
   if (n >= 100000) return `₹${(n / 100000).toFixed(1)}L`
-  if (n >= 1000) return `₹${(n / 1000).toFixed(0)}K`
-  return `₹${n}`
+  if (n >= 1000) return `₹${(n / 1000).toFixed(1)}K`
+  return `₹${n.toLocaleString("en-IN")}`
 }
-
 export function UrgentReliefBanner() {
+  const supabase = createClient()
+  const [causes, setCauses] = React.useState(RELIEF_CONFIG)
+
+  React.useEffect(() => {
+    const load = async () => {
+      const { data } = await supabase
+        .from("donations")
+        .select("category, donors_count, total_raised, goal_amount")
+        .in("category", ["nepal-flood-relief", "wayanad-relief", "assam-flood-relief"])
+
+      if (data && data.length > 0) {
+        setCauses(
+          RELIEF_CONFIG.map((cfg) => {
+            const live = data.find((d) => d.category === cfg.category)
+            return live
+              ? {
+                ...cfg,
+                raised: Number(live.total_raised) || cfg.raised,
+                goal: Number(live.goal_amount) || cfg.goal,
+                donors: Number(live.donors_count) || cfg.donors,
+              }
+              : cfg
+          })
+        )
+      }
+    }
+    load()
+  }, [])
+
   return (
     <section className="w-full py-10 md:py-14 relative overflow-hidden" style={{ background: "linear-gradient(to bottom, rgba(127,29,29,0.08), rgba(127,29,29,0.03), transparent)" }}>
       {/* Ambient glows */}
@@ -104,7 +136,7 @@ export function UrgentReliefBanner() {
 
         {/* Relief Cards */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-5">
-          {RELIEF_CAUSES.map((cause, i) => {
+          {causes.map((cause, i) => {
             const pct = Math.min(Math.round((cause.raised / cause.goal) * 100), 100)
             return (
               <motion.div
@@ -166,7 +198,7 @@ export function UrgentReliefBanner() {
                             className="h-full rounded-full"
                             style={{ background: "linear-gradient(to right, #dc2626, #f97316)" }}
                             initial={{ width: 0 }}
-                            animate={{ width: `${pct}%` }}
+                            animate={{ width: `${Math.max(pct, 2)}%` }}
                             transition={{ duration: 1, delay: i * 0.15 + 0.3, ease: "easeOut" }}
                           />
                         </div>
