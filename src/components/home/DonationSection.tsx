@@ -3,18 +3,21 @@
 import * as React from "react"
 import Link from "next/link"
 import { motion } from "framer-motion"
-import { Heart, ArrowRight, Sparkles } from "lucide-react"
+import { Heart, ArrowRight, Flame } from "lucide-react"
 import { createClient } from "@/lib/supabase/client"
 import { Skeleton } from "@/components/ui/Skeleton"
 import { SevaCard } from "./SevaCard"
 
-// Static fallback with urgent disaster reliefs + core sevas
+// Spiritual sevas only — disaster relief is shown separately in UrgentReliefBanner
+const RELIEF_CATEGORIES = ['nepal-flood-relief', 'wayanad-relief', 'assam-flood-relief']
+const EXCLUDED_CATEGORIES = [...RELIEF_CATEGORIES, 'janwar-seva', 'gav-seva', 'vidya-daan', 'vriksha-seva', 'swasthya-seva']
+
 const STATIC_SEVAS = [
-  { category: "nepal-flood-relief", title: "नेपाल बाढ़ राहत • Nepal Flood Relief", subtitle: "Emergency Flash Flood Humanitarian Aid", image_url: "/images/nepal-flood/nepal-flood-hero.jpg", impactStatement: "₹101 feeds a survivor", donors_count: 1840 },
-  { category: "wayanad-relief", title: "वायनाड भूस्खलन राहत • Wayanad Relief", subtitle: "Landslide & Flood Relief in Kerala", image_url: "/images/donations/wayanad-relief.jpg", impactStatement: "₹101 provides 1 warm meal", donors_count: 340 },
-  { category: "assam-flood-relief", title: "असम बाढ़ राहत • Assam Flood Relief", subtitle: "Brahmaputra Flood Relief & Rations", image_url: "/images/donations/assam-flood-relief.jpg", impactStatement: "₹101 supplies drinking water", donors_count: 195 },
-  { category: "bhandara", title: "भंडारा • Bhandara", subtitle: "Annadanam — Feed the Hungry", image_url: "/images/donations/bhandara-annadanam.jpg", impactStatement: "₹101 feeds 10 people", donors_count: 1248 },
-  { category: "gau-seva", title: "गौ सेवा • Gau Seva", subtitle: "Cow Protection & Care", image_url: "/images/donations/gau-seva.png", impactStatement: "₹101 feeds a cow for a day", donors_count: 984 },
+  { category: "bhandara", title: "भंडारा • Bhandara", subtitle: "Annadanam — Feed the Hungry", image_url: "/images/donations/bhandara-annadanam.jpg", impactStatement: "₹101 feeds 10 pilgrims with a hot meal", donors_count: 1248 },
+  { category: "gau-seva", title: "गौ सेवा • Gau Seva", subtitle: "Desi Cow Protection & Care", image_url: "/images/donations/gau-seva.png", impactStatement: "₹101 feeds a rescued cow for a day", donors_count: 984 },
+  { category: "mandir-seva", title: "मंदिर सेवा • Mandir Seva", subtitle: "Ancient Temple Restoration", image_url: "/images/donations/mandir-seva.jpg", impactStatement: "₹101 lights sanctuary lamps for 10 days", donors_count: 788 },
+  { category: "nadi-seva", title: "नदी सेवा • Nadi Seva", subtitle: "Sacred River & Ghat Cleanup", image_url: "/images/donations/nadi-seva.jpg", impactStatement: "₹101 clears 50m of sacred riverbank", donors_count: 427 },
+  { category: "vriddha-seva", title: "वृद्ध सेवा • Vriddha Seva", subtitle: "Elderly Dignity & Care Homes", image_url: "/images/donations/vriddha-seva.png", impactStatement: "₹101 feeds an elder for a day", donors_count: 543 },
 ]
 
 export function DonationSection() {
@@ -32,10 +35,8 @@ export function DonationSection() {
           .order("display_order", { ascending: true })
           .limit(8)
 
-        // Filter out any redundant/deactivated causes
-        const validData = (data || []).filter(s => ![
-          'janwar-seva', 'gav-seva', 'vidya-daan', 'vriksha-seva', 'swasthya-seva'
-        ].includes(s.category)).slice(0, 5)
+        // Only show spiritual sevas — exclude disaster relief (shown in UrgentReliefBanner) and deactivated causes
+        const validData = (data || []).filter(s => !EXCLUDED_CATEGORIES.includes(s.category)).slice(0, 5)
 
         if (error || validData.length === 0) {
           setSevas(STATIC_SEVAS)
@@ -52,29 +53,29 @@ export function DonationSection() {
   }, [])
 
   return (
-    <section className="w-full py-8 bg-gradient-to-b from-transparent to-[var(--color-saffron-50)]/30 dark:to-[var(--color-saffron-500)]/5">
+    <section className="w-full py-8 bg-gradient-to-b from-[var(--color-saffron-50)]/20 to-[var(--color-saffron-50)]/40 dark:from-[var(--color-saffron-500)]/5 dark:to-[var(--color-saffron-500)]/8">
       <div className="container mx-auto px-4 max-w-6xl">
         {/* Header */}
         <div className="flex items-center justify-between mb-6">
           <div>
             <div className="flex items-center gap-2 mb-1">
-              <div className="flex items-center gap-1.5 bg-red-500/10 text-red-600 dark:text-red-400 text-xs font-bold px-2.5 py-1 rounded-full border border-red-500/20">
-                <span className="w-2 h-2 rounded-full bg-red-500 animate-pulse" />
-                Emergency Relief & Seva
+              <div className="flex items-center gap-1.5 bg-[var(--color-saffron-500)]/10 text-[var(--color-saffron-500)] text-xs font-bold px-2.5 py-1 rounded-full border border-[var(--color-saffron-500)]/20">
+                <Flame className="w-3 h-3" />
+                Nitya Seva — Ongoing Spiritual Causes
               </div>
             </div>
             <h2 className="text-3xl md:text-4xl font-bold font-[var(--font-heading)] text-[var(--color-mandir-text)]">
-              मानव सेवा एवं राहत कोष
+              दिव्य सेवा एवं दान
             </h2>
             <p className="text-sm text-[var(--color-mandir-text-muted)] mt-1">
-              Disaster Relief & Divine Seva — Turning Compassion Into Direct On-Ground Action
+              Sacred Sevas — Bhandara, Gau Seva, Mandir Sanrakshan &amp; More. Earn Merit. Transform Lives.
             </p>
           </div>
           <Link
             href="/donate"
             className="hidden md:flex items-center gap-1 text-sm font-medium text-[var(--color-saffron-400)] hover:text-[var(--color-saffron-500)] transition-colors shrink-0"
           >
-            सभी देखें | View All <ArrowRight className="ml-1 h-4 w-4" />
+            सभी सेवाएं | View All <ArrowRight className="ml-1 h-4 w-4" />
           </Link>
         </div>
 

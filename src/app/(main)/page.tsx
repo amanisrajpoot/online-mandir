@@ -1,4 +1,4 @@
-import { HeroBanner } from "@/components/home/HeroBanner"
+﻿import { HeroBanner } from "@/components/home/HeroBanner"
 import { FestivalCountdown } from "@/components/home/FestivalCountdown"
 import { PromoBanners } from "@/components/home/PromoBanners"
 import Script from "next/script"
@@ -10,6 +10,7 @@ const TrendingPujas = dynamic(() => import("@/components/home/TrendingPujas").th
 const ChadhavaQuickSelect = dynamic(() => import("@/components/home/ChadhavaQuickSelect").then(mod => mod.ChadhavaQuickSelect))
 const PanchangWidget = dynamic(() => import("@/components/home/PanchangWidget").then(mod => mod.PanchangWidget))
 const DonationSection = dynamic(() => import("@/components/home/DonationSection").then(mod => mod.DonationSection))
+const UrgentReliefBanner = dynamic(() => import("@/components/home/UrgentReliefBanner").then(mod => mod.UrgentReliefBanner))
 
 export default function Home() {
   const websiteJsonLd = {
@@ -26,7 +27,7 @@ export default function Home() {
 
   return (
     <div className="flex flex-col min-h-screen">
-      <h1 className="sr-only">Vandanam - Online Puja, Chadhava & Spiritual Services</h1>
+      <h1 className="sr-only">Vandanam — Online Puja, Chadhava, Disaster Relief &amp; Spiritual Seva</h1>
       <Script
         id="json-ld"
         type="application/ld+json"
@@ -35,23 +36,27 @@ export default function Home() {
       <HeroBanner />
       <FestivalCountdown position="after_hero" />
       <PromoBanners position="after_hero" />
-      
+
       <CurrentOrders />
       <TempleCarousel />
       <FestivalCountdown position="after_temples" />
       <PromoBanners position="after_temples" />
-      
+
       <TrendingPujas />
       <FestivalCountdown position="after_pujas" />
       <PromoBanners position="after_pujas" />
-      
+
+      {/* Urgent Disaster Relief — shown before spiritual sevas */}
+      <UrgentReliefBanner />
+
+      {/* Spiritual Sevas */}
       <DonationSection />
-      
+
       <ChadhavaQuickSelect />
       <PanchangWidget />
-      
+
       <PromoBanners position="above_footer" />
-      
+
       {/* Extra padding at the bottom for mobile nav */}
       <div className="h-16 md:h-0"></div>
     </div>
