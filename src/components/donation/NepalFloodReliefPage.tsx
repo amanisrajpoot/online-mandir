@@ -30,6 +30,7 @@ import { createClient } from "@/lib/supabase/client"
 interface NepalFloodReliefPageProps {
   initialDonorsCount?: number
   initialTotalRaised?: number
+  goalAmount?: number
 }
 
 // Preset donation options with tangible on-ground impact
@@ -110,8 +111,9 @@ const GALLERY_IMAGES = [
 ]
 
 export function NepalFloodReliefPage({
-  initialDonorsCount = 1840,
-  initialTotalRaised = 924500
+  initialDonorsCount = 23,
+  initialTotalRaised = 24500,
+  goalAmount = 1000000,
 }: NepalFloodReliefPageProps) {
   const supabase = createClient()
 
@@ -401,7 +403,7 @@ export function NepalFloodReliefPage({
                 <div className="absolute top-0 left-0 right-0 h-1.5 bg-gradient-to-r from-red-600 via-rose-500 to-amber-500" />
 
                 {/* Form Header */}
-                <div className="mb-6">
+                <div className="mb-5">
                   <div className="flex items-center justify-between mb-1.5">
                     <span className="text-xs font-bold uppercase tracking-wider text-red-600 dark:text-red-400 flex items-center gap-1">
                       <span className="w-2 h-2 rounded-full bg-red-600 animate-ping" /> Instant Relief Daan
@@ -417,6 +419,42 @@ export function NepalFloodReliefPage({
                     Your contribution directly supplies meals, medicines & dry tents tonight.
                   </p>
                 </div>
+
+                {/* ── Live Funding Progress Bar ── */}
+                {(() => {
+                  const pct = Math.min(Math.round((initialTotalRaised / goalAmount) * 100), 100)
+                  return (
+                    <div className="mb-5 p-4 rounded-2xl bg-gradient-to-br from-red-500/10 via-rose-500/5 to-amber-500/10 border border-red-500/20">
+                      <div className="flex items-end justify-between mb-1.5">
+                        <div>
+                          <span className="text-lg font-extrabold text-[var(--color-mandir-text)]">
+                            ₹{initialTotalRaised.toLocaleString("en-IN")}
+                          </span>
+                          <span className="text-xs text-[var(--color-mandir-text-muted)] ml-1">
+                            raised of ₹{(goalAmount / 100000).toFixed(0)} Lakh goal
+                          </span>
+                        </div>
+                        <span className="text-xs font-bold text-red-600 dark:text-red-400">{pct}%</span>
+                      </div>
+                      {/* Bar */}
+                      <div className="h-2.5 w-full rounded-full bg-[var(--color-mandir-border)] overflow-hidden">
+                        <div
+                          className="h-full rounded-full bg-gradient-to-r from-red-500 via-rose-500 to-amber-500 transition-all duration-700"
+                          style={{ width: `${Math.max(pct, 2)}%` }}
+                        />
+                      </div>
+                      <div className="flex items-center justify-between mt-1.5 text-[11px] text-[var(--color-mandir-text-muted)]">
+                        <span className="flex items-center gap-1">
+                          <Users className="w-3 h-3" />
+                          <strong className="text-[var(--color-mandir-text)]">{initialDonorsCount.toLocaleString("en-IN")}</strong> donors have contributed
+                        </span>
+                        <span className="text-emerald-600 dark:text-emerald-400 font-semibold">
+                          ₹{(goalAmount - initialTotalRaised).toLocaleString("en-IN")} still needed
+                        </span>
+                      </div>
+                    </div>
+                  )
+                })()}
 
                 {/* Optional Community / Login Prompt */}
                 {!currentUser ? (

@@ -37,6 +37,17 @@ export async function POST(request: Request) {
         .single();
 
       if (updatedOrder) {
+        // Sync donation totals from real data (belt-and-suspenders alongside DB trigger)
+        if (type === 'donation' && updatedOrder.donation_id) {
+          try {
+            await supabaseAdmin.rpc('sync_donation_totals', {
+              p_donation_id: updatedOrder.donation_id,
+            });
+          } catch (syncErr) {
+            console.error('sync_donation_totals RPC Error:', syncErr);
+          }
+        }
+
         // Fetch email from Auth if user_id exists
         let authEmail = null;
         if (type === 'donation' && updatedOrder.donor_message?.includes('| EMAIL:')) {

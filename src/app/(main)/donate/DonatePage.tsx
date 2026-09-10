@@ -9,14 +9,14 @@ import { SevaCard } from "@/components/home/SevaCard"
 // Hardcoded fallback (same as STATIC_SEVAS but all 10)
 // Hardcoded fallback with relief causes first and dedicated authentic images
 const STATIC_SEVAS = [
-  { category: "nepal-flood-relief", title: "नेपाल बाढ़ राहत • Nepal Flood Relief", subtitle: "Emergency Flash Flood Relief & Humanitarian Aid", image_url: "/images/nepal-flood/nepal-flood-hero.jpg", impact_statement: "₹101 feeds a survivor • ₹501 sends emergency nutrition & blankets", donors_count: 1840, is_urgent: true, type: "disaster" },
-  { category: "wayanad-relief", title: "वायनाड भूस्खलन एवं बाढ़ राहत • Wayanad Disaster Relief", subtitle: "Emergency Landslide & Flood Relief in Kerala", image_url: "/images/donations/wayanad-relief.jpg", impact_statement: "₹101 provides 1 warm meal • ₹1,001 sends emergency family essentials", donors_count: 340, is_urgent: true, type: "disaster" },
-  { category: "assam-flood-relief", title: "असम ब्रह्मपुत्र बाढ़ राहत • Assam Flood Relief", subtitle: "Urgent Monsoon Flood Relief & Boat Rescue Rations", image_url: "/images/donations/assam-flood-relief.jpg", impact_statement: "₹101 supplies drinking water & biscuits • ₹1,001 sends flood medical kit", donors_count: 195, is_urgent: true, type: "disaster" },
-  { category: "bhandara", title: "भंडारा • Bhandara", subtitle: "Annadanam — Feed the Hungry", image_url: "/images/donations/bhandara-annadanam.jpg", impact_statement: "₹101 feeds 10 people • ₹501 feeds 50 people", donors_count: 1248, type: "seva" },
-  { category: "gau-seva", title: "गौ सेवा • Gau Seva", subtitle: "Cow Protection & Care", image_url: "/images/donations/gau-seva.png", impact_statement: "₹101 feeds a cow for a day", donors_count: 984, type: "seva" },
-  { category: "vriddha-seva", title: "वृद्ध आश्रम सेवा • Vriddha Seva", subtitle: "Care for the Elderly", image_url: "/images/donations/vriddha-seva.png", impact_statement: "₹101 provides a day's nutritious meal • ₹251 covers medical checkups", donors_count: 543, type: "seva" },
-  { category: "mandir-seva", title: "मंदिर सेवा • Mandir Seva", subtitle: "Temple Restoration & Maintenance", image_url: "/images/donations/mandir-seva.jpg", impact_statement: "₹101 sponsors sanctum oil & diya • ₹501 restores ancient stone carving", donors_count: 788, type: "seva" },
-  { category: "nadi-seva", title: "नदी सेवा • Nadi Seva", subtitle: "Sacred River Cleanup", image_url: "/images/donations/nadi-seva.jpg", impact_statement: "₹101 clears 50m of sacred riverbank • ₹501 equips ghat cleanup team", donors_count: 427, type: "seva" },
+  { category: "nepal-flood-relief", title: "नेपाल बाढ़ राहत • Nepal Flood Relief", subtitle: "Emergency Flash Flood Relief & Humanitarian Aid", image_url: "/images/nepal-flood/nepal-flood-hero.jpg", impact_statement: "₹101 feeds a survivor • ₹501 sends emergency nutrition & blankets", donors_count: 23, total_raised: 24500, goal_amount: 1000000, is_urgent: true, type: "disaster" },
+  { category: "wayanad-relief", title: "वायनाड भूस्खलन एवं बाढ़ राहत • Wayanad Disaster Relief", subtitle: "Emergency Landslide & Flood Relief in Kerala", image_url: "/images/donations/wayanad-relief.jpg", impact_statement: "₹101 provides 1 warm meal • ₹1,001 sends emergency family essentials", donors_count: 18, total_raised: 15200, goal_amount: 500000, is_urgent: true, type: "disaster" },
+  { category: "assam-flood-relief", title: "असम ब्रह्मपुत्र बाढ़ राहत • Assam Flood Relief", subtitle: "Urgent Monsoon Flood Relief & Boat Rescue Rations", image_url: "/images/donations/assam-flood-relief.jpg", impact_statement: "₹101 supplies drinking water & biscuits • ₹1,001 sends flood medical kit", donors_count: 11, total_raised: 9800, goal_amount: 300000, is_urgent: true, type: "disaster" },
+  { category: "bhandara", title: "भंडारा • Bhandara", subtitle: "Annadanam — Feed the Hungry", image_url: "/images/donations/bhandara-annadanam.jpg", impact_statement: "₹101 feeds 10 people • ₹501 feeds 50 people", donors_count: 0, total_raised: 0, goal_amount: 0, type: "seva" },
+  { category: "gau-seva", title: "गौ सेवा • Gau Seva", subtitle: "Cow Protection & Care", image_url: "/images/donations/gau-seva.png", impact_statement: "₹101 feeds a cow for a day", donors_count: 0, total_raised: 0, goal_amount: 0, type: "seva" },
+  { category: "vriddha-seva", title: "वृद्ध आश्रम सेवा • Vriddha Seva", subtitle: "Care for the Elderly", image_url: "/images/donations/vriddha-seva.png", impact_statement: "₹101 provides a day's nutritious meal • ₹251 covers medical checkups", donors_count: 0, total_raised: 0, goal_amount: 0, type: "seva" },
+  { category: "mandir-seva", title: "मंदिर सेवा • Mandir Seva", subtitle: "Temple Restoration & Maintenance", image_url: "/images/donations/mandir-seva.jpg", impact_statement: "₹101 sponsors sanctum oil & diya • ₹501 restores ancient stone carving", donors_count: 0, total_raised: 0, goal_amount: 0, type: "seva" },
+  { category: "nadi-seva", title: "नदी सेवा • Nadi Seva", subtitle: "Sacred River Cleanup", image_url: "/images/donations/nadi-seva.jpg", impact_statement: "₹101 clears 50m of sacred riverbank • ₹501 equips ghat cleanup team", donors_count: 0, total_raised: 0, goal_amount: 0, type: "seva" },
 ]
 
 interface DonatePageProps {
@@ -25,6 +25,11 @@ interface DonatePageProps {
 
 export function DonatePage({ sevas }: DonatePageProps) {
   const [activeTab, setActiveTab] = React.useState<"all" | "disaster" | "seva">("all")
+
+  // Compute live aggregate stats from real DB data
+  const liveTotalRaised = (sevas.length > 0 ? sevas : STATIC_SEVAS).reduce((sum, s) => sum + (Number(s.total_raised) || 0), 0)
+  const liveTotalDonors = (sevas.length > 0 ? sevas : STATIC_SEVAS).reduce((sum, s) => sum + (Number(s.donors_count) || 0), 0)
+  const liveActiveCauses = (sevas.length > 0 ? sevas : STATIC_SEVAS).length
 
   // Filter out deactivated categories from incoming DB sevas if present
   const validSevas = (sevas || []).filter(s => ![
@@ -101,9 +106,9 @@ export function DonatePage({ sevas }: DonatePageProps) {
             className="flex flex-wrap justify-center gap-6 mt-8 text-white"
           >
             {[
-              { value: "1,840+", label: "Donors & Changemakers" },
-              { value: "₹14.8 Lakhs+", label: "Relief & Seva Raised" },
-              { value: "8", label: "Active Causes & Missions" },
+              { value: liveTotalDonors > 0 ? `${liveTotalDonors.toLocaleString("en-IN")}+` : "—", label: "Donors & Changemakers" },
+              { value: liveTotalRaised > 0 ? `₹${(liveTotalRaised / 100000).toFixed(1)} Lakhs+` : "—", label: "Relief & Seva Raised" },
+              { value: liveActiveCauses.toString(), label: "Active Causes & Missions" },
             ].map((stat) => (
               <div key={stat.label} className="text-center">
                 <div className="text-2xl md:text-3xl font-extrabold">{stat.value}</div>

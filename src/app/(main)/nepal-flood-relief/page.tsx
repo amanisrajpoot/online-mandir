@@ -2,6 +2,9 @@ import type { Metadata } from "next"
 import { createClient } from "@/lib/supabase/server"
 import { NepalFloodReliefPage } from "@/components/donation/NepalFloodReliefPage"
 
+// Revalidate every 60 seconds so live totals stay fresh without a full rebuild
+export const revalidate = 60
+
 export const metadata: Metadata = {
   title: "Nepal Flood Relief Fund — Emergency Disaster Aid | Vandanam",
   description: "Nepal is devastated. Flash floods have swept away entire Himalayan villages overnight. Support our on-ground teams sending emergency meals, drinking water, medical kits, and shelter to stranded families in Timure & Syabrubesi.",
@@ -30,14 +33,15 @@ export default async function Page() {
 
   const { data: seva } = await supabase
     .from("donations")
-    .select("donors_count, total_raised")
+    .select("donors_count, total_raised, goal_amount")
     .eq("category", "nepal-flood-relief")
     .single()
 
   return (
     <NepalFloodReliefPage
-      initialDonorsCount={seva?.donors_count || 1840}
-      initialTotalRaised={Number(seva?.total_raised) || 924500}
+      initialDonorsCount={seva?.donors_count ?? 23}
+      initialTotalRaised={Number(seva?.total_raised) || 24500}
+      goalAmount={Number(seva?.goal_amount) || 1000000}
     />
   )
 }
