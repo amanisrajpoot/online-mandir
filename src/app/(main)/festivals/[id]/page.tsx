@@ -15,15 +15,46 @@ export async function generateMetadata({ params }: { params: Promise<{ id: strin
   const festivalId = decodeId(resolvedParams.id)
   const { data: festival } = await supabase
     .from('festival_countdown')
-    .select('name, description')
+    .select('*')
     .eq('id', festivalId)
     .single()
 
   if (!festival) return { title: 'Festival Not Found | Vandanam' }
 
+  const title = `${festival.name} | Special Pujas & Offerings | Vandanam`
+  const description = festival.description?.substring(0, 160) || `Celebrate ${festival.name} with special pujas and offerings at Vandanam.`
+  const imageUrl = festival.image_url || '/images/hero_banner_panchang.png'
+  const canonicalUrl = `https://www.vandanam.online/festivals/${resolvedParams.id}`
+
   return {
-    title: `${festival.name} | Special Pujas & Offerings | Vandanam`,
-    description: festival.description,
+    title,
+    description,
+    openGraph: {
+      title,
+      description,
+      url: canonicalUrl,
+      siteName: 'Vandanam',
+      images: [
+        {
+          url: imageUrl,
+          width: 1200,
+          height: 630,
+          alt: festival.name,
+        },
+      ],
+      locale: 'en_IN',
+      type: 'website',
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title,
+      description,
+      images: [imageUrl],
+      creator: '@vandanam',
+    },
+    other: {
+      'whatsapp:image': imageUrl,
+    },
   }
 }
 

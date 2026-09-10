@@ -1,41 +1,177 @@
-# See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
+# Dependencies
+node_modules/
 
-# dependencies
-/node_modules
-/.pnp
-.pnp.*
-.yarn/*
-!.yarn/patches
-!.yarn/plugins
-!.yarn/releases
-!.yarn/versions
+# Build outputs
+dist/
+build/
+.next/
+out/
 
-# testing
-/coverage
+# Environment variables
+.env
+.env.local
+*.env.*
 
-# next.js
-/.next/
-/out/
+# IDE specific
+.vscode/
+.idea/
+*.swp
+*.swo
 
-# production
-/build
+# Python specific
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+*.so
+.coverage
+htmlcov/
+.coverage.*
+.python-version
 
-# misc
+# Logs
+*.log
+
+# OS generated
 .DS_Store
-*.pem
+Thumbs.db
 
-# debug
+# Temporary files
+*.tmp
+*.temp
+*.bak
+
+# Coverage
+coverage/
+htmlcov/
+*.coverage
+
+# MyPy
+.mypy_cache/
+.pytest_cache/
+
+# Distribution / packaging
+.Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# Testing
+.pytest_cache/
+.hypothesis/
+
+# Node.js
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
-.pnpm-debug.log*
 
-# env files (can opt-in for committing if needed)
-.env*
+# Compiled Binary files
+*.exe
+*.dll
+*.so
+*.dylib
 
-# vercel
-.vercel
+# Compressed
+*.zip
+*.gz
+*.tar
+*.tgz
+*.bz2
+*.xz
+*.7z
+*.rar
+*.zst
+*.lz4
+*.lzh
+*.cab
+*.arj
+*.rpm
+*.deb
+*.Z
+*.lz
+*.lzo
 
-# typescript
+# System
+.DS_Store
+Thumbs.db
+ehthumbs.db
+Icon?
+apidoc/
+doc/
+docs/
+_site/
+_site/*
+_site/**
+*.DS_Store
+.DS
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Next.js
+.next
+out/
+package-lock.json
+yarn.lock
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+node_modules/
+
+# TypeScript
 *.tsbuildinfo
 next-env.d.ts
+
+# General
+.DS_Store
+.git
+.gitignore
+README.md
+package.json
+package-lock.json
+yarn.lock
+node_modules/
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+next.config.js
+public/
+src/
+.eslintcache
+.svelte-kit/
+.output/
+.svelte-kit/**
+.output/**
+.vercel/**
+.vercel/*
+.vercel/**
+.vercel/**/*
+!.vercel/README.md
+!.vercel/.gitignore
+
+# Original rules preserved
+*.log

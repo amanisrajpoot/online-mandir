@@ -26,6 +26,8 @@ export async function generateMetadata({ params }: { params: Promise<{ id: strin
 
   const title = `${puja.title} at ${puja.temples?.name || 'Sacred Temple'}`
   const description = puja.description?.substring(0, 160) || `Book ${puja.title} online at ${puja.temples?.name}.`
+  const imageUrl = puja.image_url || '/images/prasad_thali.png'
+  const canonicalUrl = `https://www.vandanam.online/pujas/${id}`
 
   return {
     title,
@@ -33,14 +35,28 @@ export async function generateMetadata({ params }: { params: Promise<{ id: strin
     openGraph: {
       title,
       description,
-      images: [puja.image_url || '/images/prasad_thali.png'],
+      url: canonicalUrl,
+      siteName: 'Vandanam',
+      images: [
+        {
+          url: imageUrl,
+          width: 1200,
+          height: 630,
+          alt: puja.title,
+        },
+      ],
+      locale: 'en_IN',
       type: 'website',
     },
     twitter: {
       card: 'summary_large_image',
       title,
       description,
-      images: [puja.image_url || '/images/prasad_thali.png'],
+      images: [imageUrl],
+      creator: '@vandanam',
+    },
+    other: {
+      'whatsapp:image': imageUrl,
     },
   }
 }
